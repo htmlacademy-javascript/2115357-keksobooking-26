@@ -24,11 +24,11 @@ const getRandomNumber  = (from = false, to = false, floatsNum = 0) => {
 
   } else {
 
-    const getFloatsNumber = s => s.indexOf('.') > 0 ? s.length - 2 /* 2 = 0. */ : 0;
+    const getFloatsNumber = (s) => s.indexOf('.') > 0 ? s.length - 2 /* 2 = 0. */ : 0;
 
     /* +1 - avoids +e format */
-    let fromFloatsNum = getFloatsNumber((from + 1).toString());
-    let toFloatsNum = getFloatsNumber((to + 1).toString());
+    const fromFloatsNum = getFloatsNumber((from + 1).toString());
+    const toFloatsNum = getFloatsNumber((to + 1).toString());
 
     if (!fromFloatsNum && !toFloatsNum) {
 

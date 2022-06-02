@@ -46,7 +46,7 @@ const getRandomNumber  = (from = false, to = false, floatsNum = 0) => {
       s = (s + 1).toString();
 
       /* number of digits after the period */
-      return s.indexOf('.') > 0 ? s.length - 2 : 0; /* -2 = 0. */
+      return s.indexOf('.') > 0 ? s.length - s.indexOf('.') - 1 : 0;
 
     };
 
@@ -92,6 +92,8 @@ getRandomNumber();
 console.log(getRandomNumber('dd', 1236));
 console.log(getRandomNumber(1, []));
 console.log(getRandomNumber(0.01000, 0.001, {}));
+
+console.log(getRandomNumber(139.70001, 139.80000, 5));
 
 console.log(getRandomNumber(0, 13));
 console.log(getRandomNumber(13, 1236));

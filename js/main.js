@@ -87,17 +87,3 @@ const getRandomNumber  = (from = false, to = false, floatsNum = 0) => {
 };
 
 getRandomNumber();
-
-/*console.log(getRandomNumber());
-console.log(getRandomNumber('dd', 1236));
-console.log(getRandomNumber(1, []));
-console.log(getRandomNumber(0.01000, 0.001, {}));
-
-console.log(getRandomNumber(139.70001, 139.80000, 5));
-
-console.log(getRandomNumber(0, 13));
-console.log(getRandomNumber(13, 1236));
-console.log(getRandomNumber(0.01000, 0.001, 3));
-console.log(getRandomNumber(0.01000, 0.0001, 4));
-console.log(getRandomNumber(0.000000000009, -0.00003, 23));
-console.log(getRandomNumber(-2, 0.000000000009));*/

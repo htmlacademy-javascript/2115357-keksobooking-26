@@ -66,3 +66,5 @@ const getRandomNumber  = (from = false, to = false, floatsNum = 0) => {
     Math.floor(result);
 
 };
+
+getRandomNumber();

@@ -17,8 +17,7 @@ const getRandomNumber  = (from = false, to = false, floatsNum = 0) => {
   /* i - an increment to calculate the range of numbers,
   !floatsNum ? i = 1 : i = 0.001, or 0,00001 etc. */
   let i = 1;
-
-  const PowX = 10;
+  const pow10x = 10;
 
   /* normalize the order of the vars */
   from = Math.abs(from);
@@ -58,13 +57,13 @@ const getRandomNumber  = (from = false, to = false, floatsNum = 0) => {
 
     if (!fromFloatsNum && !toFloatsNum) {
 
-      /* if none of the vars is a float, gets it back to ints, i=1 */
+      /* if none of the vars is a float, gets it back to ints, i remains 1 */
       floatsNum = 0;
 
     } else {
 
       /* gets the value of the increment */
-      i = fromFloatsNum > toFloatsNum ? PowX ** -fromFloatsNum : PowX ** -toFloatsNum;
+      i = fromFloatsNum > toFloatsNum ? pow10x ** -fromFloatsNum : pow10x ** -toFloatsNum;
 
     }
 
@@ -84,7 +83,7 @@ const getRandomNumber  = (from = false, to = false, floatsNum = 0) => {
   result = result[Math.floor(Math.random() * result.length)];
 
   /* returns a rounded float or a whole int */
-  return floatsNum ? Math.round(result * PowX ** floatsNum) / PowX ** floatsNum : result;
+  return floatsNum ? Math.round(result * pow10x ** floatsNum) / pow10x ** floatsNum : result;
 
 };
 

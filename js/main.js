@@ -18,6 +18,8 @@ const getRandomNumber  = (from = false, to = false, floatsNum = 0) => {
   !floatsNum ? i = 1 : i = 0.001, or 0,00001 etc. */
   let i = 1;
 
+  const PowX = 10;
+
   /* normalize the order of the vars */
   from = Math.abs(from);
   to = Math.abs(to);
@@ -62,7 +64,7 @@ const getRandomNumber  = (from = false, to = false, floatsNum = 0) => {
     } else {
 
       /* gets the value of the increment */
-      i = fromFloatsNum > toFloatsNum ? 10 ** -fromFloatsNum : 10 ** -toFloatsNum;
+      i = fromFloatsNum > toFloatsNum ? PowX ** -fromFloatsNum : PowX ** -toFloatsNum;
 
     }
 
@@ -82,7 +84,7 @@ const getRandomNumber  = (from = false, to = false, floatsNum = 0) => {
   result = result[Math.floor(Math.random() * result.length)];
 
   /* returns a rounded float or a whole int */
-  return floatsNum ? Math.round(result * 10 ** floatsNum) / 10 ** floatsNum : result;
+  return floatsNum ? Math.round(result * PowX ** floatsNum) / PowX ** floatsNum : result;
 
 };
 

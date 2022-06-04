@@ -1,3 +1,4 @@
+/* v2.0 */
 const getRandomNumber  = (from = false, to = false, floatsNum = 0) => {
 
   /* if all vars are numbers */
@@ -67,4 +68,74 @@ const getRandomNumber  = (from = false, to = false, floatsNum = 0) => {
 
 };
 
-getRandomNumber();
+/* v1.0 */
+function getRandomTextString() {
+
+  if (
+    !this.wordsLenFr ||
+    !this.wordsLenTo ||
+    !this.wordsNumFr ||
+    !this.wordsNumTo ||
+    !this.sentencesNumFr ||
+    !this.sentencesNumTo
+  ) {
+    return '';
+  };
+
+  /* set the symbols set */
+  this.abc = 'абвигдаеёожзиайоекалимнопрсеотуиафхцчешощоиаъеыьэиаеюя';
+
+  if (navigator.language !== 'ru') {
+    this.abc = 'abacduefeghiyjkolmnuoeupqaooauseaataueyovowuaexayaoezu';
+  };
+
+  const getWord = () => {
+
+    const wordLen = getRandomNumber(this.wordsLenFr, this.wordsLenTo) || 10;
+
+    const word = [...this.abc].filter((el, id) => [...[...this.abc].keys()]
+    .sort(() => Math.random() - 0.5)
+    .filter((el, id) => id <= wordLen)
+    .includes(id));
+
+    return word.length && word.join('') || getWord();
+
+  };
+
+  const getSentence = () => {
+
+    const end = ['.', '?', '!'];
+
+    const wordsNum = getRandomNumber(this.wordsNumFr, this.wordsNumTo) || 5;
+
+    const sentence = Array.from({ length: wordsNum }, getWord);
+
+    sentence[0] = sentence[0].slice(0, 1).toUpperCase() + sentence[0].slice(1);
+
+    /* insert some commas */
+    sentence.forEach((el, id) => {
+
+      sentence[id] += id !== sentence.length - 1 && getRandomNumber(0, 20) < 2 && ',';
+
+    });
+
+    /* add . ! ? at the end */
+    return `${sentence.join(' ')}${getRandomNumber(0, 20) < 15 ?
+      end[0] :
+        getRandomNumber(0, 10) < 7 ? end[2] :
+          end[1]}`;
+  };
+
+  const getText = () => {
+
+    const sentenceNum = getRandomNumber(this.sentencesNumFr, this.sentencesNumTo) || 3;
+
+    const text = Array.from({ length: sentenceNum }, getSentence);
+
+    return text.join(' ');
+
+  };
+
+  return getText();
+
+};

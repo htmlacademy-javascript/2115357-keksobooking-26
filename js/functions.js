@@ -1,5 +1,5 @@
+/* random number generator v2.1 */
 const getRandomNumber  = (from = false, to = false, floatsNum = 0) => {
-  /* v2.1 */
   /* if all vars are numbers */
   if (typeof from !== 'number' || typeof to !== 'number') {
     return NaN;
@@ -43,10 +43,9 @@ const getRandomNumber  = (from = false, to = false, floatsNum = 0) => {
     Math.round(result * getXtoPow(floatsNum)) / getXtoPow(floatsNum) :
     Math.floor(result);
 };
-export {getRandomNumber};
 
+/* random text generator v2.2 */
 class RandomTextGen {
-  /* v2.2 */
   /* call with (* - required)
     Object.assign(objName.params, {
       wordsLenFr:        *number
@@ -168,4 +167,6 @@ const getRandomText = (params = false) => {
   Object.assign(randomText.params, params);
   return randomText.getText();
 };
+
+export {getRandomNumber};
 export {getRandomText};

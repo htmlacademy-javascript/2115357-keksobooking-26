@@ -4,7 +4,7 @@ import   {getRandomNumber}    from './functions.js';
 
 /* get api data v1.0 */
 const getAPIData = () => {
-  return new Promise((sR)=> {
+  const res = new Promise((sR)=> {
     setTimeout(() => {
       const ADS_DATA = JSON.stringify({
         PARAM: {
@@ -108,6 +108,7 @@ const getAPIData = () => {
       sR(ADS_DATA);
     }, getRandomNumber(100, 1500));
   });
+  return res;
 };
 
 export {getAPIData};

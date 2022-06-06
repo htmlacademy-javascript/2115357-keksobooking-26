@@ -11,8 +11,8 @@ let ADS_DATA = {};
 const ADS_NUMBER_MIN = 1;
 const ADS_NUMBER_MAX = 10;
 const getAdsNum = () => {
-  const adsNum = ADS_NUMBER_MAX - ADS_NUMBER_MIN + 1;
-  return adsNum > 0 && [ADS_NUMBER_MIN, adsNum] || 0;
+  const res = ADS_NUMBER_MAX - ADS_NUMBER_MIN + 1;
+  return res > 0 && [ADS_NUMBER_MIN, res] || 0;
 };
 const adsNum = getAdsNum();
 /* gets TEMP ads number */
@@ -111,12 +111,8 @@ const getFeatures = () => {
       .includes(String(id)));
   return res.length && res || ADS_DATA.PROPERTY.features.names[0];
 };
-const getTitle = () => {
-  return getRandomText(ADS_DATA.PARAM.title);
-};
-const getDescription = () => {
-  return getRandomText(ADS_DATA.PARAM.description);
-};
+const getTitle = () => getRandomText(ADS_DATA.PARAM.title);
+const getDescription = () => getRandomText(ADS_DATA.PARAM.description);
 /* data procs functions END */
 
 /* ads data constructor START */

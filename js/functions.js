@@ -45,9 +45,7 @@ const getRandomNumber  = (from = false, to = false, floatsNum = 0) => {
 };
 
 /* get the language */
-const getLang = () => {
-  return navigator.language;
-};
+const getLang = () => navigator.language === 'ru' ? 'ru' : 'en';
 
 /* random text generator v2.2 */
 class RandomTextGen {

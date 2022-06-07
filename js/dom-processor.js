@@ -107,7 +107,7 @@ class Dom {
         value: 'map-canvas',
         selector: this.getSelector(1)[0],
       },
-    },
+    };
     this.CHILDREN = {
       popup: {
         title:        {

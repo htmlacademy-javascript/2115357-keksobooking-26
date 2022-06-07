@@ -13,6 +13,8 @@ const getAdsObject = () => {
       /* dom processing START */
       /* fill mapCanvas with card template*/
       domPropcessor(adsObject, 'fillContainerWithTemplate', 'card', 'mapCanvas');
+      /* active disable */
+      domPropcessor(false, 'pageDisable');
       /* dom processing END */
       /* ... futher ads processing  */
       rs(adsObject);

@@ -69,6 +69,7 @@ const LOCAL = {
 };
 
 /* DOM functions */
+import   { pageDisable }            from './dom-processor-js/page-disable.js';
 /* Dom class v1.0 */
 class Dom {
   constructor() {
@@ -407,6 +408,10 @@ const domPropcessor = (dataOriginal = false, ...params) => {
       typeof dataOriginal === 'object') {
         fillContainerWithTemplate(dataOriginal, params[1], params[2]);
       }
+      break;
+    case 'pageDisable':
+      /* pageDisable */
+      pageDisable();
       break;
     default:
       return null;

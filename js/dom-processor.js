@@ -92,11 +92,13 @@ class Dom {
         /* the new node gets a param with the content as value */
         /* content must be an array*/
         /* param[0] tag, 1 - attr */
-        content.length && content.forEach((el) => {
-          const clone = container.querySelector(params[0]) && container.querySelector(params[0]).cloneNode(true);
-          clone.setAttribute(params[1], el);
-          container.appendChild(clone);
-        });
+        if (content.length) {
+          content.forEach((el) => {
+            const clone = container.querySelector(params[0]) && container.querySelector(params[0]).cloneNode(true);
+            clone.setAttribute(params[1], el);
+            container.appendChild(clone);
+          });
+        }
         container.querySelectorAll(params[0])[0].remove();
       },
     };
@@ -181,23 +183,22 @@ class Dom {
     this.getSelector = this.getSelector.bind(this);
     this.getClassConnector = this.getClassConnector.bind(this);
     this.setTemplate = this.setTemplate.bind(this);
-  };
+  }
 
   getSelector(index) {
     return this.SELECTORS[index];
-  };
+  }
 
   getClassConnector(index) {
     return this.SELECTORS.classConnectors[index];
-  };
+  }
 
   getTemplateContent(template) {
     template.fragment.content = document
       .querySelector(`${template.selector[0]}${template[template.selector[1]]}`)
       .content
-      .querySelector(`${template.fragment.selector[0]}${template.fragment[template.fragment.selector[1]]}`)
-    ;
-  };
+      .querySelector(`${template.fragment.selector[0]}${template.fragment[template.fragment.selector[1]]}`);
+  }
 
   getFragmentChildren(template) {
     /* get fragment's children from the prepaired list,
@@ -205,13 +206,13 @@ class Dom {
     /* nodes that are not in the prepaired list
     or have empty data will be displaynoned */
     template.fragment.children = this.CHILDREN[template.fragment.thisCHILDREN];
-  };
+  }
 
   getContainer(containerName) {
     return this.CONTAINERS[containerName] && this.CONTAINERS[containerName].selector && this.CONTAINERS[containerName].value &&
     document.querySelector(`${this.CONTAINERS[containerName].selector}${this.CONTAINERS[containerName].value}`)
     || false;
-  };
+  }
 
   setTemplate(templateName) {
     /* select element */
@@ -224,13 +225,12 @@ class Dom {
     /* get template's "children" */
     this.getFragmentChildren(template);
     return template;
-  };
+  }
 
   hideNode(node) {
     node.style.display = 'none';
-  };
-
-};
+  }
+}
 const DOM = new Dom();
 
 /* data to DOM normalizer v1.0 */
@@ -264,13 +264,13 @@ const normalizeDataToDOM = (data, ...templates) => {
           case data.offer.rooms === LOCAL.numDeclen[21]:
           case data.offer.rooms === LOCAL.numDeclen[31]:
             data.templates[templName].rooms = `${data.offer.rooms}${LOCAL.lineJoin[1]}${LOCAL[LANG]['roomsWord'][LOCAL.numDeclen[1]]}`;
-          break;
+            break;
           case data.offer.rooms > LOCAL.numDeclen[1] && data.offer.rooms <= LOCAL.numDeclen[4]:
             data.templates[templName].rooms = `${data.offer.rooms}${LOCAL.lineJoin[1]}${LOCAL[LANG]['roomsWord'][LOCAL.numDeclen[4]]}`;
-          break;
+            break;
           case data.offer.rooms >= LOCAL.numDeclen[5]:
             data.templates[templName].rooms = `${data.offer.rooms}${LOCAL.lineJoin[1]}${LOCAL[LANG]['roomsWord'][LOCAL.numDeclen[5]]}`;
-          break;
+            break;
           default:
             data.templates[templName].rooms = '';
         }
@@ -279,13 +279,13 @@ const normalizeDataToDOM = (data, ...templates) => {
           case data.offer.guests === LOCAL.numDeclen[21]:
           case data.offer.guests === LOCAL.numDeclen[31]:
             data.templates[templName].guests = `${data.offer.guests}${LOCAL.lineJoin[1]}${LOCAL[LANG]['guestsWord'][1]}`;
-          break;
+            break;
           case data.offer.guests > LOCAL.numDeclen[1] && data.offer.guests <= LOCAL.numDeclen[4]:
             data.templates[templName].guests = `${data.offer.guests}${LOCAL.lineJoin[1]}${LOCAL[LANG]['guestsWord'][4]}`;
-          break;
+            break;
           case data.offer.guests >= LOCAL.numDeclen[5]:
             data.templates[templName].guests = `${data.offer.guests}${LOCAL.lineJoin[1]}${LOCAL[LANG]['guestsWord'][5]}`;
-          break;
+            break;
           default:
             data.templates[templName].guests = '';
         }
@@ -293,8 +293,7 @@ const normalizeDataToDOM = (data, ...templates) => {
           data.templates[templName].rooms && data.templates[templName].guests &&
             `${data.templates[templName].rooms}${LOCAL.lineJoin[1]}${LOCAL[LANG].for}${LOCAL.lineJoin[1]}${data.templates[templName].guests}${LOCAL.lineJoin[2]}`
           ||
-            ''
-        ;
+            '';
         delete data.templates[templName].rooms;
         delete data.templates[templName].guests;
         data.templates[templName].checkin = data.offer.checkin && `${LOCAL[LANG].checkin}${LOCAL.lineJoin[1]}${LOCAL[LANG].after}${LOCAL.lineJoin[3]}${LOCAL.lineJoin[1]}${data.offer.checkin}${LOCAL.lineJoin[2]}` || '';
@@ -303,14 +302,13 @@ const normalizeDataToDOM = (data, ...templates) => {
           data.templates[templName].checkin && data.templates[templName].checkout &&
             `${data.templates[templName].checkin}${LOCAL.lineJoin[1]}${data.templates[templName].checkout}`
           ||
-            ''
-        ;
+            '';
         delete data.templates[templName].checkin;
         delete data.templates[templName].checkout;
         data.templates[templName].features = data.offer.features.length && data.offer.features.join(`${LOCAL.lineJoin[0]}${LOCAL.lineJoin[1]}`) || '';
         data.templates[templName].photos = data.offer.photos.length && data.offer.photos || [];
         data.templates[templName].avatar = data.author.avatar && data.author.avatar || '';
-      break;
+        break;
       /* normalizes data for the 'card' template END */
     }
   });
@@ -326,13 +324,13 @@ const fillContainerWithTemplate = (dataOriginal, template, container) => {
   }
 
   const data = {};
+  let emptyCounter = 0;
   switch (template) {
     case 'card':
       /* set the template data */
       DOM.setTemplate(template);
       /* futher dataOriginal check if needed */
       /* TEMP CHANGE !! there's 10 ads at the moment, chose 1 !!TEMP CHANGE*/
-      let emptyCounter = 0;
       /* to be sure there's data in this ad */
       while (!emptyCounter) {
         Object.keys(data).forEach((el) => delete data[el]);
@@ -342,23 +340,25 @@ const fillContainerWithTemplate = (dataOriginal, template, container) => {
         Object.assign(data, normalizeDataToDOM(data, template));
         emptyCounter = Object.values(data.templates[template]).length;
       }
-    break;
+      break;
     default:
       return false;
   }
 
   /* TEMP DELETE!! Empty some fileds to check out dispalynone TEMP DELETE!!*/
   Object.keys(data.templates[template]).forEach((el, id, ar) => {
-    id === getRandomNumber(0, ar.length) && typeof data.templates[template][el] === 'string'
-    ? data.templates[template][el] = '' : false;
-    id === getRandomNumber(0, ar.length) && typeof data.templates[template][el] === 'object'
-    ? data.templates[template][el] = [] : false;
+    if (id === getRandomNumber(0, ar.length) && typeof data.templates[template][el] === 'string') {
+      data.templates[template][el] = '';
+    }
+    if (id === getRandomNumber(0, ar.length) && typeof data.templates[template][el] === 'object') {
+      data.templates[template][el] = [];
+    }
   });
   /* TEMP DELETE!! empty one filed to check out dispalynone TEMP DELETE!!*/
 
   const newNode = DOM.TEMPLATES[template].fragment.content.cloneNode(true);
   /* fill fragmentNodes with the normalized data START */
-  for (let index in DOM.TEMPLATES[template].fragment.children) {
+  for (const index in DOM.TEMPLATES[template].fragment.children) {
     /* .fragment.children[index] - index - (name of line: title, price etc.) is the bridge btw the data and the fragment node */
     const bridge = index;
     const bridgeSelector = [];
@@ -380,14 +380,17 @@ const fillContainerWithTemplate = (dataOriginal, template, container) => {
     /* params passed to cmd */
     const cmd = DOM.TEMPLATES[template].fragment.children[bridge].cmd[0] || false;
     const params = DOM.TEMPLATES[template].fragment.children[bridge].cmd[1] || false;
-    DOM.CMD[cmd] && data.templates[template][bridge] &&
+    if (typeof DOM.CMD[cmd] !== 'undefined' && data.templates[template][bridge]) {
       DOM.CMD[cmd](
         data.templates[template][bridge],
         newNode.querySelector(`[${bridgeSelector[0]}*="${bridgeSelector[1]}"]`),
         params
       );
+    }
     /* hide empty fields */
-    !data.templates[template][bridge] && DOM.hideNode(newNode.querySelector(`[${bridgeSelector[0]}*="${bridgeSelector[1]}"]`));
+    if (!data.templates[template][bridge]) {
+      DOM.hideNode(newNode.querySelector(`[${bridgeSelector[0]}*="${bridgeSelector[1]}"]`));
+    }
   }
   /* fill fragmentNodes with the normalized data END */
   container.appendChild(newNode);
@@ -400,10 +403,11 @@ const domPropcessor = (dataOriginal = false, ...params) => {
   switch (params[0]) {
     case 'fillContainerWithTemplate':
       /* params[1] template, params[2] container */
-      params[1] && params[2] && dataOriginal &&
-      typeof dataOriginal === 'object' &&
-      fillContainerWithTemplate(dataOriginal, params[1], params[2]);
-    break;
+      if (params[1] && params[2] && dataOriginal &&
+      typeof dataOriginal === 'object') {
+        fillContainerWithTemplate(dataOriginal, params[1], params[2]);
+      }
+      break;
     default:
       return null;
   }

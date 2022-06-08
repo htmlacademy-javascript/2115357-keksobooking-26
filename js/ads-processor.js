@@ -17,8 +17,8 @@ const getAdsObject = () => {
       /* !!! TEMP DELETE !!! */
       let enableEnable;
       let disableEnable;
-      let disable;
-      let enable;
+      let disable = '';
+      let enable = '';
       disable = () => {
         domProcessor(false, 'pageDisable');
         document.querySelector('.promo > h1').innerHTML = 'PAGE IS DISABLED<br>clearIntervals onClick';

@@ -69,15 +69,19 @@ const LOCAL = {
 };
 
 /* DOM functions */
+import   { pageDisable }            from './dom-processor-js/page-disable.js';
+import   { pageEnable }             from './dom-processor-js/page-enable.js';
 /* Dom class v1.0 */
 class Dom {
   constructor() {
     this.SELECTORS = {
+      0: ['', 'tag'],
       1: ['#', 'id'],
       2: ['.', 'class'],
       classConnectors: {
         1: '__',
         2: '--',
+        3: '-',
       },
     };
     this.CMD = {
@@ -101,11 +105,15 @@ class Dom {
         }
         container.querySelectorAll(params[0])[0].remove();
       },
-    };
-    this.CONTAINERS = {
-      mapCanvas: {
-        value: 'map-canvas',
-        selector: this.getSelector(1)[0],
+      getDOMNode: (selector, value) => document.querySelector(`${selector}${value}`) || false,
+      clearContainer: (container) => {
+        if (container.childNodes) {
+          [...container.childNodes].forEach((children, index) => {
+            if (typeof container.childNodes[index] !== 'undefined') {
+              container.childNodes[index].remove();
+            }
+          });
+        }
       },
     };
     this.CHILDREN = {
@@ -161,6 +169,28 @@ class Dom {
           cmd:  [2, 'src'],
         },
       },
+      toDisable: [
+        [this.getSelector(0)[0], 'input'],
+        [this.getSelector(0)[0], 'select'],
+        [this.getSelector(0)[0], 'textarea'],
+        [this.getSelector(0)[0], 'button'],
+      ],
+    };
+    this.CONTAINERS = {
+      mapCanvas: {
+        value: `map${this.getClassConnector(3)}canvas`,
+        selector: this.getSelector(1)[0],
+      },
+      adForm: {
+        value: `ad${this.getClassConnector(3)}form`,
+        selector: this.getSelector(2)[0],
+        children: this.getChildren(['toDisable', 0], ['toDisable', 1], ['toDisable', 2], ['toDisable', 3]),
+      },
+      mapFilters: {
+        value: `map${this.getClassConnector(1)}filters`,
+        selector: this.getSelector(2)[0],
+        children: this.getChildren(['toDisable', 0], ['toDisable', 1], ['toDisable', 2], ['toDisable', 3]),
+      },
     };
     this.TEMPLATES = {
       card: {
@@ -178,9 +208,13 @@ class Dom {
         },
       },
     };
+    this.CLASSES = {
+      adFormDisabled: `ad${this.getClassConnector(3)}form${this.getClassConnector(2)}disabled`,
+    };
     this.getFragmentChildren = this.getFragmentChildren.bind(this);
     this.getTemplateContent = this.getTemplateContent.bind(this);
     this.getSelector = this.getSelector.bind(this);
+    this.getChildren = this.getChildren.bind(this);
     this.getClassConnector = this.getClassConnector.bind(this);
     this.setTemplate = this.setTemplate.bind(this);
   }
@@ -208,9 +242,22 @@ class Dom {
     template.fragment.children = this.CHILDREN[template.fragment.thisCHILDREN];
   }
 
+  getChildren(...children) {
+    const foundChildren = {};
+    children.forEach((categoryIndex) => {
+      if (typeof foundChildren[categoryIndex[0]] === 'undefined') {
+        foundChildren[categoryIndex[0]] = [];
+      }
+      if (this.CHILDREN[categoryIndex[0]] && this.CHILDREN[categoryIndex[0]][categoryIndex[1]]) {
+        foundChildren[categoryIndex[0]].push(this.CHILDREN[categoryIndex[0]][categoryIndex[1]]);
+      }
+    });
+    return foundChildren;
+  }
+
   getContainer(containerName) {
     return this.CONTAINERS[containerName] && this.CONTAINERS[containerName].selector && this.CONTAINERS[containerName].value &&
-    document.querySelector(`${this.CONTAINERS[containerName].selector}${this.CONTAINERS[containerName].value}`)
+    this.CMD.getDOMNode(this.CONTAINERS[containerName].selector, this.CONTAINERS[containerName].value)
     || false;
   }
 
@@ -398,7 +445,7 @@ const fillContainerWithTemplate = (dataOriginal, template, container) => {
 /* fill a container with a template END */
 
 /* entry point to domPropcessor START */
-const domPropcessor = (dataOriginal = false, ...params) => {
+const domProcessor = (dataOriginal = false, ...params) => {
   /* params[0] what to do */
   switch (params[0]) {
     case 'fillContainerWithTemplate':
@@ -408,10 +455,22 @@ const domPropcessor = (dataOriginal = false, ...params) => {
         fillContainerWithTemplate(dataOriginal, params[1], params[2]);
       }
       break;
+    case 'clearContainer':
+      /* params[1] container to clear, params[12 2 43] - params def false */
+      DOM.CMD.clearContainer(DOM.getContainer(params[1]));
+      break;
+    case 'pageDisable':
+      /* pageDisable */
+      pageDisable(DOM.CLASSES, DOM.CMD, DOM.CONTAINERS['adForm'], DOM.CONTAINERS['mapFilters']);
+      break;
+    case 'pageEnable':
+      /* pageEnable */
+      pageEnable(DOM.CLASSES, DOM.CMD, DOM.CONTAINERS['adForm'], DOM.CONTAINERS['mapFilters']);
+      break;
     default:
       return null;
   }
 };
 /* entry point to domPropcessor END */
 
-export { domPropcessor };
+export { domProcessor };

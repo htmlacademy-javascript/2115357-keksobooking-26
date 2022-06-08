@@ -15,15 +15,18 @@ const getAdsObject = () => {
       domProcessor(adsObject, 'fillContainerWithTemplate', 'card', 'mapCanvas');
       /* active disable */
       /* !!! TEMP DELETE !!! */
-      const disable = () => {
+      let enableEnable;
+      let disableEnable;
+      let disable;
+      let enable;
+      disable = () => {
         domProcessor(false, 'pageDisable');
         document.querySelector('.promo > h1').innerHTML = 'PAGE IS DISABLED<br>clearIntervals onClick';
         document.querySelector('.promo > h1').classList.remove('visually-hidden');
         clearInterval(disableEnable);
         enableEnable = setInterval(enable, 10000);
       };
-      let enableEnable;
-      let disableEnable = setInterval(disable, 100);
+      disableEnable = setInterval(disable, 100);
       document.querySelector('.promo > img').remove();
       document.querySelector('.promo > h1').addEventListener('click', () => {
         clearInterval(enableEnable);
@@ -31,7 +34,7 @@ const getAdsObject = () => {
       });
       domProcessor(false, 'pageDisable');
       /* active enable */
-      const enable = () => {
+      enable = () => {
         domProcessor(false, 'pageEnable');
         document.querySelector('.promo > h1').innerHTML = 'PAGE IS ENABLED<br>clearIntervals onClick';
         document.querySelector('.promo > h1').classList.remove('visually-hidden');

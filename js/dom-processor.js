@@ -200,7 +200,7 @@ class Dom {
       },
     };
     this.CLASSES = {
-        adFormDisabled: `ad${this.getClassConnector(3)}form${this.getClassConnector(2)}disabled`,
+      adFormDisabled: `ad${this.getClassConnector(3)}form${this.getClassConnector(2)}disabled`,
     };
     this.getFragmentChildren = this.getFragmentChildren.bind(this);
     this.getTemplateContent = this.getTemplateContent.bind(this);
@@ -238,10 +238,10 @@ class Dom {
     children.forEach((categoryIndex) => {
       if (typeof foundChildren[categoryIndex[0]] === 'undefined') {
         foundChildren[categoryIndex[0]] = [];
-      };
-      this.CHILDREN[categoryIndex[0]] &&
-      this.CHILDREN[categoryIndex[0]][categoryIndex[1]] &&
-      foundChildren[categoryIndex[0]].push(this.CHILDREN[categoryIndex[0]][categoryIndex[1]]);
+      }
+      if (this.CHILDREN[categoryIndex[0]] && this.CHILDREN[categoryIndex[0]][categoryIndex[1]]) {
+        foundChildren[categoryIndex[0]].push(this.CHILDREN[categoryIndex[0]][categoryIndex[1]]);
+      }
     });
     return foundChildren;
   }
@@ -451,9 +451,9 @@ const domProcessor = (dataOriginal = false, ...params) => {
       pageDisable(DOM.CLASSES, DOM.CMD, DOM.CONTAINERS['adForm'], DOM.CONTAINERS['mapFilters']);
       break;
     case 'pageEnable':
-        /* pageEnable */
-        pageEnable(DOM.CLASSES, DOM.CMD, DOM.CONTAINERS['adForm'], DOM.CONTAINERS['mapFilters']);
-        break;
+      /* pageEnable */
+      pageEnable(DOM.CLASSES, DOM.CMD, DOM.CONTAINERS['adForm'], DOM.CONTAINERS['mapFilters']);
+      break;
     default:
       return null;
   }

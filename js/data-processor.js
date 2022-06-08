@@ -17,7 +17,6 @@ const getAdsNum = () => {
 const adsNum = getAdsNum();
 /* gets TEMP ads number */
 
-
 /* data procs functions START */
 class AvatarImgUrlGen {
   /* generates an url with a 0N part, e.g. xxx02xxx
@@ -109,7 +108,7 @@ const getFeatures = () => {
   const res = ADS_DATA.PROPERTY.features.names
     .filter((el, id) => [...String(getRandomNumber(0, tenToPow ** ADS_DATA.PROPERTY.features.names.length - 1))]
       .includes(String(id)));
-  return res.length && res || ADS_DATA.PROPERTY.features.names[0];
+  return res.length && res || [ADS_DATA.PROPERTY.features.names[0]];
 };
 const getTitle = () => getRandomText(ADS_DATA.PARAM.title);
 const getDescription = () => getRandomText(ADS_DATA.PARAM.description);

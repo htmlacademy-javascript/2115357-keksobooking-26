@@ -44,6 +44,9 @@ const getRandomNumber  = (from = false, to = false, floatsNum = 0) => {
     Math.floor(result);
 };
 
+/* get the language */
+const getLang = () => navigator.language === 'ru' ? 'ru' : 'en';
+
 /* random text generator v2.2 */
 class RandomTextGen {
   /* call with (* - required)
@@ -67,7 +70,7 @@ class RandomTextGen {
           return this.consts.ABC.en;
         },
         set() {
-          return this.consts.ABC[navigator.language] || this.consts.ABC.def();
+          return this.consts.ABC[getLang()] || this.consts.ABC.def();
         },
         shuff() {
           this.consts.ABC.cur.sort(() => Math.random() - 0.5);
@@ -168,5 +171,6 @@ const getRandomText = (params = false) => {
   return randomText.getText();
 };
 
+export {getLang};
 export {getRandomNumber};
 export {getRandomText};

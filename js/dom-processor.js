@@ -106,6 +106,11 @@ class Dom {
         container.querySelectorAll(params[0])[0].remove();
       },
       getDOMNode: (selector, value) => document.querySelector(`${selector}${value}`) || false,
+      clearContainer: (container, params = false) => {
+        container.childNodes && [...container.childNodes].forEach((children, index) => {
+          typeof container.childNodes[index] !== 'undefined' && container.childNodes[index].remove();
+        });
+      },
     };
     this.CHILDREN = {
       popup: {
@@ -434,7 +439,14 @@ const fillContainerWithTemplate = (dataOriginal, template, container) => {
   container.appendChild(newNode);
 };
 /* fill a container with a template END */
+/* clear container - remove all children START */
+const clearContainer = (containerName) => {
+  const containerToClear = DOM.CONTAINERS['containerName'];
+  if (containerToClear) {
 
+  }
+};
+/* clear container - remove all children END */
 /* entry point to domPropcessor START */
 const domProcessor = (dataOriginal = false, ...params) => {
   /* params[0] what to do */
@@ -445,6 +457,11 @@ const domProcessor = (dataOriginal = false, ...params) => {
       typeof dataOriginal === 'object') {
         fillContainerWithTemplate(dataOriginal, params[1], params[2]);
       }
+      break;
+    case 'clearContainer':
+      /* params[1] container to clear, params[12 2 43] - params def false */
+      const containerName = params[1];
+      DOM.CMD.clearContainer(DOM.getContainer(containerName));
       break;
     case 'pageDisable':
       /* pageDisable */

@@ -23,7 +23,7 @@ const getAdsObject = () => {
         let timeCounter;
         let intervalToggle = '';
         let counterInterval = '';
-        const timeCounterInitialValue = 0;
+        const timeCounterInitialValue = 10;
         const mainContainerParent = document.querySelector('.map');
         const mainContainer = document.createElement('div');
         const mainTextContainer = document.createElement('h2');
@@ -44,7 +44,7 @@ const getAdsObject = () => {
         const startIntervalTime = 1;
         const counterIntervalTime = 1000;
         const countCounter = () => {
-          timeCounter++;
+          timeCounter--;
           counterContainer.textContent = `${timeCounter} ${secWord}`;
         };
         const setPresentationContainers = () => {

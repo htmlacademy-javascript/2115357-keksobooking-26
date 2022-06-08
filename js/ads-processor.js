@@ -11,7 +11,11 @@ const getAdsObject = () => {
       /* get ads data END */
       /* futher ads processing ... */
       /* dom processing START */
-      /* active disable */
+      const showAd = () => {
+        /* fill mapCanvas with card template*/
+        domProcessor(false, 'clearContainer', 'mapCanvas');
+        domProcessor(adsObject, 'fillContainerWithTemplate', 'card', 'mapCanvas');
+      };
 
       /* !!! TEMP DELETE START !!! */
       /* page enable/disable presentation START */
@@ -26,6 +30,7 @@ const getAdsObject = () => {
         const subTextContainer = document.createElement('div');
         const counterContainer = document.createElement('div');
         const startStopContainer = document.createElement('div');
+        const refreshAdsContainer = document.createElement('div');
         const mainText = 'The page is';
         const enabledText = 'ENABLED';
         const disabledText = 'DISABLED';
@@ -34,6 +39,7 @@ const getAdsObject = () => {
         const toggleEnableText = 'Time left before the page is ENABLED:';
         const stopPresentationText = 'Click here to STOP the presentation!';
         const startPresentationText = 'Click here to START the presentation!';
+        const refreshAdsContainerText = 'Click me too!';
         const intervalTime = 10000;
         const startIntervalTime = 1;
         const counterIntervalTime = 1000;
@@ -41,32 +47,15 @@ const getAdsObject = () => {
           timeCounter++;
           counterContainer.textContent = `${timeCounter} ${secWord}`;
         };
-        const enableDisableFn = {
-          disable: '',
-          enable: '',
-        };
-        const startPresentation = () => {
-          startStopContainer.removeEventListener('click', startPresentation);
-          clearInterval(intervalToggle);
-          startStopContainer.remove();
-          mainContainer.append(mainTextContainer);
-          mainContainer.append(subTextContainer);
-          mainContainer.append(counterContainer);
-          mainContainer.append(startStopContainer);
-          startStopContainer.textContent = stopPresentationText;
-          intervalToggle = setInterval(enableDisableFn.disable, startIntervalTime);
-          startStopContainer.addEventListener('click', stopPresentation);
-        };
-        const stopPresentation = () => {
-          startStopContainer.removeEventListener('click', stopPresentation);
-          clearInterval(intervalToggle);
-          mainTextContainer.remove();
-          subTextContainer.remove();
-          counterContainer.remove();
-          startStopContainer.textContent = startPresentationText;
-          startStopContainer.addEventListener('click', startPresentation);
-        };
         const setPresentationContainers = () => {
+          refreshAdsContainer.style.position = 'absolute';
+          refreshAdsContainer.style.bottom = '100px';
+          refreshAdsContainer.style.right = '0px';
+          refreshAdsContainer.style.padding = '20px 20px';
+          refreshAdsContainer.style.fontSize = '20px';
+          refreshAdsContainer.style.fontWeight = '700';
+          refreshAdsContainer.style.cursor = 'pointer';
+          mainContainerParent.append(refreshAdsContainer);
           mainContainer.style.display = 'flex';
           mainContainer.style.flexDirection = 'column';
           mainContainer.style.position = 'absolute';
@@ -79,7 +68,36 @@ const getAdsObject = () => {
           startStopContainer.style.cursor = 'pointer';
           mainContainer.append(startStopContainer);
         };
-        enableDisableFn.disable = () => {
+        const presentationFn = {
+          disable: '',
+          enable: '',
+          startPresentation: '',
+          stopPresentation: '',
+        };
+        presentationFn.startPresentation = () => {
+          startStopContainer.removeEventListener('click', presentationFn.startPresentation);
+          clearInterval(intervalToggle);
+          startStopContainer.remove();
+          mainContainer.append(mainTextContainer);
+          mainContainer.append(subTextContainer);
+          mainContainer.append(counterContainer);
+          mainContainer.append(startStopContainer);
+          startStopContainer.textContent = stopPresentationText;
+          intervalToggle = setInterval(presentationFn.disable, startIntervalTime);
+          startStopContainer.addEventListener('click', presentationFn.stopPresentation);
+          showAd();
+        };
+        presentationFn.stopPresentation = () => {
+          startStopContainer.removeEventListener('click', presentationFn.stopPresentation);
+          clearInterval(intervalToggle);
+          mainTextContainer.remove();
+          subTextContainer.remove();
+          counterContainer.remove();
+          startStopContainer.textContent = startPresentationText;
+          startStopContainer.addEventListener('click', presentationFn.startPresentation);
+          showAd();
+        };
+        presentationFn.disable = () => {
           /* prepare to disable START */
           clearInterval(intervalToggle);
           clearInterval(counterInterval);
@@ -90,12 +108,10 @@ const getAdsObject = () => {
           /* prepare to disable END */
           domProcessor(false, 'pageDisable');
           counterInterval = setInterval(countCounter, counterIntervalTime);
-          intervalToggle = setInterval(enableDisableFn.enable, intervalTime);
-          /* fill mapCanvas with card template*/
-          domProcessor(false, 'clearContainer', 'mapCanvas');
-          domProcessor(adsObject, 'fillContainerWithTemplate', 'card', 'mapCanvas');
+          intervalToggle = setInterval(presentationFn.enable, intervalTime);
+          showAd();
         };
-        enableDisableFn.enable = () => {
+        presentationFn.enable = () => {
           /* prepare to enable START */
           clearInterval(intervalToggle);
           clearInterval(counterInterval);
@@ -106,21 +122,19 @@ const getAdsObject = () => {
           /* prepare to enable END */
           domProcessor(false, 'pageEnable');
           counterInterval = setInterval(countCounter, counterIntervalTime);
-          intervalToggle = setInterval(enableDisableFn.disable, intervalTime);
-          /* fill mapCanvas with card template*/
-          domProcessor(false, 'clearContainer', 'mapCanvas');
-          domProcessor(adsObject, 'fillContainerWithTemplate', 'card', 'mapCanvas');
+          intervalToggle = setInterval(presentationFn.disable, intervalTime);
+          showAd();
         };
-        timeCounter = timeCounterInitialValue;
         setPresentationContainers();
-        /* fill mapCanvas with card template*/
-        domProcessor(false, 'clearContainer', 'mapCanvas');
-        domProcessor(adsObject, 'fillContainerWithTemplate', 'card', 'mapCanvas');
         /* present presentation */
+        timeCounter = timeCounterInitialValue;
+        refreshAdsContainer.textContent = refreshAdsContainerText;
+        refreshAdsContainer.addEventListener('click', showAd);
         startStopContainer.textContent = startPresentationText;
-        startStopContainer.addEventListener('click', startPresentation);
+        startStopContainer.addEventListener('click', presentationFn.startPresentation);
       };
       prezentPresentation();
+      showAd();
       /* page enable/disable presentation END */
       /* !!! TEMP DELETE END !!! */
 

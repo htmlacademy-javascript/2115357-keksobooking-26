@@ -53,8 +53,8 @@ class AvatarImgUrlGen {
 
   /* get the 0N parts of urls */
   fillContainer() {
-    /* if all params set */
     (() => {
+      /* first check if all params set */
       const params = Object.assign({}, this.params);
       /* URL_MASK - strings */
       if (String(params.urlMask.start).length && String(params.urlMask.end).length) {
@@ -64,7 +64,7 @@ class AvatarImgUrlGen {
       params.partPrfx = 1;
       /* the rest are numbers */
       if (Object.values(params).filter((el) => typeof el !== 'number').length !== 0) {
-        /* if not fills with defs */
+      /* if not fills with defs */
         this.params = Object.assign({}, this.consts.PARAMS_DEF);
       }
     })();
@@ -77,7 +77,7 @@ class AvatarImgUrlGen {
         return n;
       }
     );
-    /* shaffle container */
+    /* shaffle container with ready 0N parts */
     this.container.sort(() => Math.random() - 0.5);
   }
 

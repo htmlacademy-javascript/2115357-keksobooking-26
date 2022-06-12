@@ -171,6 +171,10 @@ class Dom {
             [100, 'maxlength'],
             ['', 'required'],
           ],],
+          optionsToValidate: 1,
+          subjectToValidate: {
+            subjectName: 'title',
+          },
         },
         price: {
           value: 'price',
@@ -331,7 +335,7 @@ class Dom {
         errorClass: 'form__item--invalid',
         successClass: 'form__item--valid',
         errorTextParent: 'ad-form__element',
-        errorTextTag: 'span',
+        errorTextTag: 'div',
         errorTextClass: 'form__error'
       }
     };
@@ -505,6 +509,9 @@ const domProcessor = (dataOriginal = false, ...params) => {
     case 'getChild':
       /* COMMAND: domProcessor(false, 'getChild', groupName, childName); */
       return DOM.getChild(params[1], params[2]);
+    case 'getLocalText':
+      /* COMMAND: domProcessor(false, 'getLocalText', property); */
+      return getLocalText(params[1]);
     default:
       return null;
   }

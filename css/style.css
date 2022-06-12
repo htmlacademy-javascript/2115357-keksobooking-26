@@ -1,10 +1,14 @@
 /* TEMP DEL START */
-input#price.error-input-placeholder {
+input#price.error-input-placeholder,
+input#title.error-input-placeholder
+{
   font-weight: 700;
   color: deeppink;
   border: 2px solid deeppink;
 }
-input#price.error-input-placeholder::placeholder {
+input#price.error-input-placeholder::placeholder,
+input#title.error-input-placeholder::placeholder
+{
   color: deeppink;
   opacity: 1;
 }

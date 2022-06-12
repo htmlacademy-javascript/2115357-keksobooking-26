@@ -11,6 +11,15 @@ const LOCAL = {
     31: 31,
   },
   ru: {
+    titleLength: {
+      part1: 'Минимальная',
+      part2: 'Максимальная',
+      part3: 'длинна заголовка',
+      part4: 'символов.',
+    },
+    minPrice: {
+      part1: 'Минимальная цена:'
+    },
     imgAlt:   'Фотография жилья',
     before:   'до',
     after:    'после',
@@ -35,6 +44,15 @@ const LOCAL = {
     },
   },
   en: {
+    titleLength: {
+      part1: 'Minimum',
+      part2: 'Maximum',
+      part3: 'title length is',
+      part4: 'symbols.',
+    },
+    minPrice: {
+      part1: 'Min. price:'
+    },
     imgAlt:   'Property photo',
     before:   'before',
     after:    'after',

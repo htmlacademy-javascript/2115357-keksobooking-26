@@ -23,53 +23,92 @@ const validateProcessor = () => {
     /* pristine the form*/
     const pristineAdFormClass = domProcessor(false, 'getClass', 'pristineAdFormClass');
     const pristinedForm = getPristine(adFormNode, pristineAdFormClass);
+    const pristineErrorClass = pristinedForm.config.errorTextClass;
     /* children nodes */
     for (const index in adForm.children.adForm) {
-      const childNode = document.querySelector(`${adForm.children.adForm[index].selector[0]}${adForm.children.adForm[index].value}`);
+      const childData = adForm.children.adForm[index];
+      const childNode = document.querySelector(`${childData.selector[0]}${childData.value}`);
       /* normalize children DOM nodes */
-      if (adForm.children.adForm[index].cmd) {
-        normalizeNode(childNode, adForm.children.adForm[index].cmd);
+      if (childData.cmd) {
+        normalizeNode(childNode, childData.cmd);
       }
       /* validation / dependencies for children DOM nodes START */
-      if (typeof adForm.children.adForm[index].optionsToValidate !== 'undefined') {
+      if (typeof childData.optionsToValidate !== 'undefined') {
         switch (index) {
           case 'type': {
             /* Validate and set dependencies for Type/Price fields */
-            const subjectToValidate = domProcessor(false, 'getChild', adFormName, adForm.children.adForm[index].subjectToValidate.subjectName);
+            const subjectToValidate = domProcessor(false, 'getChild', adFormName, childData.subjectToValidate.subjectName);
             const subjectToValidateNode = document.querySelector(`${subjectToValidate.selector[0]}${subjectToValidate.value}`);
-            const cmd = domProcessor(false, 'getCMD', adForm.children.adForm[index].subjectToValidate.cmd[0]);
-            const cmdParam = adForm.children.adForm[index].subjectToValidate.cmd[1];
-            /* pristine the filed */
+            const cmd = domProcessor(false, 'getCMD', childData.subjectToValidate.cmd[0]);
+            const cmdParam = childData.subjectToValidate.cmd[1];
+            const errorText = domProcessor(false, 'getLocalText', 'minPrice');
+            /* initial validation */
+            const initialFieldsValidation = () => {
+              cmd(subjectToValidateNode, childData.optionsToValidate[childNode.value].minPrice, 'placeholder');
+              cmd(subjectToValidateNode, childData.optionsToValidate[childNode.value].minPrice, cmdParam[1]);
+            };
+            initialFieldsValidation();
+            const getPriceErrorMessage = (price) => {
+              const minPrice = childData.optionsToValidate[childNode.value].minPrice;
+              if (price < minPrice) {
+                return `${errorText.part1} ${minPrice}`;
+              }
+              return '';
+            };
             const validatePrice = (price) => {
               const isValid = price >= Number(subjectToValidateNode.getAttribute('min'));
               subjectToValidateNode.classList.toggle('error-input-placeholder', isValid === false);
               return isValid;
             };
-            pristinedForm.addValidator(subjectToValidateNode, validatePrice);
-            /* Type part */
-            const typeSelectFieldChangeHandler = (ev) => {
-              const validatedValue = adForm.children.adForm[index].optionsToValidate[ev.currentTarget.value].minPrice;
+            pristinedForm.addValidator(subjectToValidateNode, validatePrice, getPriceErrorMessage);
+            const typeSelectFieldInputHandler = (ev) => {
+              /* set validated attribute */
+              const validatedValue = childData.optionsToValidate[ev.currentTarget.value].minPrice;
+              cmd(subjectToValidateNode, validatedValue, cmdParam[1]);
               /* set placeholder */
               subjectToValidateNode.placeholder = validatedValue;
-              /* set validated attribute */
-              cmd(subjectToValidateNode, validatedValue, cmdParam[1]);
-              pristinedForm.validate();
+              subjectToValidateNode.dispatchEvent(new Event('input'));
             };
-            childNode.addEventListener('change', typeSelectFieldChangeHandler);
-            /* Price part */
-            const priceNumberFieldChangeHandler = () => {
-              pristinedForm.validate();
+            childNode.addEventListener('input', typeSelectFieldInputHandler);
+            break;
+          }
+          case  'title': {
+            const subjectToValidate = domProcessor(false, 'getChild', adFormName, adForm.children.adForm[index].subjectToValidate.subjectName);
+            const subjectToValidateNode = document.querySelector(`${subjectToValidate.selector[0]}${subjectToValidate.value}`);
+            const errorText = domProcessor(false, 'getLocalText', 'titleLength');
+            const titleMinLength = Number(subjectToValidateNode.getAttribute('minLength'));
+            const errorMessageMin = `${errorText.part1} ${errorText.part3} ${titleMinLength} ${errorText.part4}`;
+            const titleMaxLength = Number(subjectToValidateNode.getAttribute('maxLength'));
+            const errorMessageMax = `${errorText.part2} ${errorText.part3} ${titleMaxLength} ${errorText.part4}`;
+            let timeOut = '';
+            const timeOutLength = 2000;
+            const getTitleErrorMessage = (title) => {
+              if (title.length < titleMinLength) {
+                return errorMessageMin;
+              }
+              if (title.length === titleMaxLength) {
+                return errorMessageMax;
+              }
+              return '';
             };
-            subjectToValidateNode.addEventListener('input', priceNumberFieldChangeHandler);
-            /* initial validation */
-            const initialFormValidation = () => {
-              cmd(subjectToValidateNode, childNode.value, cmdParam[1]);
-              pristinedForm.validate();
+            const validateTitle = (title) => {
+              clearTimeout(timeOut);
+              const isValid = title.length >= titleMinLength;
+              if (title.length === titleMaxLength) {
+                subjectToValidateNode.classList.toggle('error-input-placeholder', true);
+                timeOut = setTimeout(() => {
+                  subjectToValidateNode.classList.toggle('error-input-placeholder', false);
+                }, timeOutLength);
+                return false;
+              }
+              subjectToValidateNode.classList.toggle('error-input-placeholder', isValid === false);
+              return isValid;
             };
-            initialFormValidation();
+            pristinedForm.addValidator(subjectToValidateNode, validateTitle, getTitleErrorMessage);
             break;
           }
         }
+        pristinedForm.validate();
       }
       /* validation / dependencies for children DOM nodes END */
     }
@@ -92,8 +131,6 @@ const validateProcessor = () => {
     /* submit event validation END */
   }
   /* normalize and add validation to the adForm END */
-
-console.log(adForm);
 };
 
 export { validateProcessor };

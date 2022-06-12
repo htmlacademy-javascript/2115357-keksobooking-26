@@ -171,6 +171,10 @@ const getRandomText = (params = false) => {
   return randomText.getText();
 };
 
+/* initialize pristine */
+const getPristine = (form) => new Pristine(form);
+
 export {getLang};
 export {getRandomNumber};
 export {getRandomText};
+export {getPristine};

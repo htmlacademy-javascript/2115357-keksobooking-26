@@ -57,6 +57,13 @@ const LOCAL = {
       4:  'guests',
       5:  'guests',
     },
+    adFormTypeOptions: {
+      bungalow: 'Bungalow',
+      flat: 'Flat',
+      hotel: 'Hotel',
+      house: 'House',
+      palace: 'Palace',
+    },
   },
   lineJoin: [
     ',',
@@ -147,4 +154,9 @@ const normalizeDataToDOM = (data, ...templates) => {
   return data;
 };
 
+const getLocalText = (property, lang = getLang()) => {
+  return LOCAL[lang][property] || '';
+};
+
+export { getLocalText };
 export { normalizeDataToDOM };

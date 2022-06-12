@@ -1,6 +1,7 @@
 /* functions */
 
 /* DOM processor functions */
+import   { getLocalText }                 from './dom-processor-js/normalize-data-to-dom.js';
 import   { pageStateToggle }              from './dom-processor-js/page-state-toggle.js';
 import   { fillContainerWithTemplate }    from './dom-processor-js/fill-container-with-template.js';
 
@@ -56,7 +57,7 @@ class Dom {
     };
     this.CHILDREN = {
       /* groups of elements with parameters to select nodes from the real DOM */
-      /* groups are not consistent, each group is for its own purpose */
+      /* elements inside groups are not consistent (has different properties/structure), each group has its own purpose. */
       popup: {
         title:        {
           value: 'title',
@@ -109,12 +110,174 @@ class Dom {
           cmd:  [2, 'src'],
         },
       },
-      toDisable: [
+      pageToggle: [
         [this.getSelector(0)[0], 'input'],
         [this.getSelector(0)[0], 'select'],
         [this.getSelector(0)[0], 'textarea'],
         [this.getSelector(0)[0], 'button'],
       ],
+      adForm: {
+        /* as in HTML */
+        avatar: {
+          value: 'avatar',
+          selector: this.getSelector(1),
+        },
+        description: {
+          value: 'description',
+          selector: this.getSelector(1),
+        },
+        features: {
+          value: 'features',
+          selector: this.getSelector(2),
+          wifi: {
+            value: 'feature-wifi',
+            selector: this.getSelector(1),
+          },
+          dishwasher: {
+            value: 'feature-dishwasher',
+            selector: this.getSelector(1),
+          },
+          parking: {
+            value: 'feature-parking',
+            selector: this.getSelector(1),
+          },
+          washer: {
+            value: 'feature-washer',
+            selector: this.getSelector(1),
+          },
+          elevator: {
+            value: 'feature-elevator',
+            selector: this.getSelector(1),
+          },
+          conditioner: {
+            value: 'feature-conditioner',
+            selector: this.getSelector(1),
+          },
+        },
+        submit: {
+          value: 'ad-form__submit',
+          selector: this.getSelector(2),
+        },
+        reset: {
+          value: 'ad-form__reset',
+          selector: this.getSelector(2),
+        },
+        /* required */
+        title: {
+          value: 'title',
+          selector: this.getSelector(1),
+          cmd: [2, [
+            [30, 'minlength'],
+            [100, 'maxlength'],
+            ['', 'required'],
+          ],],
+        },
+        price: {
+          value: 'price',
+          selector: this.getSelector(1),
+          cmd: [2, [
+            ['number', 'type'],
+            [100000, 'max'],
+            ['', 'required'],
+            /*! add slider noUiSlider !*/
+          ],],
+
+        },
+        images: {
+          value: 'images',
+          selector: this.getSelector(1),
+          cmd: [2, [
+            ['image/*', 'accept'],
+          ],],
+        },
+        /* need validation / dependencies */
+        type: {
+          value: 'type',
+          selector: this.getSelector(1),
+          optionsToValidate: {
+            bungalow: {
+              name: getLocalText('bungalow'),
+              minPrice: 0,
+            },
+            flat: {
+              name: getLocalText('flat'),
+              minPrice: 1000,
+            },
+            hotel: {
+              name: getLocalText('hotel'),
+              minPrice: 3000,
+            },
+            house: {
+              name: getLocalText('house'),
+              minPrice: 5000,
+            },
+            palace: {
+              name: getLocalText('palace'),
+              minPrice: 10000,
+            },
+          },
+          subjectToValidate: {
+            subjectName: 'price',
+            cmd: [2, ['', 'min']],
+          },
+        },
+        timein: {
+          value: 'timein',
+          selector: this.getSelector(1),
+          /*
+          Поля «Время заезда» и «Время выезда» синхронизированы: при изменении значения одного поля во втором выделяется соответствующее ему значение. Например, если время заезда указано «после 14», то время выезда будет равно «до 14» и наоборот.
+          value: `<select id="timein" name="timein">
+              <option value="12:00" selected="">После 12</option>
+              <option value="13:00">После 13</option>
+              <option value="14:00">После 14</option>
+            </select>`,*/
+        },
+        timeout: {
+          value: 'timeout',
+          selector: this.getSelector(1),
+          /*value: `<select id="timeout" name="timeout" title="Time to go out">
+              <option value="12:00" selected="">Выезд до 12</option>
+              <option value="13:00">Выезд до 13</option>
+              <option value="14:00">Выезд до 14</option>
+            </select>`,*/
+        },
+        roomNumber: {
+          value: 'room_number',
+          selector: this.getSelector(1),
+          /*
+          Поле «Количество комнат» синхронизировано с полем «Количество мест» таким образом, что при выборе количества комнат вводятся ограничения на допустимые варианты выбора количества гостей:
+          1 комната — «для 1 гостя»;
+          2 комнаты — «для 2 гостей» или «для 1 гостя»;
+          3 комнаты — «для 3 гостей», «для 2 гостей» или «для 1 гостя»;
+          100 комнат — «не для гостей».
+          Обратите внимание, под ограничениями подразумевается валидация.
+          Ограничение путём удаления из разметки лишних <option> или добавления им состояния disabled приведёт к плохому UX (опыту взаимодействия). Даже если уже выбранное значение не попадает под новые ограничения, не стоит без ведома пользователя изменять значение поля. Пусть ошибку отловит валидация формы.
+          value: `<select id="room_number" name="rooms">
+              <option value="1" selected="">1 комната</option>
+              <option value="2">2 комнаты</option>
+              <option value="3">3 комнаты</option>
+              <option value="100">100 комнат</option>
+            </select>`,*/
+        },
+        capacity: {
+          value: 'capacity',
+          selector: this.getSelector(1),
+          /*value: `<select id="capacity" name="capacity">
+              <option value="3" selected="">для 3 гостей</option>
+              <option value="2">для 2 гостей</option>
+              <option value="1">для 1 гостя</option>
+              <option value="0">не для гостей</option>
+            </select>`,*/
+        },
+        /* other */
+        address: {
+          value: 'address',
+          selector: this.getSelector(1),
+          cmd: [2, [
+            ['', 'readonly'],
+          ],],
+        },
+      },
     };
     this.CONTAINERS = {
       /* elements with parameters to select nodes from the real DOM */
@@ -125,12 +288,22 @@ class Dom {
       adForm: {
         value: `ad${this.getClassConnector(3)}form`,
         selector: this.getSelector(2)[0],
-        children: this.getChildrenForContainer(['toDisable', 0], ['toDisable', 1], ['toDisable', 2], ['toDisable', 3]),
+        cmd: [2, [
+          ['POST', 'method'],
+          ['https://26.javascript.pages.academy/keksobooking', 'action'],
+          ['multipart/form-data', 'enctype'],
+        ],],
+        children: {
+          pageToggle: this.getChildrenForContainer(['pageToggle', [0, 1, 2, 3]]),
+          adForm: this.getChildrenForContainer(['adForm']),
+        },
       },
       mapFilters: {
         value: `map${this.getClassConnector(1)}filters`,
         selector: this.getSelector(2)[0],
-        children: this.getChildrenForContainer(['toDisable', 0], ['toDisable', 1], ['toDisable', 2], ['toDisable', 3]),
+        children: {
+          pageToggle: this.getChildrenForContainer(['pageToggle', [0, 1, 2, 3]]),
+        },
       },
     };
     this.TEMPLATES = {
@@ -153,8 +326,20 @@ class Dom {
     this.CLASSES = {
       /* list of real DOM classes */
       adFormDisabled: `ad${this.getClassConnector(3)}form${this.getClassConnector(2)}disabled`,
+      pristineAdFormClass: {
+        classTo: 'ad-form__element',
+        errorClass: 'form__item--invalid',
+        successClass: 'form__item--valid',
+        errorTextParent: 'ad-form__element',
+        errorTextTag: 'span',
+        errorTextClass: 'form__error'
+      }
     };
+    this.getCMD = this.getCMD.bind(this);
+    this.getChild = this.getChild.bind(this);
     this.getChildrenForContainer = this.getChildrenForContainer.bind(this);
+    this.getContainer = this.getContainer.bind(this);
+    this.getClass = this.getClass.bind(this);
     this.getContainerNode = this.getContainerNode.bind(this);
     this.getSelector = this.getSelector.bind(this);
     this.getClassConnector = this.getClassConnector.bind(this);
@@ -164,19 +349,37 @@ class Dom {
     this.clearContainer = this.clearContainer.bind(this);
   }
 
-  getChildrenForContainer(...children) {
+  getCMD(cmdIndex) {
+    return this.CMD[cmdIndex] && this.CMD[cmdIndex] || false;
+  }
+
+  getChild(group, childName) {
+    return this.CHILDREN[group] && this.CHILDREN[group][childName] && this.CHILDREN[group][childName] || false;
+  }
+
+  getChildrenForContainer(category0Indexes1) {
     /* this.CONTAINERS elements method */
     /* selects this.CHILDREN elements that belong to this this.CONTAINERS.element */
-    const foundChildren = {};
-    children.forEach((category0Index1) => {
-      if (typeof foundChildren[category0Index1[0]] === 'undefined') {
-        foundChildren[category0Index1[0]] = [];
+    /* children - [category0[Indexes1]] */
+    if (typeof this.CHILDREN[category0Indexes1[0]] !== 'undefined') {
+      /* add only some child, array will be returned */
+      if(category0Indexes1[1] && category0Indexes1[1].length) {
+        const foundChildren = [];
+        category0Indexes1[1].forEach((children) => {
+          if (this.CHILDREN[category0Indexes1[0]][children]) {
+            foundChildren.push(this.CHILDREN[category0Indexes1[0]][children]);
+          }
+        });
+        return foundChildren;
+      } else {
+        /* add all children from the group, object will be returned */
+        return this.CHILDREN[category0Indexes1[0]];
       }
-      if (this.CHILDREN[category0Index1[0]] && this.CHILDREN[category0Index1[0]][category0Index1[1]]) {
-        foundChildren[category0Index1[0]].push(this.CHILDREN[category0Index1[0]][category0Index1[1]]);
-      }
-    });
-    return foundChildren;
+    }
+  }
+
+  getContainer(containerName) {
+    return this.CONTAINERS[containerName] && this.CONTAINERS[containerName] || false;
   }
 
   getContainerNode(containerName) {
@@ -186,6 +389,10 @@ class Dom {
       this.CONTAINERS[containerName].value &&
       document.querySelector(`${this.CONTAINERS[containerName].selector}${this.CONTAINERS[containerName].value}`)
     || false;
+  }
+
+  getClass(className) {
+    return this.CLASSES[className] && this.CLASSES[className] || false;
   }
 
   getSelector(index) {
@@ -284,6 +491,20 @@ const domProcessor = (dataOriginal = false, ...params) => {
       pageStateToggle(false, DOM.CLASSES, DOM.CONTAINERS['adForm'], DOM.CONTAINERS['mapFilters']);
       break;
     /* toggle the state of the page END */
+    /* get container from DOM class with children*/
+    case 'getContainer':
+      /* COMMAND: domProcessor(false, 'getContainer', CONTAINER_FROM_DOM_CLASS_NAME); */
+      /* params[1] - container's name */
+      return DOM.getContainer(params[1]);
+    case 'getCMD':
+      /* COMMAND: domProcessor(false, 'getCMD', CMD_INDEX); */
+      return DOM.getCMD(params[1]);
+    case 'getClass':
+      /* COMMAND: domProcessor(false, 'getClass', className); */
+      return DOM.getClass(params[1]);
+    case 'getChild':
+      /* COMMAND: domProcessor(false, 'getChild', groupName, childName); */
+      return DOM.getChild(params[1], params[2]);
     default:
       return null;
   }
@@ -291,3 +512,5 @@ const domProcessor = (dataOriginal = false, ...params) => {
 /* entry point to domProcessor END */
 
 export { domProcessor };
+
+//<form className="ad-form" method="post" encType="multipart/form-data" autoComplete="off">

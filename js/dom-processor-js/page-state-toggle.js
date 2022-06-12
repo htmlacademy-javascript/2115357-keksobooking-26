@@ -10,12 +10,14 @@ const pageStateToggle = (toggle, DOM_CLASSES, ...DOM_CONTAINERS) => {
     /* Toggle children state */
     /* selector0Value1 e.g. - ['', 'input'] */
     /* selector0Value1 e.g. - ['.', 'className'] */
-    container.children.toDisable.forEach((selector0Value1) => {
-      [...containerRealNode.querySelectorAll(`${selector0Value1[0]}${selector0Value1[1]}`)]
-        .forEach((child) => {
-          child.disabled = toggle;
-        });
-    });
+    if (container.children.pageToggle.length) {
+      container.children.pageToggle.forEach((selector0Value1) => {
+        [...containerRealNode.querySelectorAll(`${selector0Value1[0]}${selector0Value1[1]}`)]
+          .forEach((child) => {
+            child.disabled = toggle;
+          });
+      });
+    }
   });
 };
 

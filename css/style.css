@@ -1,3 +1,16 @@
+/* TEMP DEL START */
+input#price.error-input-placeholder {
+  font-weight: 700;
+  color: deeppink;
+  border: 2px solid deeppink;
+}
+input#price.error-input-placeholder::placeholder {
+  color: deeppink;
+  opacity: 1;
+}
+/* TEMP DEL END */
+
+
 /* Общие стили. Каркас
    ========================================================================== */
 

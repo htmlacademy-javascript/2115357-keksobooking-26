@@ -1,87 +1,100 @@
-/* functions */
+/*functions*/
 import   {getPristine}    from './functions.js';
 
-/* dom processor */
+/*dom processor*/
 import   { domProcessor }        from './dom-processor.js';
 
-const normalizeNode = (node, CMD) => {
+const PRISTINE_CLASS = domProcessor(false, 'getClass', 'pristineAdFormClass');
+const PRISTINE_ERROR_CLASS = PRISTINE_CLASS.errorTemporaryClass;
+const nodesToValidateOnReset = [];
+const adFormName = 'adForm';
+const adForm = domProcessor(false, 'getContainer', adFormName);
+const adFormNode = document.querySelector(`${adForm.selector}${adForm.value}`);
+const pristine = getPristine(adFormNode, PRISTINE_CLASS);
+const adFormSubmitButton = document.querySelector(`${adForm.children.adForm.submit.selector[0]}${adForm.children.adForm.submit.value}`);
+const adFormResetButton = document.querySelector(`${adForm.children.adForm.reset.selector[0]}${adForm.children.adForm.reset.value}`);
+
+/*initial validation*/
+const validateInitial = (node, removeErrorClass = true) => {
+  /*on reset removes values slower then event*/
+  setTimeout(() => {
+    if (removeErrorClass) {
+      node.dispatchEvent(new Event('input'));
+      node.classList.remove(PRISTINE_ERROR_CLASS);
+    }
+  }, 1);
+};
+/*normalize form elements*/
+const runCMD = (node, CMD, value = false) => {
   const nodeCMDParams = CMD[1];
   const nodeCMD = domProcessor(false, 'getCMD', CMD[0]);
   nodeCMDParams.forEach((value0Attribute1) => {
-    nodeCMD(node, value0Attribute1[0], value0Attribute1[1]);
+    //value = value !== false && value !! value0Attribute1[0];
+    nodeCMD(node, value !== false ? value : value0Attribute1[0], value0Attribute1[1]);
   });
 };
-/* ads validation to the real DOM elements */
+
 const validateProcessor = () => {
-  /* normalize and add validation to the adForm START */
-  const adFormName = 'adForm';
-  const adForm = domProcessor(false, 'getContainer', adFormName);
-  const adFormNode = document.querySelector(`${adForm.selector}${adForm.value}`);
+  /*normalize and add validation to the adForm START*/
   if (typeof adFormNode !=='undefined') {
-    /* normalize DOM container adFormNode */
-    normalizeNode(adFormNode, adForm.cmd);
-    /* pristine the form*/
-    const pristineAdFormClass = domProcessor(false, 'getClass', 'pristineAdFormClass');
-    const pristinedForm = getPristine(adFormNode, pristineAdFormClass);
-    const pristineErrorClass = pristinedForm.config.errorTextClass;
-    /* children nodes */
+    /*normalize DOM container adFormNode*/
+    runCMD(adFormNode, adForm.cmd);
+    /*children nodes*/
     for (const index in adForm.children.adForm) {
       const childData = adForm.children.adForm[index];
       const childNode = document.querySelector(`${childData.selector[0]}${childData.value}`);
-      /* normalize children DOM nodes */
+      /*normalize children DOM nodes*/
       if (childData.cmd) {
-        normalizeNode(childNode, childData.cmd);
+        runCMD(childNode, childData.cmd);
       }
-      /* validation / dependencies for children DOM nodes START */
+      /*validation / dependencies for children DOM nodes START*/
       if (typeof childData.optionsToValidate !== 'undefined') {
+        nodesToValidateOnReset.push(childNode);
+        const objectToValidate = domProcessor(false, 'getChild', adFormName, childData.objectToValidate.name);
+        const objectToValidateNode = document.querySelector(`${objectToValidate.selector[0]}${objectToValidate.value}`);
         switch (index) {
           case 'type': {
-            /* Validate and set dependencies for Type/Price fields */
-            const subjectToValidate = domProcessor(false, 'getChild', adFormName, childData.subjectToValidate.subjectName);
-            const subjectToValidateNode = document.querySelector(`${subjectToValidate.selector[0]}${subjectToValidate.value}`);
-            const cmd = domProcessor(false, 'getCMD', childData.subjectToValidate.cmd[0]);
-            const cmdParam = childData.subjectToValidate.cmd[1];
-            const errorText = domProcessor(false, 'getLocalText', 'minPrice');
-            /* initial validation */
-            const initialFieldsValidation = () => {
-              cmd(subjectToValidateNode, childData.optionsToValidate[childNode.value].minPrice, 'placeholder');
-              cmd(subjectToValidateNode, childData.optionsToValidate[childNode.value].minPrice, cmdParam[1]);
-            };
-            initialFieldsValidation();
+            /*Validate and set dependencies for Type/Price fields*/
+            const bungalowZeroPriceException = ['bungalow',['', 0]];
+            const errorLangElement = 'minPrice';
+            const maxPrice = Number(objectToValidateNode.getAttribute('max'));
+            const errorText = domProcessor(false, 'getLocalText', errorLangElement);
             const getPriceErrorMessage = (price) => {
               const minPrice = childData.optionsToValidate[childNode.value].minPrice;
               if (price < minPrice) {
                 return `${errorText.part1} ${minPrice}`;
               }
+              if (price > maxPrice) {
+                return `${errorText.part2} ${maxPrice}`;
+              }
               return '';
             };
             const validatePrice = (price) => {
-              const isValid = price >= Number(subjectToValidateNode.getAttribute('min'));
-              subjectToValidateNode.classList.toggle('error-input-placeholder', isValid === false);
+              /*bungalow with 0 price*/
+              if (childNode.value === bungalowZeroPriceException[0] && bungalowZeroPriceException[1].includes(price)) {
+                return true;
+              }
+              const isValid = price && price >= Number(objectToValidateNode.getAttribute('min')) && price <= maxPrice || false;
+              objectToValidateNode.classList.toggle(PRISTINE_ERROR_CLASS, isValid === false);
               return isValid;
             };
-            pristinedForm.addValidator(subjectToValidateNode, validatePrice, getPriceErrorMessage);
             const typeSelectFieldInputHandler = (ev) => {
-              /* set validated attribute */
+              /*set validated attribute*/
               const validatedValue = childData.optionsToValidate[ev.currentTarget.value].minPrice;
-              cmd(subjectToValidateNode, validatedValue, cmdParam[1]);
-              /* set placeholder */
-              subjectToValidateNode.placeholder = validatedValue;
-              subjectToValidateNode.dispatchEvent(new Event('input'));
+              runCMD(objectToValidateNode, childData.objectToValidate.cmd, validatedValue);
+              validateInitial(objectToValidateNode, objectToValidateNode.value === '');
+              objectToValidateNode.dispatchEvent(new Event('input'));
             };
+            pristine.addValidator(objectToValidateNode, validatePrice, getPriceErrorMessage);
             childNode.addEventListener('input', typeSelectFieldInputHandler);
             break;
           }
           case  'title': {
-            const subjectToValidate = domProcessor(false, 'getChild', adFormName, adForm.children.adForm[index].subjectToValidate.subjectName);
-            const subjectToValidateNode = document.querySelector(`${subjectToValidate.selector[0]}${subjectToValidate.value}`);
             const errorText = domProcessor(false, 'getLocalText', 'titleLength');
-            const titleMinLength = Number(subjectToValidateNode.getAttribute('minLength'));
+            const titleMinLength = Number(objectToValidateNode.getAttribute('minLength'));
             const errorMessageMin = `${errorText.part1} ${errorText.part3} ${titleMinLength} ${errorText.part4}`;
-            const titleMaxLength = Number(subjectToValidateNode.getAttribute('maxLength'));
-            const errorMessageMax = `${errorText.part2} ${errorText.part3} ${titleMaxLength} ${errorText.part4}`;
-            let timeOut = '';
-            const timeOutLength = 2000;
+            const titleMaxLength = Number(objectToValidateNode.getAttribute('maxLength'));
+            const errorMessageMax = `${errorText.part2} ${errorText.part3} ${titleMaxLength - 1} ${errorText.part4}`;
             const getTitleErrorMessage = (title) => {
               if (title.length < titleMinLength) {
                 return errorMessageMin;
@@ -92,45 +105,41 @@ const validateProcessor = () => {
               return '';
             };
             const validateTitle = (title) => {
-              clearTimeout(timeOut);
-              const isValid = title.length >= titleMinLength;
-              if (title.length === titleMaxLength) {
-                subjectToValidateNode.classList.toggle('error-input-placeholder', true);
-                timeOut = setTimeout(() => {
-                  subjectToValidateNode.classList.toggle('error-input-placeholder', false);
-                }, timeOutLength);
-                return false;
-              }
-              subjectToValidateNode.classList.toggle('error-input-placeholder', isValid === false);
+              const isValid = title.length >= titleMinLength && title.length < titleMaxLength;
+              objectToValidateNode.classList.toggle(PRISTINE_ERROR_CLASS, isValid === false);
               return isValid;
             };
-            pristinedForm.addValidator(subjectToValidateNode, validateTitle, getTitleErrorMessage);
+            pristine.addValidator(objectToValidateNode, validateTitle, getTitleErrorMessage);
             break;
           }
         }
-        pristinedForm.validate();
+        /*initial validation*/
+        validateInitial(childNode);
       }
-      /* validation / dependencies for children DOM nodes END */
+      /*validation / dependencies for children DOM nodes END*/
     }
-    /* type */
-    //«Тип жилья» влияет на минимальное значение поля «Цена за ночь»:
-    /*
-    вместе с минимальным значением цены нужно изменять и плейсхолдер.
-    Под ограничением подразумевается валидация минимального значения, которое можно ввести в поле с ценой.
-    Изменять само значение поля не нужно, это приведёт к плохому UX (опыту взаимодействия).
-    Даже если уже указанное значение не попадает под новые ограничения, не стоит без ведома пользователя изменять значение поля.
-*/
-    /* submit event validation START */
-    const submitButton = document.querySelector(`${adForm.children.adForm.submit.selector[0]}${adForm.children.adForm.submit.value}`);
-    const submitButtonClickHandler = (ev) => {
+    /*submit adForm*/
+    const adFormSubmitButtonClickHandler = (ev) => {
       ev.preventDefault();
-      const isFormValid = pristinedForm.validate();
+      const isFormValid = pristine.validate();
       console.log(isFormValid);
     };
-    submitButton.addEventListener('click', submitButtonClickHandler);
-    /* submit event validation END */
+    adFormSubmitButton.addEventListener('click', adFormSubmitButtonClickHandler);
+    /*reset adForm*/
+    /*validateOnReset*/
+    const validateOnReset = () => {
+      if (nodesToValidateOnReset.length) {
+        nodesToValidateOnReset.forEach((node) =>{
+          validateInitial(node);
+        });
+      }
+    };
+    const adFormResetButtonClickHandler = () => {
+      validateOnReset();
+    };
+    adFormResetButton.addEventListener('click', adFormResetButtonClickHandler);
   }
-  /* normalize and add validation to the adForm END */
+  /*normalize and add validation to the adForm END*/
 };
 
 export { validateProcessor };

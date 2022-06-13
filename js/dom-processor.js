@@ -168,12 +168,12 @@ class Dom {
           selector: this.getSelector(1),
           cmd: [2, [
             [30, 'minlength'],
-            [100, 'maxlength'],
+            [101, 'maxlength'],
             ['', 'required'],
           ],],
           optionsToValidate: 1,
-          subjectToValidate: {
-            subjectName: 'title',
+          objectToValidate: {
+            name: 'title',
           },
         },
         price: {
@@ -220,9 +220,9 @@ class Dom {
               minPrice: 10000,
             },
           },
-          subjectToValidate: {
-            subjectName: 'price',
-            cmd: [2, ['', 'min']],
+          objectToValidate: {
+            name: 'price',
+            cmd: [2, [['', 'min'], ['', 'placeholder']]],
           },
         },
         timein: {
@@ -336,7 +336,8 @@ class Dom {
         successClass: 'form__item--valid',
         errorTextParent: 'ad-form__element',
         errorTextTag: 'div',
-        errorTextClass: 'form__error'
+        errorTextClass: 'form__error',
+        errorTemporaryClass: 'error-input-placeholder',
       }
     };
     this.getCMD = this.getCMD.bind(this);

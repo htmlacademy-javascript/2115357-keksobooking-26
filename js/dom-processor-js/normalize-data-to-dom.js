@@ -18,7 +18,8 @@ const LOCAL = {
       part4: 'символов.',
     },
     minPrice: {
-      part1: 'Минимальная цена:'
+      part1: 'Минимальная цена:',
+      part2: 'максимальная цена:',
     },
     imgAlt:   'Фотография жилья',
     before:   'до',
@@ -51,7 +52,8 @@ const LOCAL = {
       part4: 'symbols.',
     },
     minPrice: {
-      part1: 'Min. price:'
+      part1: 'Min. price:',
+      part2: 'Max. price:',
     },
     imgAlt:   'Property photo',
     before:   'before',

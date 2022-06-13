@@ -122,6 +122,9 @@ class Dom {
         avatar: {
           value: 'avatar',
           selector: this.getSelector(1),
+          cmd: [2, [
+            ['image/*', 'accept'],
+          ],],
         },
         description: {
           value: 'description',
@@ -222,6 +225,11 @@ class Dom {
             },
           },
           objectToValidate: {
+            value: '',
+            selector: this.getSelector(3)[1],
+            normalizeItself: {
+              cmd: [1, [['', '']]],
+            },
             name: 'price',
             cmd: [2, [['', 'min'], ['', 'placeholder']]],
           },
@@ -245,14 +253,7 @@ class Dom {
             selector: this.getSelector(3)[1],
             name: 'timeout',
             cmd: [1, [['', '']]],
-            //cmd: [2, [['', 'min'], ['', 'placeholder']]],
           },
-          /*
-          Поля «Время заезда» и «Время выезда» синхронизированы:
-          при изменении значения одного поля во втором выделяется соответствующее ему значение.
-          Например, если время заезда указано «после 14»,
-          то время выезда будет равно «до 14» и наоборот.
-           */
         },
         timeout: {
           value: 'timeout',
@@ -272,38 +273,56 @@ class Dom {
         roomNumber: {
           value: 'room_number',
           selector: this.getSelector(1),
-          /*
-          Поле «Количество комнат» синхронизировано с полем «Количество мест» таким образом, что при выборе количества комнат вводятся ограничения на допустимые варианты выбора количества гостей:
-          1 комната — «для 1 гостя»;
-          2 комнаты — «для 2 гостей» или «для 1 гостя»;
-          3 комнаты — «для 3 гостей», «для 2 гостей» или «для 1 гостя»;
-          100 комнат — «не для гостей».
-          Обратите внимание, под ограничениями подразумевается валидация.
-          Ограничение путём удаления из разметки лишних <option> или добавления им состояния disabled приведёт к плохому UX (опыту взаимодействия). Даже если уже выбранное значение не попадает под новые ограничения, не стоит без ведома пользователя изменять значение поля. Пусть ошибку отловит валидация формы.
-          value: `<select id="room_number" name="rooms">
-              <option value="1" selected="">1 комната</option>
-              <option value="2">2 комнаты</option>
-              <option value="3">3 комнаты</option>
-              <option value="100">100 комнат</option>
-            </select>`,*/
+          optionsToValidate: {
+            1: {
+              value: `${1} ${getLocalText('roomsWord')[1]}`,
+            },
+            2: {
+              value: `${2} ${getLocalText('roomsWord')[4]}`,
+            },
+            3: {
+              value: `${3} ${getLocalText('roomsWord')[4]}`,
+            },
+            100: {
+              value: `${100} ${getLocalText('roomsWord')[5]}`,
+            },
+          },
+          objectToValidate: {
+            value: '',
+            selector: this.getSelector(3)[1],
+            name: 'capacity',
+            cmd: [1, [['', '']]],
+          },
+          capacityNumberGuestsRules: {
+            1: [1],
+            2: [1, 2],
+            3: [1, 2, 3],
+            100: [0],
+          }
         },
         capacity: {
           value: 'capacity',
           selector: this.getSelector(1),
-          /*value: `<select id="capacity" name="capacity">
-              <option value="3" selected="">для 3 гостей</option>
-              <option value="2">для 2 гостей</option>
-              <option value="1">для 1 гостя</option>
-              <option value="0">не для гостей</option>
-            </select>`,*/
+          options: {
+            1: {
+              value: `${getLocalText('for')} ${1} ${getLocalText('guestsWord')[1]}`,
+            },
+            2: {
+              value: `${getLocalText('for')} ${2} ${getLocalText('guestsWord')[4]}`,
+            },
+            3: {
+              value: `${getLocalText('for')} ${3} ${getLocalText('guestsWord')[4]}`,
+            },
+            0: {
+              value: `${getLocalText('not')} ${getLocalText('for')} ${getLocalText('guestsWord')[5]}`,
+            },
+          },
         },
         /* other */
         address: {
           value: 'address',
           selector: this.getSelector(1),
-          cmd: [2, [
-            ['', 'readonly'],
-          ],],
+          cmd: [2, [['', 'readonly'],],],
         },
       },
     };

@@ -14,7 +14,13 @@ const pristine = getPristine(adFormNode, PRISTINE_CLASS);
 const adFormSubmitButton = document.querySelector(`${adForm.children.adForm.submit.selector[0]}${adForm.children.adForm.submit.value}`);
 const adFormResetButton = document.querySelector(`${adForm.children.adForm.reset.selector[0]}${adForm.children.adForm.reset.value}`);
 const requiredFieldText = domProcessor(false, 'getLocalText', 'requiredFieldText').part1;
-
+/*skip validation*/
+const skipValidation = {
+  toggle: 0,
+};
+const resumeValidation = () => {
+  skipValidation.toggle = 1;
+};
 /*initial validation*/
 const validateInitial = (node, removeErrorClass = true) => {
   /*on reset removes values slower then event*/
@@ -55,6 +61,11 @@ const validateProcessor = () => {
         const objectToValidateNode = document.querySelector(`${objectToValidate.selector[0]}${objectToValidate.value}`);
         switch (index) {
           case 'type': {
+            /*normalize select > options*/
+            const childNodeOptionNodes = [...childNode.querySelectorAll(`${childData.objectToValidate.selector}`)];
+            childNodeOptionNodes.forEach((option) => {
+              runCMD(option, childData.objectToValidate.normalizeItself.cmd, childData.optionsToValidate[option.value].name);
+            });
             /*Validate and set dependencies for Type/Price fields*/
             const bungalowZeroPriceException = ['bungalow',['', 0]];
             const errorLangElement = 'minPrice';
@@ -142,6 +153,104 @@ const validateProcessor = () => {
             };
             childNode.addEventListener('input', timeinSelectFieldInputHandler);
             objectToValidateNode.addEventListener('input', timeoutSelectFieldInputHandler);
+            /*initial validate if they are mixed up*/
+            childNode.dispatchEvent(new Event('input'));
+            break;
+          }
+          case 'roomNumber': {
+            /*additional push for the second input*/
+            nodesToValidateOnReset.push(objectToValidateNode);
+            /*normalize select > options*/
+            const childNodeOptionNodes = [...childNode.querySelectorAll(`${childData.objectToValidate.selector}`)];
+            const objectToValidateOptionNodes = [...objectToValidateNode.querySelectorAll(`${childData.objectToValidate.selector}`)];
+            /*roomnumber's options*/
+            childNodeOptionNodes.forEach((optionNode) => {
+              const normalizedOptionValue = childData.optionsToValidate[optionNode.value].value;
+              runCMD(optionNode, childData.objectToValidate.cmd, normalizedOptionValue);
+            });
+            /*capacity's options*/
+            objectToValidateOptionNodes.forEach((optionNode) => {
+              const normalizedOptionValue = objectToValidate.options[optionNode.value].value;
+              runCMD(optionNode, childData.objectToValidate.cmd, normalizedOptionValue);
+            });
+            /*validation*/
+            const propertySideErrorElement = 'propertySideError';
+            const propertySideError = {
+              toggle: '',
+              value: '',
+            };
+            propertySideError.toggle = 1;
+            propertySideError.value = domProcessor(false, 'getLocalText', propertySideErrorElement);
+            const guestsSideErrorElement = 'guestsSideError';
+            const guestsSideError = {
+              toggle: '',
+              value: '',
+            };
+            guestsSideError.toggle = 1;
+            guestsSideError.value = domProcessor(false, 'getLocalText', guestsSideErrorElement);
+            /*childNode validation*/
+            const getRoomsNumberErrorMessage = () => {
+              return  propertySideError.toggle && propertySideError.value.part1 || '';
+            };
+            const validateRoomsNumberField = (roomsNumber) => {
+              if (!skipValidation.toggle) {
+                return true;
+              }
+              /*get the opposite side value*/
+              const guestsNumber = Number(objectToValidateNode.value);
+              /*get amount of rooms suitable for those guests*/
+              const roomsSuitable = [];
+              for (const indexRoomsNumber in childData.capacityNumberGuestsRules) {
+                if (childData.capacityNumberGuestsRules[indexRoomsNumber].includes(guestsNumber)) {
+                  roomsSuitable.push(indexRoomsNumber);
+                }
+              }
+              return roomsSuitable.includes(roomsNumber);
+            };
+            const roomsSelectFieldInputHandler = () => {
+              /*recharge validation*/
+              skipValidation.toggle = 1;
+              /*revalidate the opposit field*/
+              guestsSideError.toggle = 0;
+              objectToValidateNode.dispatchEvent(new Event('input'));
+              guestsSideError.toggle = 1;
+            };
+            const roomsSelectFieldClickHandler = () => {
+              resumeValidation();
+            };
+            /*objectToValidateNode validation*/
+            const getGuestsNumberErrorMessage = () => {
+              return  guestsSideError.toggle && guestsSideError.value.part1 || '';
+            };
+            const validateGuestsNumberField = (guestsNumber) => {
+              if (!skipValidation.toggle) {
+                return true;
+              }
+              /*get the opposite side value*/
+              const roomsNumber = Number(childNode.value);
+              /*capacityNumberGuestsRules: index-roomssNumber, value[guestsNumbers]*/
+              /*get amount of guests suitable for this room*/
+              const guestsSuitable = childData.capacityNumberGuestsRules[roomsNumber];
+              return guestsSuitable.includes(Number(guestsNumber));
+            };
+            const guestsSelectFieldInputHandler = () => {
+              /*recharge validation*/
+              skipValidation.toggle = 1;
+              /*revalidate the opposit field*/
+              propertySideError.toggle = 0;
+              childNode.dispatchEvent(new Event('input'));
+              /*recharge opposite error*/
+              propertySideError.toggle = 1;
+            };
+            const guestsSelectFieldClickHandler = () => {
+              resumeValidation();
+            };
+            pristine.addValidator(childNode, validateRoomsNumberField, getRoomsNumberErrorMessage);
+            pristine.addValidator(objectToValidateNode, validateGuestsNumberField, getGuestsNumberErrorMessage);
+            childNode.addEventListener('change', roomsSelectFieldInputHandler);
+            childNode.addEventListener('click', roomsSelectFieldClickHandler);
+            objectToValidateNode.addEventListener('change', guestsSelectFieldInputHandler);
+            objectToValidateNode.addEventListener('click', guestsSelectFieldClickHandler);
             break;
           }
         }
@@ -153,6 +262,7 @@ const validateProcessor = () => {
     /*submit adForm*/
     const adFormSubmitButtonClickHandler = (ev) => {
       ev.preventDefault();
+      skipValidation.toggle = 1;
       const isFormValid = pristine.validate();
       console.log(isFormValid);
     };
@@ -161,6 +271,7 @@ const validateProcessor = () => {
     /*validateOnReset*/
     const validateOnReset = () => {
       if (nodesToValidateOnReset.length) {
+        skipValidation.toggle = 0;
         nodesToValidateOnReset.forEach((node) =>{
           validateInitial(node);
         });

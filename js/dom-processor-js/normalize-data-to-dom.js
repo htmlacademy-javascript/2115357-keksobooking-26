@@ -20,6 +20,15 @@ const LOCAL = {
     requiredFieldText: {
       part1: 'Это обязательное поле'
     },
+    propertySideError: {
+      part1: 'Это размещение не может принять такое кол-во гостей',
+    },
+    guestsSideError: {
+      part1: 'Неподходящее кол-во гостей для этого размещения',
+    },
+    notSuitableForThatNumberOfGuests: {
+      part1: 'Размещение не предназначено для такого кол-ва гостей'
+    },
     minPrice: {
       part1: 'Минимальная цена:',
       part2: 'максимальная цена:',
@@ -36,6 +45,7 @@ const LOCAL = {
     palace:   'Дворец',
     hotel:    'Отель',
     for:  'для',
+    not:  'не',
     roomsWord:    {
       1:  'комната',
       4:  'комнаты',
@@ -60,6 +70,12 @@ const LOCAL = {
     requiredFieldText: {
       part1: 'This field is required'
     },
+    propertySideError: {
+      part1: 'This property cannot accommodate that many guests',
+    },
+    guestsSideError: {
+      part1: 'Inappropriate number of guests for this property',
+    },
     minPrice: {
       part1: 'Min. price:',
       part2: 'Max. price:',
@@ -76,6 +92,7 @@ const LOCAL = {
     palace:   'Palace',
     hotel:    'Hotel',
     for:  'for',
+    not:  'not',
     roomsWord:    {
       1:  'room',
       4:  'rooms',

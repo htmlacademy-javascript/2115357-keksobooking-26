@@ -248,9 +248,7 @@ const validateProcessor = (adsData = false) => {
               resumeValidation();
             };
             /*objectToValidateNode validation*/
-            const getGuestsNumberErrorMessage = () => {
-              return  guestsSideError.toggle && guestsSideError.value.part1 || '';
-            };
+            const getGuestsNumberErrorMessage = () => guestsSideError.toggle && guestsSideError.value.part1 || '';
             const validateGuestsNumberField = (guestsNumber) => {
               if (!skipValidation.toggle) {
                 return true;

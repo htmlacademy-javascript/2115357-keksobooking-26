@@ -196,9 +196,7 @@ const normalizeDataToDOM = (data, ...templates) => {
   return data;
 };
 
-const getLocalText = (property, lang = getLang()) => {
-  return LOCAL[lang][property] || '';
-};
+const getLocalText = (property, lang = getLang()) => LOCAL[lang][property] || '';
 
 export { getLocalText };
 export { normalizeDataToDOM };

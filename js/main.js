@@ -3,12 +3,12 @@ import   {getAdsObject}    from './ads-processor.js';
 /* validate processor */
 import   { validateProcessor }              from './validate-processor.js';
 
-validateProcessor();
-
 /* linter temp */
 getAdsObject()
   .then((data) => {
     JSON.stringify(data);
+    /*initialize validation*/
+    validateProcessor(data);
   });
 
 /*

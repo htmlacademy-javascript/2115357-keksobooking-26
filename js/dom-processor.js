@@ -232,6 +232,7 @@ class Dom {
             },
             name: 'price',
             cmd: [2, [['', 'min'], ['', 'placeholder']]],
+            bungalowZeroPriceException: ['bungalow',[0]],
           },
         },
         timein: {
@@ -323,6 +324,10 @@ class Dom {
           value: 'address',
           selector: this.getSelector(1),
           cmd: [2, [['', 'readonly'],],],
+          optionsToValidate: true,
+          objectToValidate: {
+            name: 'address',
+          },
         },
       },
     };

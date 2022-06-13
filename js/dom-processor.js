@@ -14,6 +14,7 @@ class Dom {
       0: ['', 'tag'],
       1: ['#', 'id'],
       2: ['.', 'class'],
+      3: ['', 'option'],
       /* ??? replace this.getClassConnector with just symbols ??? */
       classConnectors: {
         1: '__',
@@ -228,22 +229,45 @@ class Dom {
         timein: {
           value: 'timein',
           selector: this.getSelector(1),
+          optionsToValidate: {
+            1200: {
+              value: `${getLocalText('checkin')} ${getLocalText('after')} ${getLocalText('1200')}`,
+            },
+            1300: {
+              value: `${getLocalText('checkin')} ${getLocalText('after')} ${getLocalText('1300')}`,
+            },
+            1400: {
+              value: `${getLocalText('checkin')} ${getLocalText('after')} ${getLocalText('1400')}`,
+            },
+          },
+          objectToValidate: {
+            value: '',
+            selector: this.getSelector(3)[1],
+            name: 'timeout',
+            cmd: [1, [['', '']]],
+            //cmd: [2, [['', 'min'], ['', 'placeholder']]],
+          },
           /*
-          Поля «Время заезда» и «Время выезда» синхронизированы: при изменении значения одного поля во втором выделяется соответствующее ему значение. Например, если время заезда указано «после 14», то время выезда будет равно «до 14» и наоборот.
-          value: `<select id="timein" name="timein">
-              <option value="12:00" selected="">После 12</option>
-              <option value="13:00">После 13</option>
-              <option value="14:00">После 14</option>
-            </select>`,*/
+          Поля «Время заезда» и «Время выезда» синхронизированы:
+          при изменении значения одного поля во втором выделяется соответствующее ему значение.
+          Например, если время заезда указано «после 14»,
+          то время выезда будет равно «до 14» и наоборот.
+           */
         },
         timeout: {
           value: 'timeout',
           selector: this.getSelector(1),
-          /*value: `<select id="timeout" name="timeout" title="Time to go out">
-              <option value="12:00" selected="">Выезд до 12</option>
-              <option value="13:00">Выезд до 13</option>
-              <option value="14:00">Выезд до 14</option>
-            </select>`,*/
+          options: {
+            1200: {
+              value: `${getLocalText('checkout')} ${getLocalText('before')} ${getLocalText('1200')}`,
+            },
+            1300: {
+              value: `${getLocalText('checkout')} ${getLocalText('before')} ${getLocalText('1300')}`,
+            },
+            1400: {
+              value: `${getLocalText('checkout')} ${getLocalText('before')} ${getLocalText('1400')}`,
+            },
+          },
         },
         roomNumber: {
           value: 'room_number',
@@ -352,6 +376,7 @@ class Dom {
     this.getTemplateContent = this.getTemplateContent.bind(this);
     this.setTemplate = this.setTemplate.bind(this);
     this.clearContainer = this.clearContainer.bind(this);
+    this.ucfirst = this.ucfirst.bind(this);
   }
 
   getCMD(cmdIndex) {
@@ -459,6 +484,10 @@ class Dom {
         }
       });
     }
+  }
+
+  ucfirst(string) {
+    return string.replace(/^./, string[0].toUpperCase());
   }
 
 }

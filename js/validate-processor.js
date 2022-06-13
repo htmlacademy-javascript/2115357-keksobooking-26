@@ -13,6 +13,7 @@ const adFormNode = document.querySelector(`${adForm.selector}${adForm.value}`);
 const pristine = getPristine(adFormNode, PRISTINE_CLASS);
 const adFormSubmitButton = document.querySelector(`${adForm.children.adForm.submit.selector[0]}${adForm.children.adForm.submit.value}`);
 const adFormResetButton = document.querySelector(`${adForm.children.adForm.reset.selector[0]}${adForm.children.adForm.reset.value}`);
+const requiredFieldText = domProcessor(false, 'getLocalText', 'requiredFieldText').part1;
 
 /*initial validation*/
 const validateInitial = (node, removeErrorClass = true) => {
@@ -61,6 +62,9 @@ const validateProcessor = () => {
             const errorText = domProcessor(false, 'getLocalText', errorLangElement);
             const getPriceErrorMessage = (price) => {
               const minPrice = childData.optionsToValidate[childNode.value].minPrice;
+              if (price === '') {
+                return requiredFieldText;
+              }
               if (price < minPrice) {
                 return `${errorText.part1} ${minPrice}`;
               }
@@ -89,13 +93,16 @@ const validateProcessor = () => {
             childNode.addEventListener('input', typeSelectFieldInputHandler);
             break;
           }
-          case  'title': {
+          case 'title': {
             const errorText = domProcessor(false, 'getLocalText', 'titleLength');
             const titleMinLength = Number(objectToValidateNode.getAttribute('minLength'));
             const errorMessageMin = `${errorText.part1} ${errorText.part3} ${titleMinLength} ${errorText.part4}`;
             const titleMaxLength = Number(objectToValidateNode.getAttribute('maxLength'));
             const errorMessageMax = `${errorText.part2} ${errorText.part3} ${titleMaxLength - 1} ${errorText.part4}`;
             const getTitleErrorMessage = (title) => {
+              if (title === '') {
+                return requiredFieldText;
+              }
               if (title.length < titleMinLength) {
                 return errorMessageMin;
               }
@@ -110,6 +117,31 @@ const validateProcessor = () => {
               return isValid;
             };
             pristine.addValidator(objectToValidateNode, validateTitle, getTitleErrorMessage);
+            break;
+          }
+          case 'timein': {
+            /*normalize select > options*/
+            const childNodeOptionNodes = [...childNode.querySelectorAll(`${childData.objectToValidate.selector}`)];
+            const objectToValidateOptionNodes = [...objectToValidateNode.querySelectorAll(`${childData.objectToValidate.selector}`)];
+            /*timein's options*/
+            childNodeOptionNodes.forEach((optionNode) => {
+              const normalizedOptionValue = childData.optionsToValidate[optionNode.value.replace(':', '')].value;
+              runCMD(optionNode, childData.objectToValidate.cmd, normalizedOptionValue);
+            });
+            /*timeout's options*/
+            objectToValidateOptionNodes.forEach((optionNode) => {
+              const normalizedOptionValue = objectToValidate.options[optionNode.value.replace(':', '')].value;
+              runCMD(optionNode, childData.objectToValidate.cmd, normalizedOptionValue);
+            });
+            /*options dependencies*/
+            const timeinSelectFieldInputHandler = (ev) => {
+              objectToValidateNode.value = ev.currentTarget.value;
+            };
+            const timeoutSelectFieldInputHandler = (ev) => {
+              childNode.value = ev.currentTarget.value;
+            };
+            childNode.addEventListener('input', timeinSelectFieldInputHandler);
+            objectToValidateNode.addEventListener('input', timeoutSelectFieldInputHandler);
             break;
           }
         }

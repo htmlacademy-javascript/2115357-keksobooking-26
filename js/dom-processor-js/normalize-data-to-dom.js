@@ -17,6 +17,9 @@ const LOCAL = {
       part3: 'длинна заголовка',
       part4: 'символов.',
     },
+    requiredFieldText: {
+      part1: 'Это обязательное поле'
+    },
     minPrice: {
       part1: 'Минимальная цена:',
       part2: 'максимальная цена:',
@@ -43,6 +46,9 @@ const LOCAL = {
       4:  'гостей',
       5:  'гостей',
     },
+    1200: '12:00',
+    1300: '13:00',
+    1400: '14:00',
   },
   en: {
     titleLength: {
@@ -50,6 +56,9 @@ const LOCAL = {
       part2: 'Maximum',
       part3: 'title length is',
       part4: 'symbols.',
+    },
+    requiredFieldText: {
+      part1: 'This field is required'
     },
     minPrice: {
       part1: 'Min. price:',
@@ -77,13 +86,9 @@ const LOCAL = {
       4:  'guests',
       5:  'guests',
     },
-    adFormTypeOptions: {
-      bungalow: 'Bungalow',
-      flat: 'Flat',
-      hotel: 'Hotel',
-      house: 'House',
-      palace: 'Palace',
-    },
+    1200: '12:00',
+    1300: '13:00',
+    1400: '14:00',
   },
   lineJoin: [
     ',',

@@ -11,7 +11,7 @@ const fillContainerWithTemplate = (dataOriginal, template, container, CMD) => {
   const data = {};
   let emptyFieldsChecker = 0;
   switch (template.nickName) {
-    case 'card':
+    case 'card': {
       /* card - a template to show an ad */
       while (!emptyFieldsChecker) {
         /* to be sure there's data in this ad */
@@ -24,19 +24,29 @@ const fillContainerWithTemplate = (dataOriginal, template, container, CMD) => {
         emptyFieldsChecker = Object.values(data.templates[template.nickName]).length;
       }
       break;
+    }
+    case 'success': {
+      Object.assign(data, dataOriginal);
+      break;
+    }
+    case 'error': {
+      Object.assign(data, dataOriginal);
+      break;
+    }
     default:
       return false;
   }
-
   /* TEMP DELETE!! Empty some fileds to check out dispalynone TEMP DELETE!!*/
-  Object.keys(data.templates[template.nickName]).forEach((el, id, ar) => {
-    if (id === getRandomNumber(0, ar.length) && typeof data.templates[template.nickName][el] === 'string') {
-      data.templates[template.nickName][el] = '';
-    }
-    if (id === getRandomNumber(0, ar.length) && typeof data.templates[template.nickName][el] === 'object') {
-      data.templates[template.nickName][el] = [];
-    }
-  });
+  if (template.nickName === 'card') {
+    Object.keys(data.templates[template.nickName]).forEach((el, id, ar) => {
+      if (id === getRandomNumber(0, ar.length) && typeof data.templates[template.nickName][el] === 'string') {
+        data.templates[template.nickName][el] = '';
+      }
+      if (id === getRandomNumber(0, ar.length) && typeof data.templates[template.nickName][el] === 'object') {
+        data.templates[template.nickName][el] = [];
+      }
+    });
+  }
   /* TEMP DELETE!! empty one filed to check out dispalynone TEMP DELETE!!*/
 
   const newNode = template.fragment.content.cloneNode(true);

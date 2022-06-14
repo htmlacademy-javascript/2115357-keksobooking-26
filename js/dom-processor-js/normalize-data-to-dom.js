@@ -18,7 +18,15 @@ const LOCAL = {
       part4: 'символов.',
     },
     requiredFieldText: {
-      part1: 'Это обязательное поле'
+      part1: 'Это обязательное поле',
+    },
+    serverResponseOkText: {
+      part1: 'Ваше объявление',
+      part2: 'успешно размещено!',
+    },
+    serverResponseErrorText: {
+      part1: 'Ошибка размещения объявления',
+      part2: 'Попробовать снова',
     },
     propertySideError: {
       part1: 'Это размещение не может принять такое кол-во гостей',
@@ -69,6 +77,14 @@ const LOCAL = {
     },
     requiredFieldText: {
       part1: 'This field is required'
+    },
+    serverResponseOkText: {
+      part1: 'Your ad',
+      part2: 'has been successfully posted!',
+    },
+    serverResponseErrorText: {
+      part1: 'Posting failed',
+      part2: 'Try again',
     },
     propertySideError: {
       part1: 'This property cannot accommodate that many guests',

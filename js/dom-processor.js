@@ -330,6 +330,25 @@ class Dom {
           },
         },
       },
+      success: {
+        message: {
+          value: 'message',
+          selector: this.getSelector(2),
+          cmd:  [1],
+        },
+      },
+      error: {
+        message: {
+          value: 'message',
+          selector: this.getSelector(2),
+          cmd: [1],
+        },
+        button: {
+          value: 'button',
+          selector: this.getSelector(2),
+          cmd: [1],
+        },
+      },
     };
     this.CONTAINERS = {
       /* elements with parameters to select nodes from the real DOM */
@@ -357,6 +376,10 @@ class Dom {
           pageToggle: this.getChildrenForContainer(['pageToggle', [0, 1, 2, 3]]),
         },
       },
+      body: {
+        value: 'body',
+        selector: this.getSelector(0)[0],
+      },
     };
     this.TEMPLATES = {
       /* groups of elements with to select real DOM templates */
@@ -369,6 +392,34 @@ class Dom {
           class: 'popup', //real DOM select fragment content
           selector: this.getSelector(2), // real DOM select fragment content
           thisCHILDREN: 'popup', // list of children from this obj, not the DOM
+          classConnector: this.getClassConnector(1), // class name parts connector
+          content: '',
+          children: {},
+        },
+      },
+      success: {
+        id: 'success', // real DOM select fragment
+        class: '',  // real DOM select fragment
+        selector: this.getSelector(1),  // real DOM select fragment
+        fragment: {
+          id: '', // real DOM select fragment content
+          class: 'success', //real DOM select fragment content
+          selector: this.getSelector(2), // real DOM select fragment content
+          thisCHILDREN: 'success', // list of children from this obj, not the DOM
+          classConnector: this.getClassConnector(1), // class name parts connector
+          content: '',
+          children: {},
+        },
+      },
+      error: {
+        id: 'error', // real DOM select fragment
+        class: '',  // real DOM select fragment
+        selector: this.getSelector(1),  // real DOM select fragment
+        fragment: {
+          id: '', // real DOM select fragment content
+          class: 'error', //real DOM select fragment content
+          selector: this.getSelector(2), // real DOM select fragment content
+          thisCHILDREN: 'error', // list of children from this obj, not the DOM
           classConnector: this.getClassConnector(1), // class name parts connector
           content: '',
           children: {},
@@ -439,7 +490,6 @@ class Dom {
   getContainerNode(containerName) {
     /* get the real container’s node from the DOM */
     return this.CONTAINERS[containerName] &&
-      this.CONTAINERS[containerName].selector &&
       this.CONTAINERS[containerName].value &&
       document.querySelector(`${this.CONTAINERS[containerName].selector}${this.CONTAINERS[containerName].value}`)
     || false;

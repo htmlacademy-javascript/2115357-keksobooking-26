@@ -1,3 +1,22 @@
+/* TEMP DEL START */
+input#price.error-input-placeholder,
+input#title.error-input-placeholder
+{
+  border: 2px solid #ff6547;
+}
+input#price.error-input-placeholder::placeholder,
+input#title.error-input-placeholder::placeholder
+{
+  color: #ff6547;
+  opacity: 1;
+}
+
+.form__error {
+  color: #ff6547;
+}
+/* TEMP DEL END */
+
+
 /* Общие стили. Каркас
    ========================================================================== */
 

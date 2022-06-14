@@ -90,7 +90,6 @@ const getAdsObject = () => {
         presentationFn.stopPresentation = () => {
           startStopContainer.removeEventListener('click', presentationFn.stopPresentation);
           clearInterval(intervalToggle);
-          mainTextContainer.remove();
           subTextContainer.remove();
           counterContainer.remove();
           startStopContainer.textContent = startPresentationText;

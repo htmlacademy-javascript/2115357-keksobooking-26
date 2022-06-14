@@ -154,11 +154,13 @@ const temporaryFetch = () => {
 EVENT_HANDLERS.escKeydownResponseRemoveHandler = (ev) => {
   if (isEscapeKey(ev)) {
     window.removeEventListener('click', EVENT_HANDLERS.escKeydownResponseRemoveHandler);
+    window.removeEventListener('click', EVENT_HANDLERS.windowClickResponseRemoveHandler);
     ev.preventDefault();
     processDomAfterServerResponse();
   }
 };
 EVENT_HANDLERS.windowClickResponseRemoveHandler = () => {
+  window.removeEventListener('click', EVENT_HANDLERS.escKeydownResponseRemoveHandler);
   window.removeEventListener('click', EVENT_HANDLERS.windowClickResponseRemoveHandler);
   processDomAfterServerResponse();
 };

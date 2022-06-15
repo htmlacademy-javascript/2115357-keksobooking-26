@@ -5,31 +5,78 @@ import   {getRandomNumber}    from './functions.js';
 /*dom processor*/
 import   { domProcessor }        from './dom-processor.js';
 
-/*!!! TEMP CHANGE START !!!*/
-const ADS_DATA = {};
-const setAdsTempData = (...nodes) => {
-  nodes.forEach((node) => {
-    setTimeout(() => {
-      node.value = ADS_DATA.TEMP_ADDRESS;
-    });
-  });
-};
-const getAdsTempData = (adsData = false) => {
-  /*get temporary value for address field*/
-  ADS_DATA.TEMP_ADDRESS = adsData && adsData[getRandomNumber(0, adsData.length - 1)].offer.address || getRandomNumber(0, 'TEMP_ADDRESS'.length ** 'TEMP_ADDRESS'.length);
-};
-/*!!! TEMP CHANGE END !!!*/
-
 const PRISTINE_CLASS = domProcessor(false, 'getClass', 'pristineAdFormClass');
 const PRISTINE_ERROR_CLASS = PRISTINE_CLASS.errorTemporaryClass;
+const SERVER_RESPONSE_DOM = {
+  container: 'body',
+  children: {
+    success: 'success',
+    error: 'error',
+  },
+};
+const SERVER_RESPONSE_TEXT = {
+  templates: {
+    success:{
+      message: `${domProcessor(false, 'getLocalText', 'serverResponseOkText').part1}\n${domProcessor(false, 'getLocalText', 'serverResponseOkText').part2}`,
+    },
+    error:{
+      message: domProcessor(false, 'getLocalText', 'serverResponseErrorText').part1,
+      button: domProcessor(false, 'getLocalText', 'serverResponseErrorText').part2,
+    },
+  },
+};
+const SERVER_RESPONSE_NODES = {
+  success: '',
+  error: '',
+};
+const EVENT_HANDLERS = {
+  adFormSubmitButtonClickHandler: () => '',
+  windowClickResponseRemoveHandler: () => '',
+  escKeydownResponseRemoveHandler: () => '',
+  adFormResetButtonClickHandler: () => '',
+  typeSelectFieldInputHandler: () => '',
+  timeinSelectFieldInputHandler: () => '',
+  timeoutSelectFieldInputHandler: () => '',
+  roomsSelectFieldInputHandler: () => '',
+  roomsSelectFieldClickHandler: () => '',
+  guestsSelectFieldInputHandler: () => '',
+  guestsSelectFieldClickHandler: () => '',
+};
 const nodesToValidateOnReset = [];
 const adFormName = 'adForm';
 const adForm = domProcessor(false, 'getContainer', adFormName);
 const adFormNode = document.querySelector(`${adForm.selector}${adForm.value}`);
 const pristine = getPristine(adFormNode, PRISTINE_CLASS);
-const adFormSubmitButton = document.querySelector(`${adForm.children.adForm.submit.selector[0]}${adForm.children.adForm.submit.value}`);
-const adFormResetButton = document.querySelector(`${adForm.children.adForm.reset.selector[0]}${adForm.children.adForm.reset.value}`);
 const requiredFieldText = domProcessor(false, 'getLocalText', 'requiredFieldText').part1;
+const adFormResetButton = document.querySelector(`${adForm.children.adForm.reset.selector[0]}${adForm.children.adForm.reset.value}`);
+const adFormSubmitButton = document.querySelector(`${adForm.children.adForm.submit.selector[0]}${adForm.children.adForm.submit.value}`);
+const isEscapeKey = (ev) => ev.key === 'Escape';
+const formSubmitButtonToggle = (toggle) => {
+  if (toggle) {
+    /*enable submit*/
+    adFormSubmitButton.addEventListener('click', EVENT_HANDLERS.adFormSubmitButtonClickHandler);
+    adFormSubmitButton.disabled = false;
+  } else {
+    /*disable submit*/
+    adFormSubmitButton.removeEventListener('click', EVENT_HANDLERS.adFormSubmitButtonClickHandler);
+    adFormSubmitButton.disabled = true;
+  }
+};
+const processDomAfterServerResponse = () => {
+  /*page to enable state*/
+  domProcessor(false, 'pageEnable');
+  /*enable back the submit button*/
+  formSubmitButtonToggle(true);
+  if (SERVER_RESPONSE_NODES.success) {
+    SERVER_RESPONSE_NODES.success.remove();
+    /*form fields back to defaults*/
+    adFormResetButton.click();
+    /*further post success submit actions*/
+  }
+  if (SERVER_RESPONSE_NODES.error) {
+    SERVER_RESPONSE_NODES.error.remove();
+  }
+};
 /*skip/resume validation for some fields_ now it is used for roomsNumber/guestsNumber*/
 const skipValidation = {
   toggle: 0,
@@ -55,6 +102,76 @@ const runCMD = (node, CMD, value = false) => {
     //value = value !== false && value !! value0Attribute1[0];
     nodeCMD(node, value !== false ? value : value0Attribute1[0], value0Attribute1[1]);
   });
+};
+
+/*!!! TEMP CHANGE START !!!*/
+const ADS_DATA = {};
+const setAdsTempData = (...nodes) => {
+  nodes.forEach((node) => {
+    setTimeout(() => {
+      node.value = ADS_DATA.TEMP_ADDRESS;
+    });
+  });
+};
+const getAdsTempData = (adsData = false) => {
+  /*get temporary value for address field*/
+  ADS_DATA.TEMP_ADDRESS = adsData && adsData[getRandomNumber(0, adsData.length - 1)].offer.address || getRandomNumber(0, 'TEMP_ADDRESS'.length ** 'TEMP_ADDRESS'.length);
+};
+const temporaryFetch = () => {
+  /*prepare to fetch*/
+  /*page to disable state*/
+  domProcessor(false, 'pageDisable');
+  /*disable the submit button*/
+  formSubmitButtonToggle(false);
+  /*Here's going to be a fetch to the server with a response.*/
+  /*Simulate a server response*/
+  const serverMinResponseTime = 300;
+  const serverMaxResponseTime = 1500;
+  setTimeout(() => {
+    const serverResponse = getRandomNumber(0, 1);
+    if (serverResponse) {
+      /*responses with OK*/
+      /*success popups*/
+      domProcessor(SERVER_RESPONSE_TEXT, 'fillContainerWithTemplate', SERVER_RESPONSE_DOM.children.success, SERVER_RESPONSE_DOM.container);
+      /*popups remove toggle*/
+      SERVER_RESPONSE_NODES.success = document.querySelector(`.${SERVER_RESPONSE_DOM.children.success}`);
+      SERVER_RESPONSE_NODES.error = '';
+    } else {
+      /*responses with ERROR*/
+      /*error popups*/
+      domProcessor(SERVER_RESPONSE_TEXT, 'fillContainerWithTemplate', SERVER_RESPONSE_DOM.children.error, SERVER_RESPONSE_DOM.container);
+      /*popus remove toggle*/
+      SERVER_RESPONSE_NODES.error = document.querySelector(`.${SERVER_RESPONSE_DOM.children.error}`);
+      SERVER_RESPONSE_NODES.success = '';
+    }
+    /*remove popup*/
+    window.addEventListener('keydown', EVENT_HANDLERS.escKeydownResponseRemoveHandler);
+    window.addEventListener('click', EVENT_HANDLERS.windowClickResponseRemoveHandler);
+  }, getRandomNumber(serverMinResponseTime, serverMaxResponseTime));
+};
+/*!!! TEMP CHANGE END !!!*/
+
+EVENT_HANDLERS.escKeydownResponseRemoveHandler = (ev) => {
+  if (isEscapeKey(ev)) {
+    window.removeEventListener('keydown', EVENT_HANDLERS.escKeydownResponseRemoveHandler);
+    window.removeEventListener('click', EVENT_HANDLERS.windowClickResponseRemoveHandler);
+    processDomAfterServerResponse();
+  }
+};
+EVENT_HANDLERS.windowClickResponseRemoveHandler = () => {
+  window.removeEventListener('keydown', EVENT_HANDLERS.escKeydownResponseRemoveHandler);
+  window.removeEventListener('click', EVENT_HANDLERS.windowClickResponseRemoveHandler);
+  processDomAfterServerResponse();
+};
+EVENT_HANDLERS.adFormSubmitButtonClickHandler = (ev) => {
+  ev.preventDefault();
+  skipValidation.toggle = 1;
+  const isFormValid = pristine.validate();
+  if (isFormValid) {
+    /*FETCH*/
+    temporaryFetch();
+    //adFormNode.submit();
+  }
 };
 /*validate processor v1.0*/
 const validateProcessor = (adsData = false) => {
@@ -121,7 +238,7 @@ const validateProcessor = (adsData = false) => {
               objectToValidateNode.classList.toggle(PRISTINE_ERROR_CLASS, isValid === false);
               return isValid;
             };
-            const typeSelectFieldInputHandler = (ev) => {
+            EVENT_HANDLERS.typeSelectFieldInputHandler = (ev) => {
               /*set validated attribute, min and placeholder*/
               const validatedValue = childData.optionsToValidate[ev.currentTarget.value].minPrice;
               runCMD(objectToValidateNode, childData.objectToValidate.cmd, validatedValue);
@@ -130,7 +247,7 @@ const validateProcessor = (adsData = false) => {
               objectToValidateNode.dispatchEvent(new Event('input'));
             };
             pristine.addValidator(objectToValidateNode, validatePrice, getPriceErrorMessage);
-            childNode.addEventListener('input', typeSelectFieldInputHandler);
+            childNode.addEventListener('input', EVENT_HANDLERS.typeSelectFieldInputHandler);
             break;
           }
           case 'title': {
@@ -174,14 +291,14 @@ const validateProcessor = (adsData = false) => {
               runCMD(optionNode, childData.objectToValidate.cmd, normalizedOptionValue);
             });
             /*options dependencies*/
-            const timeinSelectFieldInputHandler = (ev) => {
+            EVENT_HANDLERS.timeinSelectFieldInputHandler = (ev) => {
               objectToValidateNode.value = ev.currentTarget.value;
             };
-            const timeoutSelectFieldInputHandler = (ev) => {
+            EVENT_HANDLERS.timeoutSelectFieldInputHandler = (ev) => {
               childNode.value = ev.currentTarget.value;
             };
-            childNode.addEventListener('input', timeinSelectFieldInputHandler);
-            objectToValidateNode.addEventListener('input', timeoutSelectFieldInputHandler);
+            childNode.addEventListener('input', EVENT_HANDLERS.timeinSelectFieldInputHandler);
+            objectToValidateNode.addEventListener('input', EVENT_HANDLERS.timeoutSelectFieldInputHandler);
             /*initial normalization if the options are mixed up*/
             childNode.dispatchEvent(new Event('input'));
             break;
@@ -236,14 +353,14 @@ const validateProcessor = (adsData = false) => {
               }
               return roomsSuitable.includes(roomsNumber);
             };
-            const roomsSelectFieldInputHandler = () => {
+            EVENT_HANDLERS.roomsSelectFieldInputHandler = () => {
               /*revalidate the opposit field*/
               /*toggle - to write down only one error messg. at a time*/
               guestsSideError.toggle = 0;
               objectToValidateNode.dispatchEvent(new Event('input'));
               guestsSideError.toggle = 1;
             };
-            const roomsSelectFieldClickHandler = () => {
+            EVENT_HANDLERS.roomsSelectFieldClickHandler = () => {
               /*recharge validation*/
               resumeValidation();
             };
@@ -260,7 +377,7 @@ const validateProcessor = (adsData = false) => {
               const guestsSuitable = childData.capacityNumberGuestsRules[roomsNumber];
               return guestsSuitable.includes(Number(guestsNumber));
             };
-            const guestsSelectFieldInputHandler = () => {
+            EVENT_HANDLERS.guestsSelectFieldInputHandler = () => {
               /*revalidate the opposit field*/
               /*toggle - to write down only one error messg. at a time*/
               propertySideError.toggle = 0;
@@ -268,16 +385,16 @@ const validateProcessor = (adsData = false) => {
               /*recharge opposite error*/
               propertySideError.toggle = 1;
             };
-            const guestsSelectFieldClickHandler = () => {
+            EVENT_HANDLERS.guestsSelectFieldClickHandler = () => {
               /*recharge validation*/
               resumeValidation();
             };
             pristine.addValidator(childNode, validateRoomsNumberField, getRoomsNumberErrorMessage);
             pristine.addValidator(objectToValidateNode, validateGuestsNumberField, getGuestsNumberErrorMessage);
-            childNode.addEventListener('change', roomsSelectFieldInputHandler);
-            childNode.addEventListener('click', roomsSelectFieldClickHandler);
-            objectToValidateNode.addEventListener('change', guestsSelectFieldInputHandler);
-            objectToValidateNode.addEventListener('click', guestsSelectFieldClickHandler);
+            childNode.addEventListener('change', EVENT_HANDLERS.roomsSelectFieldInputHandler);
+            childNode.addEventListener('click', EVENT_HANDLERS.roomsSelectFieldClickHandler);
+            objectToValidateNode.addEventListener('change', EVENT_HANDLERS.guestsSelectFieldInputHandler);
+            objectToValidateNode.addEventListener('click', EVENT_HANDLERS.guestsSelectFieldClickHandler);
             break;
           }
         }
@@ -287,15 +404,7 @@ const validateProcessor = (adsData = false) => {
       /*validation / dependencies for children DOM nodes END*/
     }
     /*submit adForm*/
-    const adFormSubmitButtonClickHandler = (ev) => {
-      ev.preventDefault();
-      skipValidation.toggle = 1;
-      const isFormValid = pristine.validate();
-      if (isFormValid) {
-        adFormNode.submit();
-      }
-    };
-    adFormSubmitButton.addEventListener('click', adFormSubmitButtonClickHandler);
+    adFormSubmitButton.addEventListener('click', EVENT_HANDLERS.adFormSubmitButtonClickHandler);
     /*reset adForm*/
     /*validateOnReset*/
     const validateOnReset = () => {
@@ -312,10 +421,10 @@ const validateProcessor = (adsData = false) => {
 
       }
     };
-    const adFormResetButtonClickHandler = () => {
+    EVENT_HANDLERS.adFormResetButtonClickHandler = () => {
       validateOnReset();
     };
-    adFormResetButton.addEventListener('click', adFormResetButtonClickHandler);
+    adFormResetButton.addEventListener('click', EVENT_HANDLERS.adFormResetButtonClickHandler);
   }
   /*normalize and add validation to the adForm END*/
 };

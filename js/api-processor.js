@@ -33,10 +33,11 @@ const getAPIData = () => {
             wordsNumTo:      12,
             sentencesNumFr:  4,
             sentencesNumTo:  12,
+            maxLength:        100,
           },
           photos: {
             numberFrom: 1,
-            numberTo: 20,
+            numberTo: 6,
             urlBase: 'https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/',
             files: [
               'duonguyen-8LrGtIxxa4w.jpg',

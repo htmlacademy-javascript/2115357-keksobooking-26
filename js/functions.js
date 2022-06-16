@@ -97,6 +97,7 @@ class RandomTextGen {
         sentencesNumFr: '',
         sentencesNumTo: '',
         sentenceEnd: '.',
+        maxLength: '',
       },
       PARAMS_ERORR:             'RandomTextGen Params error.',
     };
@@ -148,7 +149,6 @@ class RandomTextGen {
   getText() {
     /* if all params are set */
     if (!this.checkParams()) {
-      /*  console.  error   (this.  consts  . PARAMS_ERORR)  ; */
       return '';
     }
     /* set abc */
@@ -158,8 +158,12 @@ class RandomTextGen {
     const sentenceNum = getRandomNumber(this.params.sentencesNumFr, this.params.sentencesNumTo) || this.consts.SENTENCES_NUM_DEF;
     const text = Array.from({ length: sentenceNum }, this.getSentence);
     /* reset params */
+    const maxLength = this.params.maxLength;
     this.params = Object.assign({}, this.consts.PARAMS_DEF);
-    return text.join(' ');
+    if (!maxLength) {
+      return text.join(' ');
+    }
+    return `${text.join(' ').substring(0, maxLength)}${this.consts.SENTENCE_ENDS[0].repeat(3)}`;
   }
 }
 const getRandomText = (params = false) => {

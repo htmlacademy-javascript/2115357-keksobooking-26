@@ -40,6 +40,12 @@ const mapProcessor = () => {
   /*mount openmap to the map*/
   L.tileLayer(OPEN_MAP_PARAMS[1], {attribution: OPEN_MAP_PARAMS[2],},).addTo(MAP);
 
+  /*initialize the marker pin*/
+  const MAP_MAIN_MARKER_PIN = L.icon({
+    iconUrl: './img/main-pin.svg',
+    iconSize: [52, 52],
+    iconAnchor: [26, 52],
+  });
   /*initialize the main marker*/
   const MAP_MAIN_MARKER = L.marker(
     {
@@ -48,6 +54,7 @@ const mapProcessor = () => {
     },
     {
       draggable: true,
+      icon: MAP_MAIN_MARKER_PIN,
     },
   );
   /*mount the main marker to the map*/

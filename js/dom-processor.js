@@ -396,6 +396,7 @@ class Dom {
           content: '',
           children: {},
         },
+        mapPopUpNodes: '',
       },
       success: {
         id: 'success', // real DOM select fragment
@@ -573,13 +574,17 @@ const domProcessor = (dataOriginal = false, ...params) => {
   switch (params[0]) {
     /* get a template and fill a container with it */
     case 'fillContainerWithTemplate': {
-      /* COMMAND: domProcessor(adsObject, 'fillContainerWithTemplate', TEMPLATE_FROM_DOM_CLASS, CONTAINER_FROM_DOM_CLASS) */
+      /* COMMAND: domProcessor(adsObject, 'fillContainerWithTemplate', TEMPLATE_FROM_DOM_CLASS, CONTAINER_FROM_DOM_CLASS, return template true/false) */
       /* adsObject - dataObject, params[1] template, params[2] container */
       const template = DOM.setTemplate(params[1]);
       const container = DOM.getContainerNode(params[2]);
       if (template && container && dataOriginal &&
         typeof dataOriginal === 'object') {
         fillContainerWithTemplate(dataOriginal, template, container, DOM.CMD);
+      }
+      // eslint-disable-next-line valid-typeof
+      if (typeof params[3] !== 'indefined' && params[3]) {
+        return template;
       }
       break;
     }

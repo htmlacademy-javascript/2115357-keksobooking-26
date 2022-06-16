@@ -5,12 +5,6 @@ import   { mapProcessor }              from './map-processor.js';
 /*initialize the map*/
 mapProcessor();
 
-/*THIS WILL GET THE DATA FOR THE "SAME ADS" LATER*/
-/*getAdsObject()
-  .then((data) => {
-    JSON.stringify(data);
-  });*/
-
 /*TASKS*/
 /*
   api

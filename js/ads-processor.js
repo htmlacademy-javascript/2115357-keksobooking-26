@@ -11,8 +11,8 @@ const getAdsObject = () => {
       /* ads processing END */
       rj();
     });
-    return result;
   });
+  return result;
 };
 
 export {getAdsObject};

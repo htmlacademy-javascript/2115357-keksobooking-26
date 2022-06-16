@@ -154,26 +154,3 @@ const mapProcessor = () => {
 };
 
 export { mapProcessor };
-
-
-
-
-
-
-
-/*  const MAP = L.map(MAP_CONTAINER_DOM_ELEMENT.value)
-    .on('load', () => {
-      /!*set initial main marker coordinates - address field in validation*!/
-      recordAdAddressFromMap({lat: INITIAL_LAT, lng: INITIAL_LNG}, true);
-      /!*turn the page back on*!/
-      /!*!!!ADD 5.20 ADD!!!*!/
-      /!*here the ads filter form should remain disabled untill all similar ads are loaded*!/
-      domProcessor(false, 'pageEnable');
-      /!*initialize adForm validation*!/
-      validateProcessor();
-    })
-    .setView({
-      lat: INITIAL_LAT,
-      lng: INITIAL_LNG,
-    }, INITIAL_ZOOM);
-  /!*initialize the map END*!/*/

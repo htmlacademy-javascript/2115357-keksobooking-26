@@ -42,7 +42,7 @@ const getAPIData = () => {
             files: [
               'duonguyen-8LrGtIxxa4w.jpg',
               'brandon-hoogenboom-SNxQGWxZQi0.jpg',
-              'claire-rendall-b6kAwr1i0Iw.jpg.',
+              /*'claire-rendall-b6kAwr1i0Iw.jpg.',*/
             ],
           },
         },

@@ -41,6 +41,7 @@ const EVENT_HANDLERS = {
   roomsSelectFieldClickHandler: () => '',
   guestsSelectFieldInputHandler: () => '',
   guestsSelectFieldClickHandler: () => '',
+  priceNumberFiledInputHandler: () => '',
 };
 const nodesToValidateOnReset = [];
 const adFormName = 'adForm';
@@ -223,6 +224,56 @@ const validateProcessor = () => {
             break;
           }
           case 'type': {
+            /*slider start*/
+            /*slider initialize START*/
+            const SLIDER_CLASS = 'slider__container';
+            const SLIDER_INITIAL_MIN_PRICE = 0;
+            const SLIDER_INITIAL_MAX_PRICE = 100000;
+            const SLIDER_INITIAL_START_PRICE = 0;
+            const SLIDER_INITIAL_STEP = 500;
+            const slidePriceToggles = {
+              slideToPriceBloker: 1,
+              priceToSlideBlocker: 0,
+              priceSliderTimeOut: '',
+              priceSliderTimeOutTime: 100,
+            };
+            const priceSlider = document.createElement('div');
+            priceSlider.classList.add(SLIDER_CLASS);
+            objectToValidateNode.parentNode.insertBefore(priceSlider, objectToValidateNode.nextSibling);
+            noUiSlider.create(priceSlider, {
+              range: {
+                min: SLIDER_INITIAL_MIN_PRICE,
+                max: SLIDER_INITIAL_MAX_PRICE,
+              },
+              start: SLIDER_INITIAL_START_PRICE,
+              step: SLIDER_INITIAL_STEP,
+            });
+            /*slider initialize END*/
+            /*update slider conf values*/
+            const updateSlider = (sliderMinPrice, sliderStep, sliderMaxPrice = SLIDER_INITIAL_MAX_PRICE) => {
+              priceSlider.noUiSlider.updateOptions({
+                range: {
+                  min: sliderMinPrice,
+                  max: sliderMaxPrice,
+                },
+                start: priceSlider.noUiSlider.get(),
+                step: sliderStep,
+              });
+            };
+            /*priceInputFiledSetsNewValue > slederGetsNewValue*/
+            const updateSliderValue = (price) => {
+              priceSlider.noUiSlider.set(price);
+            };
+            /*slederSetsNewValue > priceInputFiledGetsNewValue*/
+            priceSlider.noUiSlider.on('update', (...rest) => {
+              if (slidePriceToggles.slideToPriceBloker) {
+                return;
+              }
+              slidePriceToggles.priceToSlideBlocker = 1;
+              objectToValidateNode.value = Number(priceSlider.noUiSlider.get());
+              slidePriceToggles.priceToSlideBlocker = 0;
+            });
+            /*slider end*/
             /*normalize select > options*/
             const childNodeOptionNodes = [...childNode.querySelectorAll(`${childData.objectToValidate.selector}`)];
             childNodeOptionNodes.forEach((option) => {
@@ -262,9 +313,24 @@ const validateProcessor = () => {
               /*delete validation results from price field if it is empty, after a new type was selected*/
               validateInitial(objectToValidateNode, objectToValidateNode.value === '');
               objectToValidateNode.dispatchEvent(new Event('input'));
+              /*set new conf values for the slider*/
+              updateSlider(validatedValue, validatedValue || SLIDER_INITIAL_STEP);
             };
             pristine.addValidator(objectToValidateNode, validatePrice, getPriceErrorMessage);
             childNode.addEventListener('input', EVENT_HANDLERS.typeSelectFieldInputHandler);
+            /*updates slider value*/
+            EVENT_HANDLERS.priceNumberFiledInputHandler = () => {
+              if (slidePriceToggles.priceToSlideBlocker) {
+                return;
+              }
+              clearTimeout(slidePriceToggles.priceSliderTimeOut);
+              slidePriceToggles.slideToPriceBloker = 1;
+              slidePriceToggles.priceSliderTimeOut = setTimeout(()=>{
+                updateSliderValue(objectToValidateNode.value);
+                slidePriceToggles.slideToPriceBloker = 0;
+              }, slidePriceToggles.priceSliderTimeOutTime);
+            };
+            objectToValidateNode.addEventListener('input', EVENT_HANDLERS.priceNumberFiledInputHandler);
             break;
           }
           case 'title': {

@@ -41,6 +41,7 @@ const EVENT_HANDLERS = {
   roomsSelectFieldClickHandler: () => '',
   guestsSelectFieldInputHandler: () => '',
   guestsSelectFieldClickHandler: () => '',
+  priceNumberFiledInputHandler: () => '',
 };
 const nodesToValidateOnReset = [];
 const adFormName = 'adForm';
@@ -104,18 +105,26 @@ const runCMD = (node, CMD, value = false) => {
   });
 };
 
-/*!!! TEMP CHANGE START !!!*/
 const ADS_DATA = {};
-const setAdsTempData = (...nodes) => {
+
+/*!!! TEMP CHANGE START !!!*/
+const setAdsData = (initial = false, ...nodes) => {
+  /*!!!START CHANGE now it updates the address only CHANGE!!!*/
   nodes.forEach((node) => {
+    // eslint-disable-next-line valid-typeof
+    if (typeof node === 'undefind' || typeof node === null) {
+      return;
+    }
+    /*either extend it to other fields or reduce to the address only*/
     setTimeout(() => {
-      node.value = ADS_DATA.TEMP_ADDRESS;
+      if (initial) {
+        node.value = ADS_DATA.addressInitial;
+      } else {
+        node.value = ADS_DATA.addressCurrent;
+      }
     });
   });
-};
-const getAdsTempData = (adsData = false) => {
-  /*get temporary value for address field*/
-  ADS_DATA.TEMP_ADDRESS = adsData && adsData[getRandomNumber(0, adsData.length - 1)].offer.address || getRandomNumber(0, 'TEMP_ADDRESS'.length ** 'TEMP_ADDRESS'.length);
+  /*!!!CHANGE now it updates the address only CHANGE END!!!*/
 };
 const temporaryFetch = () => {
   /*prepare to fetch*/
@@ -151,6 +160,17 @@ const temporaryFetch = () => {
 };
 /*!!! TEMP CHANGE END !!!*/
 
+const recordAdAddressFromMap = (address, init = false) => {
+  const ADDRSTR = `${address.lat}, ${address.lng}`;
+  if (init) {
+    ADS_DATA.addressInitial = ADDRSTR;
+  } else {
+    /*the map onPointerMove records a new address and sets the new value to the addr field*/
+    ADS_DATA.addressCurrent = ADDRSTR;
+    setAdsData(false, ADS_DATA.addressNode);
+  }
+};
+
 EVENT_HANDLERS.escKeydownResponseRemoveHandler = (ev) => {
   if (isEscapeKey(ev)) {
     window.removeEventListener('keydown', EVENT_HANDLERS.escKeydownResponseRemoveHandler);
@@ -174,11 +194,7 @@ EVENT_HANDLERS.adFormSubmitButtonClickHandler = (ev) => {
   }
 };
 /*validate processor v1.0*/
-const validateProcessor = (adsData = false) => {
-
-  /*!!! TEMP CHANGE START !!!*/
-  getAdsTempData(adsData);
-  /*!!! TEMP CHANGE END !!!*/
+const validateProcessor = () => {
 
   /*normalize and add validation to the adForm START*/
   if (typeof adFormNode !=='undefined') {
@@ -202,10 +218,62 @@ const validateProcessor = (adsData = false) => {
         switch (index) {
           /*address - TEMP CHANGE*/
           case 'address': {
-            setAdsTempData(childNode);
+            setAdsData(true, childNode);
+            /*sets the address DOM real node to record addresses than onPointerMove on the map*/
+            ADS_DATA.addressNode = childNode;
             break;
           }
           case 'type': {
+            /*slider start*/
+            /*slider initialize START*/
+            const SLIDER_CLASS = 'slider__container';
+            const SLIDER_INITIAL_MIN_PRICE = 0;
+            const SLIDER_INITIAL_MAX_PRICE = 100000;
+            const SLIDER_INITIAL_START_PRICE = 0;
+            const SLIDER_INITIAL_STEP = 500;
+            const slidePriceToggles = {
+              slideToPriceBloker: 1,
+              priceToSlideBlocker: 0,
+              priceSliderTimeOut: '',
+              priceSliderTimeOutTime: 100,
+            };
+            const priceSlider = document.createElement('div');
+            priceSlider.classList.add(SLIDER_CLASS);
+            objectToValidateNode.parentNode.insertBefore(priceSlider, objectToValidateNode.nextSibling);
+            noUiSlider.create(priceSlider, {
+              range: {
+                min: SLIDER_INITIAL_MIN_PRICE,
+                max: SLIDER_INITIAL_MAX_PRICE,
+              },
+              start: SLIDER_INITIAL_START_PRICE,
+              step: SLIDER_INITIAL_STEP,
+            });
+            /*slider initialize END*/
+            /*update slider conf values*/
+            const updateSlider = (sliderMinPrice, sliderStep, sliderMaxPrice = SLIDER_INITIAL_MAX_PRICE) => {
+              priceSlider.noUiSlider.updateOptions({
+                range: {
+                  min: sliderMinPrice,
+                  max: sliderMaxPrice,
+                },
+                start: priceSlider.noUiSlider.get(),
+                step: sliderStep,
+              });
+            };
+            /*priceInputFiledSetsNewValue > slederGetsNewValue*/
+            const updateSliderValue = (price) => {
+              priceSlider.noUiSlider.set(price);
+            };
+            /*slederSetsNewValue > priceInputFiledGetsNewValue*/
+            priceSlider.noUiSlider.on('update', () => {
+              if (slidePriceToggles.slideToPriceBloker) {
+                return;
+              }
+              slidePriceToggles.priceToSlideBlocker = 1;
+              objectToValidateNode.value = Number(priceSlider.noUiSlider.get());
+              slidePriceToggles.priceToSlideBlocker = 0;
+            });
+            /*slider end*/
             /*normalize select > options*/
             const childNodeOptionNodes = [...childNode.querySelectorAll(`${childData.objectToValidate.selector}`)];
             childNodeOptionNodes.forEach((option) => {
@@ -245,9 +313,24 @@ const validateProcessor = (adsData = false) => {
               /*delete validation results from price field if it is empty, after a new type was selected*/
               validateInitial(objectToValidateNode, objectToValidateNode.value === '');
               objectToValidateNode.dispatchEvent(new Event('input'));
+              /*set new conf values for the slider*/
+              updateSlider(validatedValue, validatedValue || SLIDER_INITIAL_STEP);
             };
             pristine.addValidator(objectToValidateNode, validatePrice, getPriceErrorMessage);
             childNode.addEventListener('input', EVENT_HANDLERS.typeSelectFieldInputHandler);
+            /*updates slider value*/
+            EVENT_HANDLERS.priceNumberFiledInputHandler = () => {
+              if (slidePriceToggles.priceToSlideBlocker) {
+                return;
+              }
+              clearTimeout(slidePriceToggles.priceSliderTimeOut);
+              slidePriceToggles.slideToPriceBloker = 1;
+              slidePriceToggles.priceSliderTimeOut = setTimeout(()=>{
+                updateSliderValue(objectToValidateNode.value);
+                slidePriceToggles.slideToPriceBloker = 0;
+              }, slidePriceToggles.priceSliderTimeOutTime);
+            };
+            objectToValidateNode.addEventListener('input', EVENT_HANDLERS.priceNumberFiledInputHandler);
             break;
           }
           case 'title': {
@@ -415,8 +498,7 @@ const validateProcessor = (adsData = false) => {
         });
 
         /*TEMP CHANGE, reset address field value*/
-        getAdsTempData(adsData);
-        setAdsTempData(nodesToValidateOnReset[nodesToValidateOnReset.length - 1]);
+        setAdsData(true, nodesToValidateOnReset[nodesToValidateOnReset.length - 1]);
         /*TEMP CHANGE*/
 
       }
@@ -429,4 +511,5 @@ const validateProcessor = (adsData = false) => {
   /*normalize and add validation to the adForm END*/
 };
 
+export { recordAdAddressFromMap };
 export { validateProcessor };

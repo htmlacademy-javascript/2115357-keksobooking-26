@@ -1,20 +1,12 @@
-import   {getAdsObject}    from './ads-processor.js';
+/* map processor */
+import   { mapProcessor }              from './map-processor.js';
 
-/* validate processor */
-import   { validateProcessor }              from './validate-processor.js';
+/*THE START IS HERE*/
+/*initialize the map*/
+mapProcessor();
 
-/* linter temp */
-getAdsObject()
-  .then((data) => {
-    JSON.stringify(data);
-    /*initialize validation*/
-    validateProcessor(data);
-  });
-
+/*TASKS*/
 /*
-  events
-  8.20. Правда или действие (часть 2)
-
   api
   9.9. Помощь друга
 

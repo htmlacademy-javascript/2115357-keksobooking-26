@@ -33,27 +33,28 @@ const getAPIData = () => {
             wordsNumTo:      12,
             sentencesNumFr:  4,
             sentencesNumTo:  12,
+            maxLength:        100,
           },
           photos: {
             numberFrom: 1,
-            numberTo: 20,
+            numberTo: 6,
             urlBase: 'https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/',
             files: [
               'duonguyen-8LrGtIxxa4w.jpg',
               'brandon-hoogenboom-SNxQGWxZQi0.jpg',
-              'claire-rendall-b6kAwr1i0Iw.jpg.',
+              /*'claire-rendall-b6kAwr1i0Iw.jpg.',*/
             ],
           },
         },
         PROPERTY: {
           coordinates: {
             lat: {
-              x: 35.64999,
-              y: 35.70001,
+              x: 35.43999,
+              y: 35.90001,
             },
             lng: {
-              x: 139.69999,
-              y: 139.80001,
+              x: 139.48999,
+              y: 139.99001,
             },
             floatsNumber: 5,
           },

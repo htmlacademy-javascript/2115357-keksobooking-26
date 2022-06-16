@@ -104,18 +104,26 @@ const runCMD = (node, CMD, value = false) => {
   });
 };
 
-/*!!! TEMP CHANGE START !!!*/
 const ADS_DATA = {};
-const setAdsTempData = (...nodes) => {
+
+/*!!! TEMP CHANGE START !!!*/
+const setAdsData = (initial = false, ...nodes) => {
+  /*!!!START CHANGE now it updates the address only CHANGE!!!*/
   nodes.forEach((node) => {
+    // eslint-disable-next-line valid-typeof
+    if (typeof node === 'undefind' || typeof node === null) {
+      return;
+    }
+    /*either extend it to other fields or reduce to the address only*/
     setTimeout(() => {
-      node.value = ADS_DATA.TEMP_ADDRESS;
+      if (initial) {
+        node.value = ADS_DATA.addressInitial;
+      } else {
+        node.value = ADS_DATA.addressCurrent;
+      }
     });
   });
-};
-const getAdsTempData = (adsData = false) => {
-  /*get temporary value for address field*/
-  ADS_DATA.TEMP_ADDRESS = adsData && adsData[getRandomNumber(0, adsData.length - 1)].offer.address || getRandomNumber(0, 'TEMP_ADDRESS'.length ** 'TEMP_ADDRESS'.length);
+  /*!!!CHANGE now it updates the address only CHANGE END!!!*/
 };
 const temporaryFetch = () => {
   /*prepare to fetch*/
@@ -151,6 +159,17 @@ const temporaryFetch = () => {
 };
 /*!!! TEMP CHANGE END !!!*/
 
+const recordAdAddressFromMap = (address, init = false) => {
+  const ADDRSTR = `${address.lat}, ${address.lng}`;
+  if (init) {
+    ADS_DATA.addressInitial = ADDRSTR;
+  } else {
+    /*the map onPointerMove records a new address and sets the new value to the addr field*/
+    ADS_DATA.addressCurrent = ADDRSTR;
+    setAdsData(false, ADS_DATA.addressNode);
+  }
+};
+
 EVENT_HANDLERS.escKeydownResponseRemoveHandler = (ev) => {
   if (isEscapeKey(ev)) {
     window.removeEventListener('keydown', EVENT_HANDLERS.escKeydownResponseRemoveHandler);
@@ -174,11 +193,7 @@ EVENT_HANDLERS.adFormSubmitButtonClickHandler = (ev) => {
   }
 };
 /*validate processor v1.0*/
-const validateProcessor = (adsData = false) => {
-
-  /*!!! TEMP CHANGE START !!!*/
-  getAdsTempData(adsData);
-  /*!!! TEMP CHANGE END !!!*/
+const validateProcessor = () => {
 
   /*normalize and add validation to the adForm START*/
   if (typeof adFormNode !=='undefined') {
@@ -202,7 +217,9 @@ const validateProcessor = (adsData = false) => {
         switch (index) {
           /*address - TEMP CHANGE*/
           case 'address': {
-            setAdsTempData(childNode);
+            setAdsData(true, childNode);
+            /*sets the address DOM real node to record addresses than onPointerMove on the map*/
+            ADS_DATA.addressNode = childNode;
             break;
           }
           case 'type': {
@@ -415,8 +432,7 @@ const validateProcessor = (adsData = false) => {
         });
 
         /*TEMP CHANGE, reset address field value*/
-        getAdsTempData(adsData);
-        setAdsTempData(nodesToValidateOnReset[nodesToValidateOnReset.length - 1]);
+        setAdsData(true, nodesToValidateOnReset[nodesToValidateOnReset.length - 1]);
         /*TEMP CHANGE*/
 
       }
@@ -429,4 +445,5 @@ const validateProcessor = (adsData = false) => {
   /*normalize and add validation to the adForm END*/
 };
 
+export { recordAdAddressFromMap };
 export { validateProcessor };

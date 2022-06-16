@@ -259,6 +259,9 @@ const validateProcessor = () => {
                 start: priceSlider.noUiSlider.get(),
                 step: sliderStep,
               });
+              if (!objectToValidateNode.value || Number(objectToValidateNode.value) < sliderMinPrice) {
+                priceSlider.noUiSlider.set(sliderMinPrice);
+              }
             };
             /*priceInputFiledSetsNewValue > slederGetsNewValue*/
             const updateSliderValue = (price) => {

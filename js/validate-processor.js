@@ -265,7 +265,7 @@ const validateProcessor = () => {
               priceSlider.noUiSlider.set(price);
             };
             /*slederSetsNewValue > priceInputFiledGetsNewValue*/
-            priceSlider.noUiSlider.on('update', (...rest) => {
+            priceSlider.noUiSlider.on('update', () => {
               if (slidePriceToggles.slideToPriceBloker) {
                 return;
               }

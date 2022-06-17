@@ -315,8 +315,11 @@ const validateProcessor = () => {
               runCMD(objectToValidateNode, childData.objectToValidate.cmd, validatedValue);
               /*delete validation results from price field if it is empty, after a new type was selected*/
               validateInitial(objectToValidateNode, objectToValidateNode.value === '');
-              objectToValidateNode.style.setProperty('box-shadow', 'none');
-              objectToValidateNode.style.setProperty('border', '1px solid lightgray');
+              /*reduce/remove? the price filed shaking after select is changed*/
+              if (!objectToValidateNode.value) {
+                objectToValidateNode.style.setProperty('box-shadow', 'none');
+                objectToValidateNode.style.setProperty('border', '1px solid lightgray');
+              }
               objectToValidateNode.dispatchEvent(new Event('input'));
               setTimeout(() => {
                 objectToValidateNode.style.removeProperty('box-shadow');

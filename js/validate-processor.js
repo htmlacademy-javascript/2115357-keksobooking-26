@@ -226,6 +226,7 @@ const validateProcessor = () => {
           case 'type': {
             /*slider start*/
             /*slider initialize START*/
+            const priceFieldShakinBorderStyleDef = '1px solid lightgray';
             const SLIDER_CLASS = 'slider__container';
             const SLIDER_INITIAL_MIN_PRICE = 0;
             const SLIDER_INITIAL_MAX_PRICE = 100000;
@@ -318,7 +319,7 @@ const validateProcessor = () => {
               /*reduce/remove? the price filed shaking after select is changed*/
               if (!objectToValidateNode.value) {
                 objectToValidateNode.style.setProperty('box-shadow', 'none');
-                objectToValidateNode.style.setProperty('border', '1px solid lightgray');
+                objectToValidateNode.style.setProperty('border', priceFieldShakinBorderStyleDef);
               }
               objectToValidateNode.dispatchEvent(new Event('input'));
               setTimeout(() => {

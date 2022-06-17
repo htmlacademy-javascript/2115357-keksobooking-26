@@ -629,4 +629,3 @@ const domProcessor = (dataOriginal = false, ...params) => {
 
 export { domProcessor };
 
-//<form className="ad-form" method="post" encType="multipart/form-data" autoComplete="off">

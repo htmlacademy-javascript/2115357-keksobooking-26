@@ -1,8 +1,11 @@
+/*function*/
+import   { getRandomNumber }        from './functions.js';
+
 /*dom processor*/
 import   { domProcessor }        from './dom-processor.js';
 
 /* api processor */
-import   { processApi }              from './api-processor.js';
+import   { processApi }          from './api-processor.js';
 
 /* validate processor */
 import   { recordAdAddressFromMap }   from './validate-processor.js';
@@ -108,13 +111,14 @@ const mapProcessor = () => {
         if (result) {
           /*result - stringified data*/
           try{
-            const dataOriginal = JSON.parse(result);
-            /*!!! ADD 5.9 there should be no more than 10 ads at once ADD!!!*/
+            /*there should be no more than 10 ads at once ADD*/
+            const SIMILAR_ADS_MAX_NUMBER = 10;
+            result = JSON.parse(result);
+            const dataOriginal = result.filter((ad, index) => index < getRandomNumber(0, result.length)).slice(0, SIMILAR_ADS_MAX_NUMBER);
             /*mapCanvas - shoul be revised/renamed in dom.class & fill-container-with-template*/
             const DOM_CONTAINER_NAME = 'mapCanvas';
             /*get originalData, normalize it, clone and fill each node with the normalized data for each similar ad*/
             const NORMALIZED_ADS_NODES = domProcessor(dataOriginal, 'fillContainerWithTemplate', 'card', DOM_CONTAINER_NAME, true).mapPopUpNodes;
-            console.log(NORMALIZED_ADS_NODES);
             /*remove old ads from the similar ads layer*/
             MAP_SIMILAR_ADS_MARKER_LAYER.clearLayers();
             NORMALIZED_ADS_NODES.forEach((ad) => {

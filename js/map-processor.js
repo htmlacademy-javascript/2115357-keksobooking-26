@@ -1,8 +1,8 @@
 /*dom processor*/
 import   { domProcessor }        from './dom-processor.js';
 
-/* ads processor */
-import   { getAdsObject }              from './ads-processor.js';
+/* api processor */
+import   { processApi }              from './api-processor.js';
 
 /* validate processor */
 import   { recordAdAddressFromMap }   from './validate-processor.js';
@@ -97,35 +97,46 @@ const mapProcessor = () => {
 
       /*!!!ADD similar adds filter form should be additionally disabled here
       than it is not an initial page load (reset/adIsSent) ADD!!!*/
-
-      /*gets the data for the "similar ads"*/
-      getAdsObject()
-        .then((dataOriginal) => {
-          /*!!! ADD 5.2 should be a notice if it responses with an error ADD!!!*/
-          /*!!! ADD 5.9 there should be no more than 10 ads at once ADD!!!*/
-          JSON.stringify(dataOriginal);
-          /*mapCanvas - shoul be revised/renamed in dom.class & fill-container-with-template*/
-          const DOM_CONTAINER_NAME = 'mapCanvas';
-          /*get originalData, normalize it, clone and fill each node with the normalized data for each similar ad*/
-          const NORMALIZED_ADS_NODES = domProcessor(dataOriginal, 'fillContainerWithTemplate', 'card', DOM_CONTAINER_NAME, true).mapPopUpNodes;
-          /*remove old ads from the similar ads layer*/
-          MAP_SIMILAR_ADS_MARKER_LAYER.clearLayers();
-          NORMALIZED_ADS_NODES.forEach((ad) => {
-            const mapSimilarAdMarker = L.marker(
-              {
-                lat: ad[1].lat,
-                lng: ad[1].lng,
-              },
-              {icon: mapSimilarIcon},
-            );
-            mapSimilarAdMarker
-              .addTo(MAP_SIMILAR_ADS_MARKER_LAYER)
-              .bindPopup(ad[0]);
-          });
-          /*all similar ads are loaded here*/
-          /*!!! ADD here the ads filter form should be enabled if it is ok ADD!!!*/
-          /*!!!ADD similar-ads processor ADD!!!*/
-        });
+      processApi().then((result) =>{
+        /*!!! ADD 5.2 should be a notice if it responses with an error ADD!!!*/
+        const processSimilarAdsFail = (error = false) =>{
+          console.log(error);
+        }
+        if (!result) {
+          processSimilarAdsFail();
+        }
+        if (result) {
+          /*result - stringified data*/
+          try{
+            const dataOriginal = JSON.parse(result);
+            /*!!! ADD 5.9 there should be no more than 10 ads at once ADD!!!*/
+            /*mapCanvas - shoul be revised/renamed in dom.class & fill-container-with-template*/
+            const DOM_CONTAINER_NAME = 'mapCanvas';
+            /*get originalData, normalize it, clone and fill each node with the normalized data for each similar ad*/
+            const NORMALIZED_ADS_NODES = domProcessor(dataOriginal, 'fillContainerWithTemplate', 'card', DOM_CONTAINER_NAME, true).mapPopUpNodes;
+            console.log(NORMALIZED_ADS_NODES);
+            /*remove old ads from the similar ads layer*/
+            MAP_SIMILAR_ADS_MARKER_LAYER.clearLayers();
+            NORMALIZED_ADS_NODES.forEach((ad) => {
+              const mapSimilarAdMarker = L.marker(
+                {
+                  lat: ad[1].lat,
+                  lng: ad[1].lng,
+                },
+                {icon: mapSimilarIcon},
+              );
+              mapSimilarAdMarker
+                .addTo(MAP_SIMILAR_ADS_MARKER_LAYER)
+                .bindPopup(ad[0]);
+            });
+            /*all similar ads are loaded here*/
+            /*!!! ADD here the ads filter form should be enabled if it is ok ADD!!!*/
+            /*!!!ADD similar-ads processor ADD!!!*/
+          } catch(error) {
+            processSimilarAdsFail(error);
+          }
+        }
+      });
     };
     /*similar ads END*/
 

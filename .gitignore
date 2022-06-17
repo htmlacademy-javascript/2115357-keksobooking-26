@@ -11,5 +11,6 @@ npm-debug.log*
 Thumbs.db
 .vscode/
 
-js/old-code.js
+js/old-code/
+js/dom-processor-js/old-code/
 

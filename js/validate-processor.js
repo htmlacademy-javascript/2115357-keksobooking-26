@@ -5,6 +5,9 @@ import   {getRandomNumber}    from './functions.js';
 /*dom processor*/
 import   { domProcessor }        from './dom-processor.js';
 
+/* api processor */
+import   { processApi }          from './api-processor.js';
+
 const PRISTINE_CLASS = domProcessor(false, 'getClass', 'pristineAdFormClass');
 const PRISTINE_ERROR_CLASS = PRISTINE_CLASS.errorTemporaryClass;
 const SERVER_RESPONSE_DOM = {
@@ -104,14 +107,11 @@ const runCMD = (node, CMD, value = false) => {
     nodeCMD(node, value !== false ? value : value0Attribute1[0], value0Attribute1[1]);
   });
 };
-
 const ADS_DATA = {};
-
 /*!!! TEMP CHANGE START !!!*/
 const setAdsData = (initial = false, ...nodes) => {
   /*!!!START CHANGE now it updates the address only CHANGE!!!*/
   nodes.forEach((node) => {
-    // eslint-disable-next-line valid-typeof
     if (typeof node === 'undefind' || typeof node === null) {
       return;
     }
@@ -126,51 +126,46 @@ const setAdsData = (initial = false, ...nodes) => {
   });
   /*!!!CHANGE now it updates the address only CHANGE END!!!*/
 };
-const temporaryFetch = () => {
+const sendNewAdToApi = () => {
   /*prepare to fetch*/
-  /*page to disable state*/
-  domProcessor(false, 'pageDisable');
+  /*get the form data*/
+  const newAdDataToSend = new FormData(adFormNode);
   /*disable the submit button*/
   formSubmitButtonToggle(false);
-  /*Here's going to be a fetch to the server with a response.*/
-  /*Simulate a server response*/
-  const serverMinResponseTime = 300;
-  const serverMaxResponseTime = 1500;
-  setTimeout(() => {
-    const serverResponse = getRandomNumber(0, 1);
-    if (serverResponse) {
-      /*responses with OK*/
-      /*success popups*/
-      domProcessor(SERVER_RESPONSE_TEXT, 'fillContainerWithTemplate', SERVER_RESPONSE_DOM.children.success, SERVER_RESPONSE_DOM.container);
-      /*popups remove toggle*/
-      SERVER_RESPONSE_NODES.success = document.querySelector(`.${SERVER_RESPONSE_DOM.children.success}`);
-      SERVER_RESPONSE_NODES.error = '';
-    } else {
-      /*responses with ERROR*/
-      /*error popups*/
-      domProcessor(SERVER_RESPONSE_TEXT, 'fillContainerWithTemplate', SERVER_RESPONSE_DOM.children.error, SERVER_RESPONSE_DOM.container);
-      /*popus remove toggle*/
-      SERVER_RESPONSE_NODES.error = document.querySelector(`.${SERVER_RESPONSE_DOM.children.error}`);
-      SERVER_RESPONSE_NODES.success = '';
-    }
-    /*remove popup*/
-    window.addEventListener('keydown', EVENT_HANDLERS.escKeydownResponseRemoveHandler);
-    window.addEventListener('click', EVENT_HANDLERS.windowClickResponseRemoveHandler);
-  }, getRandomNumber(serverMinResponseTime, serverMaxResponseTime));
+  /*page to disable state*/
+  domProcessor(false, 'pageDisable');
+  processApi('push', newAdDataToSend, 'POST')
+    .then((response) => {
+      if (response) {
+        /*responses with OK*/
+        /*success popups*/
+        domProcessor(SERVER_RESPONSE_TEXT, 'fillContainerWithTemplate', SERVER_RESPONSE_DOM.children.success, SERVER_RESPONSE_DOM.container);
+        /*popups remove toggle*/
+        SERVER_RESPONSE_NODES.success = document.querySelector(`.${SERVER_RESPONSE_DOM.children.success}`);
+        SERVER_RESPONSE_NODES.error = '';
+      } else {
+        /*responses with ERROR*/
+        /*error popups*/
+        domProcessor(SERVER_RESPONSE_TEXT, 'fillContainerWithTemplate', SERVER_RESPONSE_DOM.children.error, SERVER_RESPONSE_DOM.container);
+        /*popus remove toggle*/
+        SERVER_RESPONSE_NODES.error = document.querySelector(`.${SERVER_RESPONSE_DOM.children.error}`);
+        SERVER_RESPONSE_NODES.success = '';
+      }
+      /*remove popup*/
+      window.addEventListener('keydown', EVENT_HANDLERS.escKeydownResponseRemoveHandler);
+      window.addEventListener('click', EVENT_HANDLERS.windowClickResponseRemoveHandler);
+    });
 };
-/*!!! TEMP CHANGE END !!!*/
-
 const recordAdAddressFromMap = (address, init = false) => {
-  const ADDRSTR = `${address.lat}, ${address.lng}`;
+  const ADDRSTRING = `${address.lat}, ${address.lng}`;
   if (init) {
-    ADS_DATA.addressInitial = ADDRSTR;
+    ADS_DATA.addressInitial = ADDRSTRING;
   } else {
     /*the map onPointerMove records a new address and sets the new value to the addr field*/
-    ADS_DATA.addressCurrent = ADDRSTR;
+    ADS_DATA.addressCurrent = ADDRSTRING;
     setAdsData(false, ADS_DATA.addressNode);
   }
 };
-
 EVENT_HANDLERS.escKeydownResponseRemoveHandler = (ev) => {
   if (isEscapeKey(ev)) {
     window.removeEventListener('keydown', EVENT_HANDLERS.escKeydownResponseRemoveHandler);
@@ -185,12 +180,13 @@ EVENT_HANDLERS.windowClickResponseRemoveHandler = () => {
 };
 EVENT_HANDLERS.adFormSubmitButtonClickHandler = (ev) => {
   ev.preventDefault();
+  /*prevent click on window after fetch is completed (closes the popups)*/
+  ev.stopPropagation();
   skipValidation.toggle = 1;
   const isFormValid = pristine.validate();
   if (isFormValid) {
     /*FETCH*/
-    temporaryFetch();
-    //adFormNode.submit();
+    sendNewAdToApi();
   }
 };
 /*validate processor v1.0*/

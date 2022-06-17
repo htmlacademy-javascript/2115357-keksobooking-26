@@ -1,6 +1,10 @@
 /* disable: domProcessor(false, 'pageDisable') */
 /* enable: domProcessor(false, 'pageEnable') */
-const pageStateToggle = (toggle, DOM_CLASSES, ...DOM_CONTAINERS) => {
+
+/* disable: domProcessor(false, 'mapFilterDisable') */
+/* enable: domProcessor(false, 'mapFilterEnable') */
+
+const formStateToggle = (toggle, DOM_CLASSES, ...DOM_CONTAINERS) => {
   /* DOM_CLASSES - whole DOM.CLASSES, could be reduced to used classes only */
   DOM_CONTAINERS.forEach((container) => {
     /* toggle containers state */
@@ -21,4 +25,4 @@ const pageStateToggle = (toggle, DOM_CLASSES, ...DOM_CONTAINERS) => {
   });
 };
 
-export { pageStateToggle };
+export { formStateToggle };

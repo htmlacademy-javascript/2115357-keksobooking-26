@@ -2,7 +2,7 @@
 
 /* DOM processor functions */
 import   { getLocalText }                 from './dom-processor-js/normalize-data-to-dom.js';
-import   { pageStateToggle }              from './dom-processor-js/page-state-toggle.js';
+import   { formStateToggle }              from './dom-processor-js/form-state-toggle.js';
 import   { fillContainerWithTemplate }    from './dom-processor-js/fill-container-with-template.js';
 
 /* Dom class v1.1 */
@@ -597,13 +597,23 @@ const domProcessor = (dataOriginal = false, ...params) => {
     /* toggle the state of the page START */
     case 'pageDisable':
       /* COMMAND: domProcessor(false, 'pageDisable');*/
-      pageStateToggle(true, DOM.CLASSES, DOM.CONTAINERS['adForm'], DOM.CONTAINERS['mapFilters']);
+      formStateToggle(true, DOM.CLASSES, DOM.CONTAINERS['adForm'], DOM.CONTAINERS['mapFilters']);
       break;
     case 'pageEnable':
       /* COMMAND: domProcessor(false, 'pageEnable');*/
-      pageStateToggle(false, DOM.CLASSES, DOM.CONTAINERS['adForm'], DOM.CONTAINERS['mapFilters']);
+      formStateToggle(false, DOM.CLASSES, DOM.CONTAINERS['adForm'], DOM.CONTAINERS['mapFilters']);
       break;
     /* toggle the state of the page END */
+    /* toggle the state of the mapFilterForm START */
+    case 'mapFilterDisable':
+      /* COMMAND: domProcessor(false, 'mapFilterDisable');*/
+      formStateToggle(true, DOM.CLASSES, DOM.CONTAINERS['mapFilters']);
+      break;
+    case 'mapFilterEnable':
+      /* COMMAND: domProcessor(false, 'mapFilterEnable');*/
+      formStateToggle(false, DOM.CLASSES, DOM.CONTAINERS['mapFilters']);
+      break;
+    /* toggle the state of the mapFilterForm END */
     /* get container from DOM class with children*/
     case 'getContainer':
       /* COMMAND: domProcessor(false, 'getContainer', CONTAINER_FROM_DOM_CLASS_NAME); */

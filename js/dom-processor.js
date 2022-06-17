@@ -375,6 +375,10 @@ class Dom {
         children: {
           pageToggle: this.getChildrenForContainer(['pageToggle', [0, 1, 2, 3]]),
         },
+        classes: {
+          class1: 'features__label',
+          class2: 'refresh_similar_ads_button',
+        },
       },
       body: {
         value: 'body',

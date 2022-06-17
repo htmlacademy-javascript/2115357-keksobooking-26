@@ -54,6 +54,9 @@ const pristine = getPristine(adFormNode, PRISTINE_CLASS);
 const requiredFieldText = domProcessor(false, 'getLocalText', 'requiredFieldText').part1;
 const adFormResetButton = document.querySelector(`${adForm.children.adForm.reset.selector[0]}${adForm.children.adForm.reset.value}`);
 const adFormSubmitButton = document.querySelector(`${adForm.children.adForm.submit.selector[0]}${adForm.children.adForm.submit.value}`);
+const similarAdsFilterFormDomClassElement = 'mapFilters';
+const similarAdsFilterForm = domProcessor(false, 'getContainer', similarAdsFilterFormDomClassElement);
+const refreshSimilarAdsButtonClass2 = similarAdsFilterForm.classes.class2;
 const isEscapeKey = (ev) => ev.key === 'Escape';
 const formSubmitButtonToggle = (toggle) => {
   if (toggle) {
@@ -69,6 +72,11 @@ const formSubmitButtonToggle = (toggle) => {
 const processDomAfterServerResponse = () => {
   /*page to enable state*/
   domProcessor(false, 'pageEnable');
+  /*keep adFilterForm disabled if similar ads load error START*/
+  if (document.querySelector(`.${refreshSimilarAdsButtonClass2}`)) {
+    domProcessor(false, 'mapFilterDisable');
+  }
+  /*keep adFilterForm disabled if similar ads load error END*/
   /*enable back the submit button*/
   formSubmitButtonToggle(true);
   if (SERVER_RESPONSE_NODES.success) {
@@ -136,7 +144,10 @@ const sendNewAdToApi = () => {
   domProcessor(false, 'pageDisable');
   processApi('push', newAdDataToSend, 'POST')
     .then((response) => {
-      if (response) {
+      /*!!!TEMP DELETE TEMP!!!*/
+      const submitErrorToggle = Math.floor(Math.random() * 2) === 0;
+      /*!!!TEMP DELETE TEMP!!!*/
+      if (response && submitErrorToggle) {
         /*responses with OK*/
         /*success popups*/
         domProcessor(SERVER_RESPONSE_TEXT, 'fillContainerWithTemplate', SERVER_RESPONSE_DOM.children.success, SERVER_RESPONSE_DOM.container);

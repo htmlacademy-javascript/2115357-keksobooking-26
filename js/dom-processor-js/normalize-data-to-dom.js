@@ -20,6 +20,7 @@ const LOCAL = {
     requiredFieldText: {
       part1: 'Это обязательное поле',
     },
+    refreshSimilarAdsButton: 'Ошибка загрузки объявлений. Нажмите для повтора',
     serverResponseOkText: {
       part1: 'Ваше объявление',
       part2: 'успешно размещено!',
@@ -78,6 +79,7 @@ const LOCAL = {
     requiredFieldText: {
       part1: 'This field is required'
     },
+    refreshSimilarAdsButton: 'Ads loading error. Click to try again',
     serverResponseOkText: {
       part1: 'Your ad',
       part2: 'has been successfully posted!',

@@ -1,6 +1,5 @@
 /*functions*/
 import   {getPristine}    from './functions.js';
-import   {getRandomNumber}    from './functions.js';
 
 /*dom processor*/
 import   { domProcessor }        from './dom-processor.js';
@@ -120,7 +119,7 @@ const ADS_DATA = {};
 const setAdsData = (initial = false, ...nodes) => {
   /*!!!START CHANGE now it updates the address only CHANGE!!!*/
   nodes.forEach((node) => {
-    if (typeof node === 'undefind' || typeof node === null) {
+    if (node === 'undefind' || node === null) {
       return;
     }
     /*either extend it to other fields or reduce to the address only*/

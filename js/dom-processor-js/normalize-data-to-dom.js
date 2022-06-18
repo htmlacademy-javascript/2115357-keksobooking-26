@@ -20,6 +20,7 @@ const LOCAL = {
     requiredFieldText: {
       part1: 'Это обязательное поле',
     },
+    refreshSimilarAdsButton: 'Ошибка загрузки объявлений. Нажмите для повтора',
     serverResponseOkText: {
       part1: 'Ваше объявление',
       part2: 'успешно размещено!',
@@ -78,6 +79,7 @@ const LOCAL = {
     requiredFieldText: {
       part1: 'This field is required'
     },
+    refreshSimilarAdsButton: 'Ads loading error. Click to try again',
     serverResponseOkText: {
       part1: 'Your ad',
       part2: 'has been successfully posted!',
@@ -202,8 +204,8 @@ const normalizeDataToDOM = (data, ...templates) => {
           '';
         delete data.templates[templName].checkin;
         delete data.templates[templName].checkout;
-        data.templates[templName].features = data.offer.features.length && data.offer.features.join(`${LOCAL.lineJoin[0]}${LOCAL.lineJoin[1]}`) || '';
-        data.templates[templName].photos = data.offer.photos.length && data.offer.photos || [];
+        data.templates[templName].features = data.offer.features && data.offer.features.length && data.offer.features.join(`${LOCAL.lineJoin[0]}${LOCAL.lineJoin[1]}`) || '';
+        data.templates[templName].photos = data.offer.photos && data.offer.photos.length && data.offer.photos || [];
         data.templates[templName].avatar = data.author.avatar && data.author.avatar || '';
         break;
       /* normalizes data for the 'card' template END */

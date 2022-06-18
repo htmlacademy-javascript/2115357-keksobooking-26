@@ -17,8 +17,37 @@ input#title.error-input-placeholder::placeholder
 .success__message {
   white-space: pre;
 }
-/* TEMP DEL END */
 
+.features__label.refresh_similar_ads_button {
+  background-image: none;
+  height: 36px;
+  margin: 4px 0;
+  color: gray;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: absolute;
+  width: fit-content;
+  padding: 0 10px;
+}
+.features__label.refresh_similar_ads_button::after {
+  content: '';
+  width: 40px;
+  height: 48px;
+  background-image: url('../img/muffin-grey.svg');
+  background-repeat: no-repeat;
+  background-size: 26px 26px;
+  background-position: 10px 10px;
+}
+
+
+/* TEMP DEL END */
 
 /* Общие стили. Каркас
    ========================================================================== */

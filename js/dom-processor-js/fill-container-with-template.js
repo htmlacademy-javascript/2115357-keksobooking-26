@@ -1,6 +1,3 @@
-/* functions */
-import {getRandomNumber} from '../functions.js';
-
 /* DOM processor functions */
 import   { normalizeDataToDOM } from './normalize-data-to-dom.js';
 
@@ -76,17 +73,6 @@ const fillContainerWithTemplate = (dataOriginal, template, container, CMD) => {
         if (Object.values(data.templates[template.nickName]).length) {
           /*recheck if it has the address, cannot be put on the map without the address*/
           if(typeof data.location !== 'undefined' && data.location) {
-            /* TEMP DELETE!! Empty some fileds to check out dispalynone TEMP DELETE!!*/
-            Object.keys(data.templates[template.nickName])
-              .forEach((el, id, ar) => {
-                if (id === getRandomNumber(0, ar.length) && typeof data.templates[template.nickName][el] === 'string') {
-                  data.templates[template.nickName][el] = '';
-                }
-                if (id === getRandomNumber(0, ar.length) && typeof data.templates[template.nickName][el] === 'object') {
-                  data.templates[template.nickName][el] = [];
-                }
-              });
-            /* TEMP DELETE!! empty some fileds to check out dispalynone TEMP DELETE!!*/
             normalizedAdsReturnToMap.push([fillContainer(false), data.location]);
           }
         }

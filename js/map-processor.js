@@ -1,8 +1,8 @@
 /*dom processor*/
 import   { domProcessor }        from './dom-processor.js';
 
-/* ads processor */
-import   { getAdsObject }              from './ads-processor.js';
+/* api processor */
+import   { processApi }          from './api-processor.js';
 
 /* validate processor */
 import   { recordAdAddressFromMap }   from './validate-processor.js';
@@ -15,6 +15,13 @@ const OPEN_MAP_PARAMS = {
   1: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
   2: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 };
+const SIMILAR_ADS_MAX_NUMBER = 10;
+const similarAdsFilterFormDomClassElement = 'mapFilters';
+const similarAdsFilterForm = domProcessor(false, 'getContainer', similarAdsFilterFormDomClassElement);
+const refreshSimilarAdsButtonClass1 = similarAdsFilterForm.classes.class1;
+const refreshSimilarAdsButtonClass2 = similarAdsFilterForm.classes.class2;
+const refreshSimilarAdsButtonText = domProcessor(false, 'getLocalText', 'refreshSimilarAdsButton');
+const similarAdsFilterFormNode = document.querySelector(`${similarAdsFilterForm.selector}${similarAdsFilterForm.value}`);
 
 const mapProcessor = () => {
   /*turn the page off*/
@@ -75,16 +82,14 @@ const mapProcessor = () => {
     MAP_MAIN_MARKER.marker.on('moveend', (mapEv) => {
       recordAdAddressFromMap(mapEv.target.getLatLng());
     });
-
     /*set initial main marker coordinates - address field in validation*/
     recordAdAddressFromMap({lat: INITIAL_LAT, lng: INITIAL_LNG}, true);
     /*turn the page back on*/
-    /*!!!ADD 5.20 ADD!!!*/
-    /*here the ads filter form should remain disabled untill all similar ads are loaded*/
     domProcessor(false, 'pageEnable');
+    /*here the ads filter form should remain disabled untill all similar ads are loaded*/
+    domProcessor(false, 'mapFilterDisable');
     /*initialize adForm validation*/
     validateProcessor();
-
     /*similar ads START*/
     /*create a layer with similar ads*/
     const mapSimilarIcon = L.icon({
@@ -94,22 +99,48 @@ const mapProcessor = () => {
     });
     const MAP_SIMILAR_ADS_MARKER_LAYER = L.layerGroup().addTo(MAP);
     const getSimilarAds = () => {
-
-      /*!!!ADD similar adds filter form should be additionally disabled here
-      than it is not an initial page load (reset/adIsSent) ADD!!!*/
-
-      /*gets the data for the "similar ads"*/
-      getAdsObject()
-        .then((dataOriginal) => {
-          /*!!! ADD 5.2 should be a notice if it responses with an error ADD!!!*/
-          /*!!! ADD 5.9 there should be no more than 10 ads at once ADD!!!*/
-          JSON.stringify(dataOriginal);
-          /*mapCanvas - shoul be revised/renamed in dom.class & fill-container-with-template*/
+      /*similar adds filter form should be disabled here*/
+      domProcessor(false, 'mapFilterDisable');
+      /*remove old ads from the similar ads layer*/
+      MAP_SIMILAR_ADS_MARKER_LAYER.clearLayers();
+      /*refresh button*/
+      const deleteRefreshButton = () => {
+        if (document.querySelector(`.${refreshSimilarAdsButtonClass2}`)) {
+          document.querySelector(`.${refreshSimilarAdsButtonClass2}`).remove();
+        }
+      };
+      deleteRefreshButton();
+      processApi().then((result) =>{
+        const processSimilarAdsAfterApiFail = () =>{
+          domProcessor(false, 'mapFilterDisable');
+          /*refresh button*/
+          const refreshSimilarAdsButton = document.createElement('div');
+          refreshSimilarAdsButton.classList.add(refreshSimilarAdsButtonClass1);
+          refreshSimilarAdsButton.classList.add(refreshSimilarAdsButtonClass2);
+          refreshSimilarAdsButton.textContent = refreshSimilarAdsButtonText;
+          similarAdsFilterFormNode.parentNode.style.position = 'relative';
+          similarAdsFilterFormNode.parentNode.append(refreshSimilarAdsButton);
+          similarAdsFilterFormNode.parentNode.style.setProperty('text-align', 'center');
+          /*refresh button onclick getsSimilarAdsAgain*/
+          refreshSimilarAdsButton.addEventListener('click', getSimilarAds);
+        };
+        /*!!!TEMP DELETE TEMP!!!*/
+        const similarAdsToggle = Math.floor(Math.random() * 2) === 0;
+        /*!!!TEMP DELETE TEMP!!!*/
+        if (!similarAdsToggle || !result) {
+          processSimilarAdsAfterApiFail();
+          return;
+        }
+        /*result - json string*/
+        try{
+          /*there should be no more than 10 ads at once ADD*/
+          result = JSON.parse(result);
+          /*shuffle and trim ads array*/
+          const dataOriginal = result.sort(() => Math.random() - 0.5).slice(0, SIMILAR_ADS_MAX_NUMBER);
+          /*mapCanvas - should be revised/renamed in dom.class & fill-container-with-template*/
           const DOM_CONTAINER_NAME = 'mapCanvas';
           /*get originalData, normalize it, clone and fill each node with the normalized data for each similar ad*/
           const NORMALIZED_ADS_NODES = domProcessor(dataOriginal, 'fillContainerWithTemplate', 'card', DOM_CONTAINER_NAME, true).mapPopUpNodes;
-          /*remove old ads from the similar ads layer*/
-          MAP_SIMILAR_ADS_MARKER_LAYER.clearLayers();
           NORMALIZED_ADS_NODES.forEach((ad) => {
             const mapSimilarAdMarker = L.marker(
               {
@@ -122,10 +153,16 @@ const mapProcessor = () => {
               .addTo(MAP_SIMILAR_ADS_MARKER_LAYER)
               .bindPopup(ad[0]);
           });
-          /*all similar ads are loaded here*/
-          /*!!! ADD here the ads filter form should be enabled if it is ok ADD!!!*/
-          /*!!!ADD similar-ads processor ADD!!!*/
-        });
+          /*all similar ads are loaded*/
+          /*delete refresh button*/
+          deleteRefreshButton();
+          /*show filter form*/
+          domProcessor(false, 'mapFilterEnable');
+          /*!!!ADD similar-ads filter ADD!!!*/
+        } catch(error) {
+          processSimilarAdsAfterApiFail();
+        }
+      });
     };
     /*similar ads END*/
 

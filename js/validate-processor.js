@@ -46,7 +46,8 @@ const EVENT_HANDLERS = {
   roomsSelectFieldClickHandler: () => '',
   guestsSelectFieldInputHandler: () => '',
   guestsSelectFieldClickHandler: () => '',
-  priceNumberFiledInputHandler: () => '',
+  avatarInputChangeHandler: () => '',
+  imagesInputChangeHandler: () => '',
 };
 const nodesToValidateOnReset = [];
 const adFormName = 'adForm';
@@ -56,6 +57,13 @@ const pristine = getPristine(adFormNode, PRISTINE_CLASS);
 const requiredFieldText = domProcessor(false, 'getLocalText', 'requiredFieldText').part1;
 const adFormResetButton = document.querySelector(`${adForm.children.adForm.reset.selector[0]}${adForm.children.adForm.reset.value}`);
 const adFormSubmitButton = document.querySelector(`${adForm.children.adForm.submit.selector[0]}${adForm.children.adForm.submit.value}`);
+const avatarInputFieldNode = document.querySelector(`${adForm.children.adForm.avatar.selector[0]}${adForm.children.adForm.avatar.value}`);
+const imagesInputFieldNode = document.querySelector(`${adForm.children.adForm.images.selector[0]}${adForm.children.adForm.images.value}`);
+const avatarImageContainerNode = document.querySelector(`${adForm.children.adForm.avatarContainer.selector[0]}${adForm.children.adForm.avatarContainer.value}`);
+const avatarImageContainerBlankImage = document.querySelector(`${adForm.children.adForm.avatarContainer.selector[0]}${adForm.children.adForm.avatarContainer.value}`).querySelector('img');
+const imagesImageContainerNode = document.querySelector(`${adForm.children.adForm.imagesContainer.selector[0]}${adForm.children.adForm.imagesContainer.value}`);
+const NEW_UPLOADED_IMAGE_CLASS = domProcessor(false, 'getClass', 'newImageClass');
+const DISPLAY_NONE_CLASS = domProcessor(false, 'getClass', 'hidden');
 const ADDRESS_ROUND_FLOATS_NUMBER = 5;
 const similarAdsFilterFormDomClassElement = 'mapFilters';
 const similarAdsFilterForm = domProcessor(false, 'getContainer', similarAdsFilterFormDomClassElement);
@@ -83,10 +91,9 @@ const processDomAfterServerResponse = () => {
   /*enable back the submit button*/
   formSubmitButtonToggle(true);
   if (SERVER_RESPONSE_NODES.success) {
-    SERVER_RESPONSE_NODES.success.remove();
     /*form fields back to defaults*/
     adFormResetButton.click();
-    /*further post success submit actions*/
+    SERVER_RESPONSE_NODES.success.remove();
   }
   if (SERVER_RESPONSE_NODES.error) {
     SERVER_RESPONSE_NODES.error.remove();
@@ -170,6 +177,21 @@ const sendNewAdToApi = () => {
       window.addEventListener('click', EVENT_HANDLERS.windowClickResponseRemoveHandler);
     });
 };
+const resetAvatarImageContainer = () => {
+  [...avatarImageContainerNode.childNodes].forEach((child) => {
+    if (child !== avatarImageContainerBlankImage) {
+      child.remove();
+    }
+  });
+  avatarImageContainerBlankImage.classList.remove(DISPLAY_NONE_CLASS);
+};
+const resetImagesImageContainer = () => {
+  imagesImageContainerNode.classList.remove(NEW_UPLOADED_IMAGE_CLASS);
+  imagesImageContainerNode.style.removeProperty('background-image');
+};
+const setImgSrc = (img, container) => {
+  container.src = img;
+};
 const recordAdAddressFromMap = (address, init = false) => {
   const ADDRSTRING = `${address.lat.toFixed(ADDRESS_ROUND_FLOATS_NUMBER)}, ${address.lng.toFixed(ADDRESS_ROUND_FLOATS_NUMBER)}`;
   if (init) {
@@ -203,7 +225,23 @@ EVENT_HANDLERS.adFormSubmitButtonClickHandler = (ev) => {
     sendNewAdToApi();
   }
 };
-/*validate processor v1.0*/
+EVENT_HANDLERS.avatarInputChangeHandler = () => {
+  resetAvatarImageContainer();
+  const uploadedImg = URL.createObjectURL(avatarInputFieldNode.files[0]);
+  const newAvatar = avatarImageContainerBlankImage.cloneNode();
+  setImgSrc(uploadedImg, newAvatar);
+  avatarImageContainerBlankImage.classList.add(DISPLAY_NONE_CLASS);
+  avatarImageContainerNode.append(newAvatar);
+};
+EVENT_HANDLERS.imagesInputChangeHandler = () => {
+  resetImagesImageContainer();
+  const uploadedImg = URL.createObjectURL(imagesInputFieldNode.files[0]);
+  imagesImageContainerNode.classList.add(NEW_UPLOADED_IMAGE_CLASS);
+  imagesImageContainerNode.style.backgroundImage = `url(${uploadedImg})`;
+};
+
+
+/*validate processor*/
 const validateProcessor = () => {
 
   /*normalize and add validation to the adForm START*/
@@ -510,6 +548,10 @@ const validateProcessor = () => {
       }
       /*validation / dependencies for children DOM nodes END*/
     }
+    /*avatar photo*/
+    avatarInputFieldNode.addEventListener('change', EVENT_HANDLERS.avatarInputChangeHandler);
+    /*property images*/
+    imagesInputFieldNode.addEventListener('change', EVENT_HANDLERS.imagesInputChangeHandler);
     /*submit adForm*/
     adFormSubmitButton.addEventListener('click', EVENT_HANDLERS.adFormSubmitButtonClickHandler);
     /*reset adForm*/
@@ -529,6 +571,8 @@ const validateProcessor = () => {
     };
     EVENT_HANDLERS.adFormResetButtonClickHandler = () => {
       resetSimilarAdsFilterForm();
+      resetAvatarImageContainer();
+      resetImagesImageContainer();
       validateOnReset();
     };
     adFormResetButton.addEventListener('click', EVENT_HANDLERS.adFormResetButtonClickHandler);

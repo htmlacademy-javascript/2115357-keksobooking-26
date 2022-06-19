@@ -135,7 +135,6 @@ const LOCAL = {
 
 /* data to DOM normalizer v1.0 */
 const normalizeDataToDOM = (data, ...templates) => {
-
   /* normalizes data for the whole project - missing parts should be added */
   /* in this case normalized data should be added to the Dom calss for each template / element */
 
@@ -204,7 +203,7 @@ const normalizeDataToDOM = (data, ...templates) => {
           '';
         delete data.templates[templName].checkin;
         delete data.templates[templName].checkout;
-        data.templates[templName].features = data.offer.features && data.offer.features.length && data.offer.features.join(`${LOCAL.lineJoin[0]}${LOCAL.lineJoin[1]}`) || '';
+        data.templates[templName].features = data.offer.features && data.offer.features.length && data.offer.features || '';
         data.templates[templName].photos = data.offer.photos && data.offer.photos.length && data.offer.photos || [];
         data.templates[templName].avatar = data.author.avatar && data.author.avatar || '';
         break;

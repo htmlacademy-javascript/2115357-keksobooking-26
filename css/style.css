@@ -46,7 +46,18 @@ input#title.error-input-placeholder::placeholder
   background-position: 10px 10px;
 }
 
+.map__features {
+  display:flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+.map__features > *:nth-child(even):not(:last-child) {
+  margin-right: 4px;
+}
 
+.map__filters-container {
+  position: relative;
+}
 /* TEMP DEL END */
 
 /* Общие стили. Каркас
@@ -428,7 +439,7 @@ div.slider__container {
 }
 
 .noUi-handle:before, .noUi-handle:after {
-  top: 5px;
+  top: 4px;
 }
 
 div.slider__container .noUi-connect{

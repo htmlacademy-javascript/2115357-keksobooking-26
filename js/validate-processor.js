@@ -4,6 +4,9 @@ import   {getPristine}    from './functions.js';
 /*dom processor*/
 import   { domProcessor }        from './dom-processor.js';
 
+/*map processor*/
+import   { resetSimilarAdsFilterForm }        from './map-processor.js';
+
 /* api processor */
 import   { processApi }          from './api-processor.js';
 
@@ -53,6 +56,7 @@ const pristine = getPristine(adFormNode, PRISTINE_CLASS);
 const requiredFieldText = domProcessor(false, 'getLocalText', 'requiredFieldText').part1;
 const adFormResetButton = document.querySelector(`${adForm.children.adForm.reset.selector[0]}${adForm.children.adForm.reset.value}`);
 const adFormSubmitButton = document.querySelector(`${adForm.children.adForm.submit.selector[0]}${adForm.children.adForm.submit.value}`);
+const ADDRESS_ROUND_FLOATS_NUMBER = 5;
 const similarAdsFilterFormDomClassElement = 'mapFilters';
 const similarAdsFilterForm = domProcessor(false, 'getContainer', similarAdsFilterFormDomClassElement);
 const refreshSimilarAdsButtonClass2 = similarAdsFilterForm.classes.class2;
@@ -167,11 +171,11 @@ const sendNewAdToApi = () => {
     });
 };
 const recordAdAddressFromMap = (address, init = false) => {
-  const ADDRSTRING = `${address.lat}, ${address.lng}`;
+  const ADDRSTRING = `${address.lat.toFixed(ADDRESS_ROUND_FLOATS_NUMBER)}, ${address.lng.toFixed(ADDRESS_ROUND_FLOATS_NUMBER)}`;
   if (init) {
     ADS_DATA.addressInitial = ADDRSTRING;
   } else {
-    /*the map onPointerMove records a new address and sets the new value to the addr field*/
+    /*the map onMainMarkerMove records a new address and sets the new value to the addr field*/
     ADS_DATA.addressCurrent = ADDRSTRING;
     setAdsData(false, ADS_DATA.addressNode);
   }
@@ -222,6 +226,7 @@ const validateProcessor = () => {
         const objectToValidate = domProcessor(false, 'getChild', adFormName, childData.objectToValidate.name);
         const objectToValidateNode = document.querySelector(`${objectToValidate.selector[0]}${objectToValidate.value}`);
         switch (index) {
+          /*!!!CHANGE each case move to separate function CHANGE!!!*/
           /*address - TEMP CHANGE*/
           case 'address': {
             setAdsData(true, childNode);
@@ -523,6 +528,7 @@ const validateProcessor = () => {
       }
     };
     EVENT_HANDLERS.adFormResetButtonClickHandler = () => {
+      resetSimilarAdsFilterForm();
       validateOnReset();
     };
     adFormResetButton.addEventListener('click', EVENT_HANDLERS.adFormResetButtonClickHandler);

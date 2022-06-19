@@ -569,7 +569,7 @@ const validateProcessor = () => {
 
       }
     };
-    EVENT_HANDLERS.adFormResetButtonClickHandler = (ev) => {
+    EVENT_HANDLERS.adFormResetButtonClickHandler = () => {
       resetSimilarAdsFilterForm();
       resetAvatarImageContainer();
       resetImagesImageContainer();

@@ -1,6 +1,8 @@
 /* DOM processor functions */
 import   { normalizeDataToDOM } from './normalize-data-to-dom.js';
 
+const DISPLAY_NONE_CLASS = 'hidden';
+
 /* fill a container with a template */
 const fillContainerWithTemplate = (dataOriginal, template, container, CMD) => {
   const data = {};
@@ -35,16 +37,45 @@ const fillContainerWithTemplate = (dataOriginal, template, container, CMD) => {
       const cmd = template.fragment.children[bridge].cmd[0] || false;
       const params = template.fragment.children[bridge].cmd[1] || false;
       if (typeof CMD[cmd] !== 'undefined' && data.templates[template.nickName][bridge]) {
-        CMD[cmd](
-          newNode.querySelector(`[${bridgeSelector[0]}*="${bridgeSelector[1]}"]`),
-          data.templates[template.nickName][bridge],
-          params
-        );
+        /*!!!CHANGE START CHANGE!!!*/
+        /*change to switch, split to separate functions*/
+        /*cmd - move all here from dom.class*/
+        if (bridge === 'features') {
+          /*normalize feature nodes*/
+          const CLASS_PREFIX = '--';
+          const CHECKED_ATTRIBUTE = 'checked';
+          /*html containes empty lines (text children), so select exact tagName*/
+          const childNode = 'li';
+          const childNodes = [...newNode.querySelector(`[${bridgeSelector[0]}*="${bridgeSelector[1]}"]`).querySelectorAll(childNode)];
+          childNodes.forEach((featureLiNode) => {
+            const featureLiClasses = [...featureLiNode.classList].join();
+            data.templates[template.nickName][bridge].some((featureFromAd) => {
+              /*check if current feature is present in this node classes list*/
+              const checker =  featureLiClasses.includes(`${CLASS_PREFIX}${featureFromAd}`);
+              if (checker) {
+                /*mark this node as OK if so*/
+                featureLiNode.setAttribute(CHECKED_ATTRIBUTE, true);
+              }
+            });
+          });
+          /*hide all nodes that has not been marked as "checked"*/
+          childNodes.forEach((featureLiNode) => {
+            if (!featureLiNode.getAttribute(CHECKED_ATTRIBUTE)){
+              featureLiNode.classList.add(DISPLAY_NONE_CLASS);
+            }
+          });
+        } else {
+          CMD[cmd](
+            newNode.querySelector(`[${bridgeSelector[0]}*="${bridgeSelector[1]}"]`),
+            data.templates[template.nickName][bridge],
+            params
+          );
+        }
       }
+      /*!!!CHANGE END CHANGE!!!*/
       /* hide empty fields */
-      if (!data.templates[template.nickName][bridge]) {
-        /* !!! TEMP CHANGE add a real class to hide an empty element */
-        newNode.querySelector(`[${bridgeSelector[0]}*="${bridgeSelector[1]}"]`).style.display = 'none';
+      if (!data.templates[template.nickName][bridge] || data.templates[template.nickName][bridge].length === 0) {
+        newNode.querySelector(`[${bridgeSelector[0]}*="${bridgeSelector[1]}"]`).classList.add(DISPLAY_NONE_CLASS);
       }
     }
     /* fill fragmentNodes with the normalized data END */
@@ -73,7 +104,8 @@ const fillContainerWithTemplate = (dataOriginal, template, container, CMD) => {
         if (Object.values(data.templates[template.nickName]).length) {
           /*recheck if it has the address, cannot be put on the map without the address*/
           if(typeof data.location !== 'undefined' && data.location) {
-            normalizedAdsReturnToMap.push([fillContainer(false), data.location]);
+            data.offer.hidden = false;
+            normalizedAdsReturnToMap.push([fillContainer(false), data.location, data.offer]);
           }
         }
       });

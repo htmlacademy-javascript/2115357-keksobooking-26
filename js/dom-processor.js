@@ -5,6 +5,13 @@ import   { getLocalText }                 from './dom-processor-js/normalize-dat
 import   { formStateToggle }              from './dom-processor-js/form-state-toggle.js';
 import   { fillContainerWithTemplate }    from './dom-processor-js/fill-container-with-template.js';
 
+const PRICE_RANGE_SIMILAR_ADS_FILTER = {
+  0: [0, 100000], /*for 'any' value*/
+  middle: [10000, 50000],
+  low: [0, 10000],
+  high: [50000, 100000],
+};
+
 /* Dom class v1.1 */
 class Dom {
 
@@ -377,12 +384,7 @@ class Dom {
         selector: this.getSelector(2)[0],
         children: {
           pageToggle: this.getChildrenForContainer(['pageToggle', [0, 1, 2, 3]]),
-          price: {
-            0: [0, 100000],
-            middle: [10000, 50000],
-            low: [0, 10000],
-            high: [50000, 100000],
-          },
+          price: PRICE_RANGE_SIMILAR_ADS_FILTER,
         },
         classes: {
           class1: 'features__label',

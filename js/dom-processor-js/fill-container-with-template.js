@@ -1,11 +1,13 @@
 /* DOM processor functions */
 import   { normalizeDataToDOM } from './normalize-data-to-dom.js';
 
-const DISPLAY_NONE_CLASS = 'hidden';
+/* DOM processor */
+import   { domProcessor } from '../dom-processor.js';
 
 /* fill a container with a template */
 const fillContainerWithTemplate = (dataOriginal, template, container, CMD) => {
   const data = {};
+  const DISPLAY_NONE_CLASS = domProcessor(false, 'getClass', 'hidden');
   /*second stage - fill the container START*/
   const fillContainer = (fill = true) => {
     const newNode = template.fragment.content.cloneNode(true);

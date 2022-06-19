@@ -7,7 +7,7 @@ import   { fillContainerWithTemplate }    from './dom-processor-js/fill-containe
 
 /* Dom class v1.1 */
 class Dom {
-
+/*!!!CHANGE revise class.SELECTORS attitude CHANGE!!!*/
   constructor() {
     this.SELECTORS = {
       /* consts for querySelectors */
@@ -15,7 +15,7 @@ class Dom {
       1: ['#', 'id'],
       2: ['.', 'class'],
       3: ['', 'option'],
-      /* ??? replace this.getClassConnector with just symbols ??? */
+      /* ???CHANGE replace this.getClassConnector with just symbols CHANGE??? */
       classConnectors: {
         1: '__',
         2: '--',
@@ -129,6 +129,10 @@ class Dom {
             ['image/*', 'accept'],
           ],],
         },
+        avatarContainer: {
+          value: 'ad-form-header__preview',
+          selector: this.getSelector(2),
+        },
         description: {
           value: 'description',
           selector: this.getSelector(1),
@@ -169,6 +173,17 @@ class Dom {
           value: 'ad-form__reset',
           selector: this.getSelector(2),
         },
+        images: {
+          value: 'images',
+          selector: this.getSelector(1),
+          cmd: [2, [
+            ['image/*', 'accept'],
+          ],],
+        },
+        imagesContainer: {
+          value: 'ad-form__photo',
+          selector: this.getSelector(2),
+        },
         /* required */
         title: {
           value: 'title',
@@ -193,13 +208,6 @@ class Dom {
             /*! add slider noUiSlider !*/
           ],],
 
-        },
-        images: {
-          value: 'images',
-          selector: this.getSelector(1),
-          cmd: [2, [
-            ['image/*', 'accept'],
-          ],],
         },
         /* need validation / dependencies */
         type: {
@@ -451,7 +459,9 @@ class Dom {
         errorTextTag: 'div',
         errorTextClass: 'form__error',
         errorTemporaryClass: 'error-input-placeholder',
-      }
+      },
+      hidden: 'hidden',
+      newImageClass: 'ad-form__photo-new-image',
     };
     this.getCMD = this.getCMD.bind(this);
     this.getChild = this.getChild.bind(this);

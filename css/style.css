@@ -58,6 +58,14 @@ input#title.error-input-placeholder::placeholder
 .map__filters-container {
   position: relative;
 }
+
+div.ad-form__photo-new-image {
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: cover;
+  height: 230px;
+  width: 286px;
+}
 /* TEMP DEL END */
 
 /* Общие стили. Каркас

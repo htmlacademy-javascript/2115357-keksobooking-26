@@ -1,13 +1,10 @@
 /* map processor */
-import   { mapProcessor }              from './map-processor.js';
+import   { processTheMap }              from './map-and-filter-form.js';
 
 /*THE START IS HERE*/
 /*initialize the map*/
-mapProcessor();
+processTheMap();
 
-/*TASKS*/
 /*
-  12.11. Перламутровые пуговицы
-  12.12. Фото на память
+  dependences to package.json?
 */
-

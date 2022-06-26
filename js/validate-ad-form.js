@@ -372,6 +372,7 @@ const validateAdForm = () => {
               }
               SlidePriceToggles.priceToSlideBlocker = 1;
               objectToValidateNode.value = Number(priceSlider.noUiSlider.get());
+              objectToValidateNode.dispatchEvent(new Event('input'));
               SlidePriceToggles.priceToSlideBlocker = 0;
             });
             /*initialize slider end*/

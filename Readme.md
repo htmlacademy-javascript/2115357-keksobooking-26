@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг»
 
 * Студент: [Сергей Бобринев](https://up.htmlacademy.ru/javascript/26/user/2115357).
-* Наставник: [Михаил Кислый](https://htmlacademy.ru/profile/smart-grizzly).
+* Наставник: [Александр Пинаев](https://htmlacademy.ru/profile/id1075973).
 
 ---
 

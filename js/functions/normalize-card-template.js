@@ -2,7 +2,7 @@
 const getLang = () => navigator.language === 'ru' ? 'ru' : 'en';
 
 const LANG = getLang();
-const LOCAL = {
+const LolcalTexts = {
   /*for declension words written with numbers */
   numDeclen: {
     1: 1,
@@ -143,50 +143,50 @@ const normalizeCardTemplate = (data, templateNickName) => {
       data.templates[templateNickName].title = data.offer.title && data.offer.title || '';
       data.templates[templateNickName].description = data.offer.description && data.offer.description || '';
       data.templates[templateNickName].address = data.offer.address && data.offer.address || '';
-      data.templates[templateNickName].price = data.offer.price && `${data.offer.price.toLocaleString()}${LOCAL.lineJoin[1]}${LOCAL[LANG]['price']}` || '';
-      data.templates[templateNickName].type = data.offer.type && LOCAL[LANG][data.offer.type] || '';
+      data.templates[templateNickName].price = data.offer.price && `${data.offer.price.toLocaleString()}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG]['price']}` || '';
+      data.templates[templateNickName].type = data.offer.type && LolcalTexts[LANG][data.offer.type] || '';
       switch (true) {
-        case data.offer.rooms === LOCAL.numDeclen[1]:
-        case data.offer.rooms === LOCAL.numDeclen[21]:
-        case data.offer.rooms === LOCAL.numDeclen[31]:
-          data.templates[templateNickName].rooms = `${data.offer.rooms}${LOCAL.lineJoin[1]}${LOCAL[LANG]['roomsWord'][LOCAL.numDeclen[1]]}`;
+        case data.offer.rooms === LolcalTexts.numDeclen[1]:
+        case data.offer.rooms === LolcalTexts.numDeclen[21]:
+        case data.offer.rooms === LolcalTexts.numDeclen[31]:
+          data.templates[templateNickName].rooms = `${data.offer.rooms}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG]['roomsWord'][LolcalTexts.numDeclen[1]]}`;
           break;
-        case data.offer.rooms > LOCAL.numDeclen[1] && data.offer.rooms <= LOCAL.numDeclen[4]:
-          data.templates[templateNickName].rooms = `${data.offer.rooms}${LOCAL.lineJoin[1]}${LOCAL[LANG]['roomsWord'][LOCAL.numDeclen[4]]}`;
+        case data.offer.rooms > LolcalTexts.numDeclen[1] && data.offer.rooms <= LolcalTexts.numDeclen[4]:
+          data.templates[templateNickName].rooms = `${data.offer.rooms}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG]['roomsWord'][LolcalTexts.numDeclen[4]]}`;
           break;
-        case data.offer.rooms >= LOCAL.numDeclen[5]:
-          data.templates[templateNickName].rooms = `${data.offer.rooms}${LOCAL.lineJoin[1]}${LOCAL[LANG]['roomsWord'][LOCAL.numDeclen[5]]}`;
+        case data.offer.rooms >= LolcalTexts.numDeclen[5]:
+          data.templates[templateNickName].rooms = `${data.offer.rooms}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG]['roomsWord'][LolcalTexts.numDeclen[5]]}`;
           break;
         default:
           data.templates[templateNickName].rooms = '';
       }
       switch (true) {
-        case data.offer.guests === LOCAL.numDeclen[1]:
-        case data.offer.guests === LOCAL.numDeclen[21]:
-        case data.offer.guests === LOCAL.numDeclen[31]:
-          data.templates[templateNickName].guests = `${data.offer.guests}${LOCAL.lineJoin[1]}${LOCAL[LANG]['guestsWord'][1]}`;
+        case data.offer.guests === LolcalTexts.numDeclen[1]:
+        case data.offer.guests === LolcalTexts.numDeclen[21]:
+        case data.offer.guests === LolcalTexts.numDeclen[31]:
+          data.templates[templateNickName].guests = `${data.offer.guests}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG]['guestsWord'][1]}`;
           break;
-        case data.offer.guests > LOCAL.numDeclen[1] && data.offer.guests <= LOCAL.numDeclen[4]:
-          data.templates[templateNickName].guests = `${data.offer.guests}${LOCAL.lineJoin[1]}${LOCAL[LANG]['guestsWord'][4]}`;
+        case data.offer.guests > LolcalTexts.numDeclen[1] && data.offer.guests <= LolcalTexts.numDeclen[4]:
+          data.templates[templateNickName].guests = `${data.offer.guests}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG]['guestsWord'][4]}`;
           break;
-        case data.offer.guests >= LOCAL.numDeclen[5]:
-          data.templates[templateNickName].guests = `${data.offer.guests}${LOCAL.lineJoin[1]}${LOCAL[LANG]['guestsWord'][5]}`;
+        case data.offer.guests >= LolcalTexts.numDeclen[5]:
+          data.templates[templateNickName].guests = `${data.offer.guests}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG]['guestsWord'][5]}`;
           break;
         default:
           data.templates[templateNickName].guests = '';
       }
       data.templates[templateNickName].capacity =
         data.templates[templateNickName].rooms && data.templates[templateNickName].guests &&
-        `${data.templates[templateNickName].rooms}${LOCAL.lineJoin[1]}${LOCAL[LANG].for}${LOCAL.lineJoin[1]}${data.templates[templateNickName].guests}${LOCAL.lineJoin[2]}`
+        `${data.templates[templateNickName].rooms}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG].for}${LolcalTexts.lineJoin[1]}${data.templates[templateNickName].guests}${LolcalTexts.lineJoin[2]}`
         ||
         '';
       delete data.templates[templateNickName].rooms;
       delete data.templates[templateNickName].guests;
-      data.templates[templateNickName].checkin = data.offer.checkin && `${LOCAL[LANG].checkin}${LOCAL.lineJoin[1]}${LOCAL[LANG].after}${LOCAL.lineJoin[3]}${LOCAL.lineJoin[1]}${data.offer.checkin}${LOCAL.lineJoin[2]}` || '';
-      data.templates[templateNickName].checkout = data.offer.checkout && `${LOCAL[LANG].checkout}${LOCAL.lineJoin[1]}${LOCAL[LANG].before}${LOCAL.lineJoin[3]}${LOCAL.lineJoin[1]}${data.offer.checkout}${LOCAL.lineJoin[2]}` || '';
+      data.templates[templateNickName].checkin = data.offer.checkin && `${LolcalTexts[LANG].checkin}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG].after}${LolcalTexts.lineJoin[3]}${LolcalTexts.lineJoin[1]}${data.offer.checkin}${LolcalTexts.lineJoin[2]}` || '';
+      data.templates[templateNickName].checkout = data.offer.checkout && `${LolcalTexts[LANG].checkout}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG].before}${LolcalTexts.lineJoin[3]}${LolcalTexts.lineJoin[1]}${data.offer.checkout}${LolcalTexts.lineJoin[2]}` || '';
       data.templates[templateNickName].time =
         data.templates[templateNickName].checkin && data.templates[templateNickName].checkout &&
-        `${data.templates[templateNickName].checkin}${LOCAL.lineJoin[1]}${data.templates[templateNickName].checkout}`
+        `${data.templates[templateNickName].checkin}${LolcalTexts.lineJoin[1]}${data.templates[templateNickName].checkout}`
         ||
         '';
       delete data.templates[templateNickName].checkin;
@@ -200,7 +200,7 @@ const normalizeCardTemplate = (data, templateNickName) => {
   return data;
 };
 
-const getLocalText = (property, lang = getLang()) => LOCAL[lang][property] || '';
+const getLocalText = (property, lang = getLang()) => LolcalTexts[lang][property] || '';
 
 export { getLocalText };
 export { normalizeCardTemplate };

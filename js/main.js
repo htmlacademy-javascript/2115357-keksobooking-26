@@ -1,9 +1,6 @@
-/* map processor */
-import   { processTheMap }              from './map-and-filter-form.js';
+import { initializeMap } from './map.js';
 
-/*THE START IS HERE*/
-/*initialize the map*/
-processTheMap();
+initializeMap();
 
 /*
   dependences to package.json?

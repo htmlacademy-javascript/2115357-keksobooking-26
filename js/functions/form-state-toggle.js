@@ -1,10 +1,4 @@
-/* disable: domProcessor(false, 'pageDisable') */
-/* enable: domProcessor(false, 'pageEnable') */
-
-/* disable: domProcessor(false, 'mapFilterDisable') */
-/* enable: domProcessor(false, 'mapFilterEnable') */
-
-const FieldsToToggle = [
+const fieldsToToggle = [
   'input',
   'select',
   'textarea',
@@ -13,11 +7,11 @@ const FieldsToToggle = [
 
 const formStateToggle = (toggle, formToToggle, classToToggle = '') => {
   /* toggle adForm/filterForm state */
-  const formNode = document.querySelector(formToToggle.selectorValue);
+  const formNode = document.querySelector(formToToggle.selector);
   if (classToToggle) {
     formNode.classList.toggle(classToToggle, toggle);
   }
-  FieldsToToggle.forEach((selectorValue) => {
+  fieldsToToggle.forEach((selectorValue) => {
     [...formNode.querySelectorAll(selectorValue)]
       .forEach((formChild) => {
         formChild.disabled = toggle;

@@ -1,36 +1,37 @@
-/* DOM processor functions */
-import   { getLocalText }                 from './functions/normalize-card-template.js';
-import   { formStateToggle }              from './functions/form-state-toggle.js';
-import   { fillContainerWithTemplate }    from './functions/fill-container-with-template.js';
+import { getLocalText } from './functions/normalize-card-template.js';
+import { formStateToggle } from './functions/form-state-toggle.js';
+import { fillContainerWithTemplate } from './functions/fill-container-with-template.js';
 
-const SimilarAdsFilterPriceRange = {
-  0: [0, 100000], /*for 'any' value*/
-  middle: [10000, 50000],
-  low: [0, 10000],
-  high: [50000, 100000],
+const adFormAttributes = {
+  method: 'POST',
+  action: 'https://26.javascript.pages.academy/keksobooking',
+  enctype: 'multipart/form-data',
 };
-const TitleAttributesToSet = [
-  [30, 'minlength'],
-  [101, 'maxlength'],
-  ['', 'required'],
-];
-const PriceAttributesToSet = [
-  ['number', 'type'],
-  [100000, 'max'],
-  ['', 'required'],
-];
-const AdFormAttributesToSet = [
-  ['POST', 'method'],
-  ['https://26.javascript.pages.academy/keksobooking', 'action'],
-  ['multipart/form-data', 'enctype'],
-];
-const AvatarAttributesToSet = [
-  ['image/*', 'accept'],
-];
-const ImagesAttributesToSet = [
-  ['image/*', 'accept'],
-];
-const TimeInOptionsToValidate = {
+
+const titleAttributes = {
+  minlength: 30,
+  maxlength: 101,
+  required: '',
+};
+const priceAttributes = {
+  type: 'type',
+  max: 100000,
+  required: '',
+};
+const avatarAttributes = {
+  accept: 'image/*',
+};
+const blankImageAttributes = {
+  src: 'img/muffin-grey.svg',
+};
+const imagesAttributes = {
+  accept: 'image/*',
+};
+const addressAttributes = {
+  readonly: '',
+};
+
+const timeInOptions = {
   1200: {
     value: `${getLocalText('checkin')} ${getLocalText('after')} ${getLocalText('1200')}`,
   },
@@ -41,7 +42,7 @@ const TimeInOptionsToValidate = {
     value: `${getLocalText('checkin')} ${getLocalText('after')} ${getLocalText('1400')}`,
   },
 };
-const TimeOutOptions = {
+const timeOutOptions = {
   1200: {
     value: `${getLocalText('checkout')} ${getLocalText('before')} ${getLocalText('1200')}`,
   },
@@ -52,7 +53,7 @@ const TimeOutOptions = {
     value: `${getLocalText('checkout')} ${getLocalText('before')} ${getLocalText('1400')}`,
   },
 };
-const RoomNumberOptionsToValidate = {
+const roomNumberOptions = {
   1: {
     value: `${1} ${getLocalText('roomsWord')[1]}`,
   },
@@ -66,13 +67,7 @@ const RoomNumberOptionsToValidate = {
     value: `${100} ${getLocalText('roomsWord')[5]}`,
   },
 };
-const CapacityNumberGuestsRules = {
-  1: [1],
-  2: [1, 2],
-  3: [1, 2, 3],
-  100: [0],
-};
-const CapacityOptions = {
+const capacityOptions = {
   1: {
     value: `${getLocalText('for')} ${1} ${getLocalText('guestsWord')[1]}`,
   },
@@ -86,105 +81,156 @@ const CapacityOptions = {
     value: `${getLocalText('not')} ${getLocalText('for')} ${getLocalText('guestsWord')[5]}`,
   },
 };
-const AddressAttributesToSet = [['', 'readonly'],];
+const capacityNumberGuestsRules = {
+  1: [1],
+  2: [1, 2],
+  3: [1, 2, 3],
+  100: [0],
+};
+const similarAdsFilterPriceRange = {
+  0: [0, 100000], /*for 'any' value*/
+  middle: [10000, 50000],
+  low: [0, 10000],
+  high: [50000, 100000],
+};
 
-class DomClass {
+class AppAssistant {
   constructor() {
-    this.Children = {
+    this.children = {
       popup: {
         title: {
+          partType: 'class',
           partToBridge: '__title',
         },
         address: {
+          partType: 'class',
           partToBridge: '__text--address',
         },
         price: {
+          partType: 'class',
           partToBridge: '__text--price',
         },
         type: {
+          partType: 'class',
           partToBridge: '__type',
         },
         capacity: {
+          partType: 'class',
           partToBridge: '__text--capacity',
         },
         time: {
+          partType: 'class',
           partToBridge: '__text--time',
         },
         features: {
+          partType: 'class',
           partToBridge: '__features',
         },
         description: {
+          partType: 'class',
           partToBridge: '__description',
         },
         photos: {
+          partType: 'class',
           partToBridge: '__photos',
         },
         avatar: {
+          partType: 'class',
           partToBridge: '__avatar',
         },
       },
       success: {
         message: {
+          partType: 'class',
           partToBridge: '__message',
         },
       },
       error: {
         message: {
+          partType: 'class',
           partToBridge: '__message',
         },
         button: {
+          partType: 'class',
           partToBridge: '__button',
         },
       },
     };
-    this.Containers = {
+    this.containers = {
       mapCanvas: {
-        selectorValue: '#map-canvas',
+        selector: '#map-canvas',
+        initialLat: 35.658581,
+        initialLng: 139.745438,
+        initialZoom: 10,
+        openMap: {
+          url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        },
+        mainMarkerParam: {
+          iconUrl: './img/main-pin.svg',
+          iconSize: [52, 52],
+          iconAnchor: [26, 52],
+        },
+        similarMarkerParam: {
+          iconUrl: './img/pin.svg',
+          iconSize: [40, 40],
+          iconAnchor: [20, 40],
+        },
+        map: '',
+        mainMarker: '',
+        similarMarker: '',
+        similarAdsLayer: '',
       },
       adForm: {
-        selectorValue: '.ad-form',
-        attributesToSet: AdFormAttributesToSet,
+        selector: '.ad-form',
+        attributes: adFormAttributes,
         children: {
           /* as in HTML */
           avatar: {
-            selectorValue: '#avatar',
-            attributesToSet: AvatarAttributesToSet,
+            selector: '#avatar',
+            attributes: avatarAttributes,
           },
           avatarContainer: {
-            selectorValue: '.ad-form-header__preview',
+            selector: '.ad-form-header__preview',
+            children: {
+              blankImage: {
+                selector: 'img',
+                attributes: blankImageAttributes,
+              }
+            }
           },
           description: {
-            selectorValue: '#description',
+            selector: '#description',
           },
           submit: {
-            selectorValue: '.ad-form__submit',
+            selector: '.ad-form__submit',
           },
           reset: {
-            selectorValue: '.ad-form__reset',
+            selector: '.ad-form__reset',
           },
           images: {
-            selectorValue: '#images',
-            attributesToSet: ImagesAttributesToSet,
+            selector: '#images',
+            attributes: imagesAttributes,
           },
           imagesContainer: {
-            selectorValue: '.ad-form__photo',
+            selector: '.ad-form__photo',
           },
           /* required */
           title: {
-            selectorValue: '#title',
-            attributesToSet: TitleAttributesToSet,
+            selector: '#title',
+            attributes: titleAttributes,
             objectToValidate: {
-              selectorValue: '#title',
+              selector: '#title',
               name: 'title',
             },
           },
           price: {
-            selectorValue: '#price',
-            attributesToSet: PriceAttributesToSet,
+            selector: '#price',
+            attributes: priceAttributes,
           },
           /* need validation / dependencies */
           type: {
-            selectorValue: '#type',
+            selector: '#type',
             optionsToValidate: {
               bungalow: {
                 name: getLocalText('bungalow'),
@@ -209,38 +255,38 @@ class DomClass {
               },
             },
             objectToValidate: {
-              selectorValue: 'option',
+              selector: 'option',
               name: 'price',
             },
           },
           timein: {
-            selectorValue: '#timein',
-            optionsToValidate: TimeInOptionsToValidate,
+            selector: '#timein',
+            optionsToValidate: timeInOptions,
             objectToValidate: {
-              selectorValue: 'option',
+              selector: 'option',
               name: 'timeout',
             },
           },
           timeout: {
-            selectorValue: '#timeout',
-            options: TimeOutOptions,
+            selector: '#timeout',
+            options: timeOutOptions,
           },
           roomNumber: {
-            selectorValue: '#room_number',
-            optionsToValidate: RoomNumberOptionsToValidate,
+            selector: '#room_number',
+            optionsToValidate: roomNumberOptions,
             objectToValidate: {
-              selectorValue: 'option',
+              selector: 'option',
               name: 'capacity',
             },
-            capacityNumberGuestsRules: CapacityNumberGuestsRules,
+            capacityNumberGuestsRules,
           },
           capacity: {
-            selectorValue: '#capacity',
-            options: CapacityOptions,
+            selector: '#capacity',
+            options: capacityOptions,
           },
           address: {
-            selectorValue: '#address',
-            attributesToSet: AddressAttributesToSet,
+            selector: '#address',
+            attributes: addressAttributes,
             objectToValidate: {
               name: 'address',
             },
@@ -248,9 +294,9 @@ class DomClass {
         },
       },
       mapFilters: {
-        selectorValue: '.map__filters',
+        selector: '.map__filters',
         children: {
-          price: SimilarAdsFilterPriceRange,
+          price: similarAdsFilterPriceRange,
         },
         classes: {
           class1: 'features__label',
@@ -258,83 +304,80 @@ class DomClass {
         },
       },
       body: {
-        selectorValue: 'body',
+        selector: 'body',
       },
     };
-    this.Templates = {
+    this.templates = {
       card: {
-        selectorValue: '#card',
+        selector: '#card',
         fragment: {
-          selectorValue: '.popup',
-          childrenListName: 'popup', // list of children from this obj, not the DOM
-          classConnector: '__', // class name parts connector
+          selector: '.popup',
+          childrenListName: 'popup',
+          classConnector: '__',
         },
         mapPopUpNodes: '',
       },
       success: {
-        selectorValue: '#success',
+        selector: '#success',
         fragment: {
-          selectorValue: '.success',
-          childrenListName: 'success', // list of children from this obj, not the DOM
-          classConnector: '__', // class name parts connector
+          selector: '.success',
+          childrenListName: 'success',
+          classConnector: '__',
         },
       },
       error: {
-        selectorValue: '#error',
+        selector: '#error',
         fragment: {
-          selectorValue: '.error',
-          childrenListName: 'error', // list of children from this obj, not the DOM
-          classConnector: '__', // class name parts connector
+          selector: '.error',
+          childrenListName: 'error',
+          classConnector: '__',
         },
       },
     };
-    this.Classes = {
+    this.classes = {
       adFormDisabled: 'ad-form--disabled',
-      pristineClass: {
+      pristine: {
+        /*pristine build-in property keys*/
         classTo: 'ad-form__element',
         errorClass: 'form__item--invalid',
         successClass: 'form__item--valid',
         errorTextParent: 'ad-form__element',
         errorTextTag: 'div',
         errorTextClass: 'form__error',
-        errorTemporaryClass: 'error-input-placeholder',
+        /**/
+        errorDefined: 'error-input-placeholder',
       },
       hidden: 'hidden',
-      newImageClass: 'ad-form__photo-new-image',
-      sliderClass: 'slider__container',
+      newImage: 'ad-form__photo-new-image',
+      slider: 'slider__container',
     };
     this.getContainer = this.getContainer.bind(this);
     this.getClass = this.getClass.bind(this);
-    this.getContainerNode = this.getContainerNode.bind(this);
     this.setTemplate = this.setTemplate.bind(this);
   }
 
   getContainer(containerName) {
-    return this.Containers[containerName];
-  }
-
-  getContainerNode(containerName) {
-    return document.querySelector(this.Containers[containerName].selectorValue);
+    return this.containers[containerName];
   }
 
   getClass(className) {
-    return this.Classes[className] || false;
+    return this.classes[className];
   }
 
   setTemplate(templateName) {
-    /* fills a template with a real template nodes from the DOM */
-    const template = this.Templates[templateName];
+    /* prepare a template, fills a template with a real template nodes from the DOM */
+    const template = this.templates[templateName];
     /* reset template */
     template.nickName = '';
     template.fragment.content = '';
     template.fragment.children = {};
     /* fill content with HTML*/
     template.fragment.content = document
-      .querySelector(template.selectorValue)
+      .querySelector(template.selector)
       .content
-      .querySelector(template.fragment.selectorValue);
+      .querySelector(template.fragment.selector);
     /* get template's "children" */
-    template.fragment.children = this.Children[template.fragment.childrenListName] || '';
+    template.fragment.children = this.children[template.fragment.childrenListName] || '';
     if (template.fragment.content && template.fragment.children) {
       template.nickName = templateName;
       return template;
@@ -344,17 +387,17 @@ class DomClass {
     return '';
   }
 }
-const domClass = new DomClass();
+const appAssistant = new AppAssistant();
 
-const processDomClass = (dataOriginal = false, ...params) => {
+const assistApp = (dataOriginal = false, ...params) => {
   /* params[0] - what to do */
   switch (params[0]) {
     /* get a template and fill a container with it */
     case 'fillContainerWithTemplate': {
-      /* COMMAND: domProcessor(adsObject, 'fillContainerWithTemplate', TEMPLATE_FROM_DOM_CLASS, CONTAINER_FROM_DOM_CLASS, return template true/false) */
+      /* COMMAND: assistApp(adsObject, 'fillContainerWithTemplate', TEMPLATE_FROM_DOM_CLASS, CONTAINER_FROM_DOM_CLASS, return template true/false) */
       /* adsObject - dataObject, params[1] template, params[2] container, params[3] return */
-      const template = domClass.setTemplate(params[1]);
-      const container = domClass.getContainerNode(params[2]);
+      const template = appAssistant.setTemplate(params[1]);
+      const container = document.querySelector(appAssistant.containers[params[2]].selector);
       if (template && container && dataOriginal &&
         typeof dataOriginal === 'object') {
         fillContainerWithTemplate(dataOriginal, template, container);
@@ -366,37 +409,37 @@ const processDomClass = (dataOriginal = false, ...params) => {
       break;
     }
     /* toggle the state of the adForm*/
-    case 'pageDisable':
-      /* COMMAND: domProcessor(false, 'pageDisable');*/
-      formStateToggle(true, domClass.Containers['adForm'], domClass.Classes.adFormDisabled);
+    case 'adFormDisable':
+      /* COMMAND: assistApp(false, 'adFormDisable');*/
+      formStateToggle(true, appAssistant.containers['adForm'], appAssistant.classes.adFormDisabled);
       break;
-    case 'pageEnable':
-      /* COMMAND: domProcessor(false, 'pageEnable');*/
-      formStateToggle(false, domClass.Containers['adForm'], domClass.Classes.adFormDisabled);
+    case 'adFormEnable':
+      /* COMMAND: assistApp(false, 'adFormEnable');*/
+      formStateToggle(false, appAssistant.containers['adForm'], appAssistant.classes.adFormDisabled);
       break;
     /* toggle the state of the mapFilterForm*/
-    case 'mapFilterDisable':
-      /* COMMAND: domProcessor(false, 'mapFilterDisable');*/
-      formStateToggle(true, domClass.Containers['mapFilters'], domClass.Classes.adFormDisabled);
+    case 'filterFormDisable':
+      /* COMMAND: assistApp(false, 'filterFormDisable');*/
+      formStateToggle(true, appAssistant.containers['mapFilters'], appAssistant.classes.adFormDisabled);
       break;
-    case 'mapFilterEnable':
-      /* COMMAND: domProcessor(false, 'mapFilterEnable');*/
-      formStateToggle(false, domClass.Containers['mapFilters'], domClass.Classes.adFormDisabled);
+    case 'filterFormEnable':
+      /* COMMAND: assistApp(false, 'filterFormEnable');*/
+      formStateToggle(false, appAssistant.containers['mapFilters'], appAssistant.classes.adFormDisabled);
       break;
     /* get container from DOM class*/
     case 'getContainer':
-      /* COMMAND: domProcessor(false, 'getContainer', CONTAINER_FROM_DOM_CLASS_NAME); */
+      /* COMMAND: assistApp(false, 'getContainer', CONTAINER_FROM_DOM_CLASS_NAME); */
       /* params[1] - container's name */
-      return domClass.getContainer(params[1]);
+      return appAssistant.getContainer(params[1]);
     case 'getClass':
-      /* COMMAND: domProcessor(false, 'getClass', className); */
-      return domClass.getClass(params[1]);
+      /* COMMAND: assistApp(false, 'getClass', className); */
+      return appAssistant.getClass(params[1]);
     case 'getLocalText':
-      /* COMMAND: domProcessor(false, 'getLocalText', property); */
+      /* COMMAND: assistApp(false, 'getLocalText', property); */
       return getLocalText(params[1]);
     default:
       return null;
   }
 };
 
-export { processDomClass };
+export { assistApp };

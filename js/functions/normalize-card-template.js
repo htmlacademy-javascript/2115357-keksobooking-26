@@ -1,8 +1,7 @@
-/* get the language */
 const getLang = () => navigator.language === 'ru' ? 'ru' : 'en';
 
 const LANG = getLang();
-const LolcalTexts = {
+const localTexts = {
   /*for declension words written with numbers */
   numDeclen: {
     1: 1,
@@ -135,72 +134,70 @@ const LolcalTexts = {
 };
 
 const normalizeCardTemplate = (data, templateNickName) => {
+
   data.templates = {};
-  switch (templateNickName) {
-    /* normalizes data for the 'card' template START */
-    case 'card':
-      data.templates[templateNickName] = {};
-      data.templates[templateNickName].title = data.offer.title && data.offer.title || '';
-      data.templates[templateNickName].description = data.offer.description && data.offer.description || '';
-      data.templates[templateNickName].address = data.offer.address && data.offer.address || '';
-      data.templates[templateNickName].price = data.offer.price && `${data.offer.price.toLocaleString()}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG]['price']}` || '';
-      data.templates[templateNickName].type = data.offer.type && LolcalTexts[LANG][data.offer.type] || '';
-      switch (true) {
-        case data.offer.rooms === LolcalTexts.numDeclen[1]:
-        case data.offer.rooms === LolcalTexts.numDeclen[21]:
-        case data.offer.rooms === LolcalTexts.numDeclen[31]:
-          data.templates[templateNickName].rooms = `${data.offer.rooms}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG]['roomsWord'][LolcalTexts.numDeclen[1]]}`;
-          break;
-        case data.offer.rooms > LolcalTexts.numDeclen[1] && data.offer.rooms <= LolcalTexts.numDeclen[4]:
-          data.templates[templateNickName].rooms = `${data.offer.rooms}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG]['roomsWord'][LolcalTexts.numDeclen[4]]}`;
-          break;
-        case data.offer.rooms >= LolcalTexts.numDeclen[5]:
-          data.templates[templateNickName].rooms = `${data.offer.rooms}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG]['roomsWord'][LolcalTexts.numDeclen[5]]}`;
-          break;
-        default:
-          data.templates[templateNickName].rooms = '';
-      }
-      switch (true) {
-        case data.offer.guests === LolcalTexts.numDeclen[1]:
-        case data.offer.guests === LolcalTexts.numDeclen[21]:
-        case data.offer.guests === LolcalTexts.numDeclen[31]:
-          data.templates[templateNickName].guests = `${data.offer.guests}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG]['guestsWord'][1]}`;
-          break;
-        case data.offer.guests > LolcalTexts.numDeclen[1] && data.offer.guests <= LolcalTexts.numDeclen[4]:
-          data.templates[templateNickName].guests = `${data.offer.guests}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG]['guestsWord'][4]}`;
-          break;
-        case data.offer.guests >= LolcalTexts.numDeclen[5]:
-          data.templates[templateNickName].guests = `${data.offer.guests}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG]['guestsWord'][5]}`;
-          break;
-        default:
-          data.templates[templateNickName].guests = '';
-      }
-      data.templates[templateNickName].capacity =
-        data.templates[templateNickName].rooms && data.templates[templateNickName].guests &&
-        `${data.templates[templateNickName].rooms}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG].for}${LolcalTexts.lineJoin[1]}${data.templates[templateNickName].guests}${LolcalTexts.lineJoin[2]}`
-        ||
-        '';
-      delete data.templates[templateNickName].rooms;
-      delete data.templates[templateNickName].guests;
-      data.templates[templateNickName].checkin = data.offer.checkin && `${LolcalTexts[LANG].checkin}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG].after}${LolcalTexts.lineJoin[3]}${LolcalTexts.lineJoin[1]}${data.offer.checkin}${LolcalTexts.lineJoin[2]}` || '';
-      data.templates[templateNickName].checkout = data.offer.checkout && `${LolcalTexts[LANG].checkout}${LolcalTexts.lineJoin[1]}${LolcalTexts[LANG].before}${LolcalTexts.lineJoin[3]}${LolcalTexts.lineJoin[1]}${data.offer.checkout}${LolcalTexts.lineJoin[2]}` || '';
-      data.templates[templateNickName].time =
-        data.templates[templateNickName].checkin && data.templates[templateNickName].checkout &&
-        `${data.templates[templateNickName].checkin}${LolcalTexts.lineJoin[1]}${data.templates[templateNickName].checkout}`
-        ||
-        '';
-      delete data.templates[templateNickName].checkin;
-      delete data.templates[templateNickName].checkout;
-      data.templates[templateNickName].features = data.offer.features && data.offer.features.length && data.offer.features || '';
-      data.templates[templateNickName].photos = data.offer.photos && data.offer.photos.length && data.offer.photos || [];
-      data.templates[templateNickName].avatar = data.author.avatar && data.author.avatar || '';
+  data.templates[templateNickName] = {};
+  const template = data.templates[templateNickName];
+
+  template.title = data.offer.title && data.offer.title || '';
+  template.description = data.offer.description && data.offer.description || '';
+  template.address = data.offer.address && data.offer.address || '';
+  template.price = data.offer.price && `${data.offer.price.toLocaleString()}${localTexts.lineJoin[1]}${localTexts[LANG]['price']}` || '';
+  template.type = data.offer.type && localTexts[LANG][data.offer.type] || '';
+  switch (true) {
+    case data.offer.rooms === localTexts.numDeclen[1]:
+    case data.offer.rooms === localTexts.numDeclen[21]:
+    case data.offer.rooms === localTexts.numDeclen[31]:
+      template.rooms = `${data.offer.rooms}${localTexts.lineJoin[1]}${localTexts[LANG]['roomsWord'][localTexts.numDeclen[1]]}`;
       break;
-    /* normalizes data for the 'card' template END */
+    case data.offer.rooms > localTexts.numDeclen[1] && data.offer.rooms <= localTexts.numDeclen[4]:
+      template.rooms = `${data.offer.rooms}${localTexts.lineJoin[1]}${localTexts[LANG]['roomsWord'][localTexts.numDeclen[4]]}`;
+      break;
+    case data.offer.rooms >= localTexts.numDeclen[5]:
+      template.rooms = `${data.offer.rooms}${localTexts.lineJoin[1]}${localTexts[LANG]['roomsWord'][localTexts.numDeclen[5]]}`;
+      break;
+    default:
+      template.rooms = '';
   }
+  switch (true) {
+    case data.offer.guests === localTexts.numDeclen[1]:
+    case data.offer.guests === localTexts.numDeclen[21]:
+    case data.offer.guests === localTexts.numDeclen[31]:
+      template.guests = `${data.offer.guests}${localTexts.lineJoin[1]}${localTexts[LANG]['guestsWord'][1]}`;
+      break;
+    case data.offer.guests > localTexts.numDeclen[1] && data.offer.guests <= localTexts.numDeclen[4]:
+      template.guests = `${data.offer.guests}${localTexts.lineJoin[1]}${localTexts[LANG]['guestsWord'][4]}`;
+      break;
+    case data.offer.guests >= localTexts.numDeclen[5]:
+      template.guests = `${data.offer.guests}${localTexts.lineJoin[1]}${localTexts[LANG]['guestsWord'][5]}`;
+      break;
+    default:
+      template.guests = '';
+  }
+  template.capacity =
+    template.rooms && template.guests &&
+    `${template.rooms}${localTexts.lineJoin[1]}${localTexts[LANG].for}${localTexts.lineJoin[1]}${template.guests}${localTexts.lineJoin[2]}`
+    ||
+    '';
+  delete template.rooms;
+  delete template.guests;
+  template.checkin = data.offer.checkin && `${localTexts[LANG].checkin}${localTexts.lineJoin[1]}${localTexts[LANG].after}${localTexts.lineJoin[3]}${localTexts.lineJoin[1]}${data.offer.checkin}${localTexts.lineJoin[2]}` || '';
+  template.checkout = data.offer.checkout && `${localTexts[LANG].checkout}${localTexts.lineJoin[1]}${localTexts[LANG].before}${localTexts.lineJoin[3]}${localTexts.lineJoin[1]}${data.offer.checkout}${localTexts.lineJoin[2]}` || '';
+  template.time =
+    template.checkin && template.checkout &&
+    `${template.checkin}${localTexts.lineJoin[1]}${template.checkout}`
+    ||
+    '';
+  delete template.checkin;
+  delete template.checkout;
+  template.features = data.offer.features && data.offer.features.length && data.offer.features || [];
+  template.photos = data.offer.photos && data.offer.photos.length && data.offer.photos || [];
+  template.avatar = data.author.avatar && data.author.avatar || '';
+
   return data;
 };
 
-const getLocalText = (property, lang = getLang()) => LolcalTexts[lang][property] || '';
+const getLocalText = (property, lang = getLang()) => localTexts[lang][property] || '';
 
 export { getLocalText };
 export { normalizeCardTemplate };

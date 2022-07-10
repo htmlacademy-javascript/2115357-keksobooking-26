@@ -129,49 +129,6 @@ const getOptionNodes = (childData, firstNode, secondNode = false) => {
   const secondNodeNodes = secondNode && [...secondNode.querySelectorAll(childData.objectToValidate.selector)] || '';
   return [firstNodeNodes, secondNodeNodes];
 };
-const enableSubmitButton = () => {
-  submitButton.addEventListener('click', eventHandlers.submitButtonClickHandler);
-  submitButton.disabled = false;
-};
-const disableSubmitButton = () => {
-  submitButton.removeEventListener('click', eventHandlers.submitButtonClickHandler);
-  submitButton.disabled = true;
-};
-const processServerOkResponse = () => {
-  /*success popups*/
-  assistApp(serverResponseTexts, 'fillContainerWithTemplate', serverResponseDom.children.success, serverResponseDom.container);
-  /*popups remove toggle*/
-  serverResponsePopups.success = document.querySelector(`.${serverResponseDom.children.success}`);
-  serverResponsePopups.error = '';
-};
-const processServerFailResponse = () => {
-  /*error popups*/
-  assistApp(serverResponseTexts, 'fillContainerWithTemplate', serverResponseDom.children.error, serverResponseDom.container);
-  /*popus remove toggle*/
-  serverResponsePopups.error = document.querySelector(`.${serverResponseDom.children.error}`);
-  serverResponsePopups.success = '';
-};
-const sendNewAdToServer = () => {
-  /*get the form data*/
-  const newAdDataToSend = new FormData(adFormNode);
-  disableSubmitButton();
-  /*disable adForm*/
-  assistApp(false, 'adFormDisable');
-  pushToServer(newAdDataToSend)
-    .then((response) => {
-      if (response) {
-        processServerOkResponse();
-      } else {
-        processServerFailResponse();
-      }
-    })
-    .catch(() => {
-      processServerFailResponse();
-    });
-  /*remove popup handlers*/
-  window.addEventListener('keydown', eventHandlers.windowEscKeydownHandler);
-  window.addEventListener('click', eventHandlers.windowClickHandler);
-};
 const setAddressFieldValue = (initial = false) => {
   if (initial) {
     /*setTimeout - formReset removes values slower*/
@@ -190,29 +147,10 @@ const recordAdAddressFromMap = (address, init = false) => {
     setAddressFieldValue(false);
   }
 };
-const validateInitial = (node, removeErrorClass = true) => {
-  /*initial validation, after resetButton removes validation results for selected fields*/
-  if (removeErrorClass) {
-    node.dispatchEvent(new Event('input'));
-    node.classList.remove(PRISTINE_ERROR_CLASS);
-  }
+const resumeValidation = () => {
+  skipValidation.toggle = 1;
 };
-const processDomAfterServerResponse = () => {
-  window.removeEventListener('keydown', eventHandlers.windowEscKeydownHandler);
-  window.removeEventListener('click', eventHandlers.windowClickHandler);
-  /*page to enabled state*/
-  assistApp(false, 'adFormEnable');
-  /*enable back the submit button*/
-  enableSubmitButton();
-  if (serverResponsePopups.success) {
-    /*form fields back to defaults*/
-    resetButton.click();
-    serverResponsePopups.success.remove();
-  }
-  if (serverResponsePopups.error) {
-    serverResponsePopups.error.remove();
-  }
-};
+
 const initializeSlider = () => {
   noUiSlider.create(priceSlider, {
     range: {
@@ -241,6 +179,7 @@ const updateSliderValue = (price) => {
   /*slederSetsNewValue > priceInputFiledGetsNewValue*/
   priceSlider.noUiSlider.set(price);
 };
+
 const resetAvatarImageContainer = () => {
   [...avatarImageContainer.childNodes].forEach((child) => {
     if (child !== avatarBlankImage) {
@@ -259,10 +198,75 @@ const resetImagesImageContainer = () => {
 const setImgSrc = (img, container) => {
   container.src = img;
 };
-const resumeValidation = () => {
-  skipValidation.toggle = 1;
+
+const enableSubmitButton = () => {
+  submitButton.addEventListener('click', eventHandlers.submitButtonClickHandler);
+  submitButton.disabled = false;
 };
-/*reset adForm*/
+const disableSubmitButton = () => {
+  submitButton.removeEventListener('click', eventHandlers.submitButtonClickHandler);
+  submitButton.disabled = true;
+};
+
+const processServerOkResponse = () => {
+  /*success popups*/
+  assistApp(serverResponseTexts, 'fillContainerWithTemplate', serverResponseDom.children.success, serverResponseDom.container);
+  /*popups remove toggle*/
+  serverResponsePopups.success = document.querySelector(`.${serverResponseDom.children.success}`);
+  serverResponsePopups.error = '';
+};
+const processServerFailResponse = () => {
+  /*error popups*/
+  assistApp(serverResponseTexts, 'fillContainerWithTemplate', serverResponseDom.children.error, serverResponseDom.container);
+  /*popus remove toggle*/
+  serverResponsePopups.error = document.querySelector(`.${serverResponseDom.children.error}`);
+  serverResponsePopups.success = '';
+};
+const processDomAfterServerResponse = () => {
+  window.removeEventListener('keydown', eventHandlers.windowEscKeydownHandler);
+  window.removeEventListener('click', eventHandlers.windowClickHandler);
+  /*page to enabled state*/
+  assistApp(false, 'adFormEnable');
+  /*enable back the submit button*/
+  enableSubmitButton();
+  if (serverResponsePopups.success) {
+    /*form fields back to defaults*/
+    resetButton.click();
+    serverResponsePopups.success.remove();
+  }
+  if (serverResponsePopups.error) {
+    serverResponsePopups.error.remove();
+  }
+};
+const sendNewAdToServer = () => {
+  /*get the form data*/
+  const newAdDataToSend = new FormData(adFormNode);
+  disableSubmitButton();
+  /*disable adForm*/
+  assistApp(false, 'adFormDisable');
+  pushToServer(newAdDataToSend)
+    .then((response) => {
+      if (response) {
+        processServerOkResponse();
+      } else {
+        processServerFailResponse();
+      }
+    })
+    .catch(() => {
+      processServerFailResponse();
+    });
+  /*remove popup handlers*/
+  window.addEventListener('keydown', eventHandlers.windowEscKeydownHandler);
+  window.addEventListener('click', eventHandlers.windowClickHandler);
+};
+
+const validateInitial = (node, removeErrorClass = true) => {
+  /*initial validation, after resetButton removes validation results for selected fields*/
+  if (removeErrorClass) {
+    node.dispatchEvent(new Event('input'));
+    node.classList.remove(PRISTINE_ERROR_CLASS);
+  }
+};
 const validateOnReset = () => {
   if (nodesToValidateOnReset.length) {
     skipValidation.toggle = 0;
@@ -272,58 +276,6 @@ const validateOnReset = () => {
     setAddressFieldValue(true);
   }
 };
-/*functions END*/
-
-eventHandlers.windowEscKeydownHandler = (ev) => {
-  if (isEscapeKey(ev)) {
-    processDomAfterServerResponse();
-  }
-};
-eventHandlers.windowClickHandler = () => {
-  processDomAfterServerResponse();
-};
-eventHandlers.submitButtonClickHandler = (ev) => {
-  ev.preventDefault();
-  /*prevent click on window after fetch is completed (closes the popups)*/
-  ev.stopPropagation();
-  skipValidation.toggle = 1;
-  const isFormValid = pristine.validate();
-  if (isFormValid) {
-    /*FETCH*/
-    sendNewAdToServer();
-  }
-};
-eventHandlers.avatarInputChangeHandler = () => {
-  resetAvatarImageContainer();
-  const uploadedImg = URL.createObjectURL(avatarInputField.files[0]);
-  const newAvatar = avatarBlankImage.cloneNode();
-  setImgSrc(uploadedImg, newAvatar);
-  avatarBlankImage.classList.add(DISPLAY_NONE_CLASS);
-  avatarImageContainer.append(newAvatar);
-};
-eventHandlers.imagesInputChangeHandler = () => {
-  resetImagesImageContainer();
-  const uploadedImg = URL.createObjectURL(imagesInputField.files[0]);
-  imagesImageContainer.classList.add(UPLOADED_IMAGE_CLASS);
-  imagesImageContainer.style.backgroundImage = `url(${uploadedImg})`;
-};
-eventHandlers.resetButtonClickHandler = () => {
-  resetSimilarAdsFilterForm();
-  getMapToInitialPosition();
-  resetAvatarImageContainer();
-  resetImagesImageContainer();
-  setTimeout(()=>{
-    validateOnReset();
-    setAddressFieldValue(true);
-  });
-  window.scrollTo({top: 0, behavior: 'smooth'});
-};
-
-resetButton.addEventListener('click', eventHandlers.resetButtonClickHandler);
-avatarInputField.addEventListener('change', eventHandlers.avatarInputChangeHandler);
-imagesInputField.addEventListener('change', eventHandlers.imagesInputChangeHandler);
-submitButton.addEventListener('click', eventHandlers.submitButtonClickHandler);
-
 
 const validateTypeAndPrice = (typeNode, priceNode, assistantData) => {
   /*initialize slider start*/
@@ -518,7 +470,7 @@ const validateRoomsnumberAndCapacity = (roomsNumberNode, capacityNode, capacityA
     resumeValidation();
   };
 
-  /*objectToValidateNode side validation*/
+  /*capacityNode side validation*/
   const getGuestsNumberErrorMessage = () => guestsSideError.toggle && guestsSideError.value.part1 || '';
   const validateGuestsNumberField = (guestsNumber) => {
     if (!skipValidation.toggle) {
@@ -552,6 +504,59 @@ const validateRoomsnumberAndCapacity = (roomsNumberNode, capacityNode, capacityA
   capacityNode.addEventListener('change', eventHandlers.guestsSelectInputHandler);
   capacityNode.addEventListener('click', eventHandlers.guestsSelectClickHandler);
 };
+/*functions END*/
+
+eventHandlers.avatarInputChangeHandler = () => {
+  resetAvatarImageContainer();
+  const uploadedImg = URL.createObjectURL(avatarInputField.files[0]);
+  const newAvatar = avatarBlankImage.cloneNode();
+  setImgSrc(uploadedImg, newAvatar);
+  avatarBlankImage.classList.add(DISPLAY_NONE_CLASS);
+  avatarImageContainer.append(newAvatar);
+};
+eventHandlers.imagesInputChangeHandler = () => {
+  resetImagesImageContainer();
+  const uploadedImg = URL.createObjectURL(imagesInputField.files[0]);
+  imagesImageContainer.classList.add(UPLOADED_IMAGE_CLASS);
+  imagesImageContainer.style.backgroundImage = `url(${uploadedImg})`;
+};
+
+eventHandlers.windowEscKeydownHandler = (ev) => {
+  if (isEscapeKey(ev)) {
+    processDomAfterServerResponse();
+  }
+};
+eventHandlers.windowClickHandler = () => {
+  processDomAfterServerResponse();
+};
+eventHandlers.submitButtonClickHandler = (ev) => {
+  ev.preventDefault();
+  /*prevent click on window after fetch is completed (closes the popups)*/
+  ev.stopPropagation();
+  skipValidation.toggle = 1;
+  const isFormValid = pristine.validate();
+  if (isFormValid) {
+    /*FETCH*/
+    sendNewAdToServer();
+  }
+};
+eventHandlers.resetButtonClickHandler = () => {
+  resetSimilarAdsFilterForm();
+  getMapToInitialPosition();
+  resetAvatarImageContainer();
+  resetImagesImageContainer();
+  setTimeout(()=>{
+    validateOnReset();
+    setAddressFieldValue(true);
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+};
+
+avatarInputField.addEventListener('change', eventHandlers.avatarInputChangeHandler);
+imagesInputField.addEventListener('change', eventHandlers.imagesInputChangeHandler);
+
+resetButton.addEventListener('click', eventHandlers.resetButtonClickHandler);
+submitButton.addEventListener('click', eventHandlers.submitButtonClickHandler);
 
 const validateAdForm = () => {
   /*normalize and add validation to the adForm START*/

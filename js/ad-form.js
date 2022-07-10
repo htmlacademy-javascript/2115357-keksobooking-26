@@ -7,6 +7,7 @@ import {pushToServer} from './fetch.js';
 /*VARS START*/
 /*address*/
 const addressFieldData = {
+  node: '',
   addressInitial: '',
   addressCurrent: '',
 };
@@ -14,6 +15,16 @@ const addressFieldData = {
 const AD_FORM_NAME = 'adForm';
 const adFormAssistant = assistApp(false, 'getContainer', AD_FORM_NAME);
 const adFormChildren = adFormAssistant.children;
+const adFormFieldsNodes = {
+  address: '',
+  type: '',
+  price: '',
+  title: '',
+  timein: '',
+  timeout: '',
+  roomsNumber: '',
+  capacity: '',
+};
 /*server response*/
 const serverResponseDom = {
   container: 'body',
@@ -277,32 +288,32 @@ const validateOnReset = () => {
   }
 };
 
-const validateTypeAndPrice = (typeNode, priceNode, assistantData) => {
+const validateTypeAndPrice = (assistantData) => {
   /*initialize slider start*/
-  priceNode.parentNode.insertBefore(priceSlider, priceNode.nextSibling);
+  adFormFieldsNodes.price.parentNode.insertBefore(priceSlider, adFormFieldsNodes.price.nextSibling);
   initializeSlider();
   priceSlider.noUiSlider.on('update', () => {
     if (sliderAndPriceFieldToggleSettings.slideToPriceBlocker) {
       return;
     }
     sliderAndPriceFieldToggleSettings.priceToSlideBlocker = 1;
-    priceNode.value = Number(priceSlider.noUiSlider.get());
-    priceNode.dispatchEvent(new Event('input'));
+    adFormFieldsNodes.price.value = Number(priceSlider.noUiSlider.get());
+    adFormFieldsNodes.price.dispatchEvent(new Event('input'));
     sliderAndPriceFieldToggleSettings.priceToSlideBlocker = 0;
   });
   /*initialize slider end*/
   /*normalize typeSelect > options*/
-  const [typeOptionNodes] = [...getOptionNodes(assistantData, typeNode)];
+  const [typeOptionNodes] = [...getOptionNodes(assistantData, adFormFieldsNodes.type)];
   typeOptionNodes.forEach((optionNode) => {
     /*set typeSelect > options > textContent*/
     optionNode.textContent = assistantData.optionsToValidate[optionNode.value].name;
   });
   /*Validate and set dependencies for Type/Price fields*/
   const bungalowZeroPriceException = assistantData.optionsToValidate.bungalow.zeroPriceException;
-  const maxPrice = Number(priceNode.getAttribute('max'));
+  const maxPrice = Number(adFormFieldsNodes.price.getAttribute('max'));
   const getPriceErrorMessage = (price) => {
     /*childNode.value - typeSelect>options.values*/
-    const minPrice = assistantData.optionsToValidate[typeNode.value].minPrice;
+    const minPrice = assistantData.optionsToValidate[adFormFieldsNodes.type.value].minPrice;
     if (price === '') {
       return requiredFieldText;
     }
@@ -319,61 +330,20 @@ const validateTypeAndPrice = (typeNode, priceNode, assistantData) => {
     /*pristine checks it on selectChange*/
     /*objectToValidateNode - priceInputField*/
     /*exclude bungalow with 0 or '' price*/
-    if (typeNode.value === bungalowZeroPriceException[0] && bungalowZeroPriceException[1].includes(price)) {
+    if (adFormFieldsNodes.type.value === bungalowZeroPriceException[0] && bungalowZeroPriceException[1].includes(price)) {
       return true;
     }
-    const isValid = price && price >= Number(priceNode.getAttribute('min')) && price <= maxPrice || false;
-    priceNode.classList.toggle(PRISTINE_ERROR_CLASS, isValid === false);
+    const isValid = price && price >= Number(adFormFieldsNodes.price.getAttribute('min')) && price <= maxPrice || false;
+    adFormFieldsNodes.price.classList.toggle(PRISTINE_ERROR_CLASS, isValid === false);
     return isValid;
   };
-  eventHandlers.typeSelectInputHandler = (ev) => {
-    /*set validated attribute, min and placeholder*/
-    const validatedValue = assistantData.optionsToValidate[ev.currentTarget.value].minPrice;
-    /*set new placeholder and min price to priceInputField*/
-    priceNode.placeholder = validatedValue;
-    priceNode.min = validatedValue;
-    /*remove the price filed shaking after select is changed*/
-    if (!priceNode.value) {
-      priceNode.style.setProperty('box-shadow', 'none');
-      priceNode.style.setProperty('border', priceFieldShakingBorderStyle);
-    }
-    if (!sliderAndPriceFieldToggleSettings.initialState) {
-      priceNode.dispatchEvent(new Event('input'));
-    }
-    /*delete validation results from price field if it is empty, after a new type was selected*/
-    validateInitial(priceNode, priceNode.value === '');
-    /*setTimeout - because it removes styles before dom proceeds it and it has no effect otherwise*/
-    setTimeout(() => {
-      if (priceNode) {
-        priceNode.style.removeProperty('box-shadow');
-        priceNode.style.removeProperty('border');
-      }
-    });
-    /*set new conf values for the slider*/
-    updateSlider(validatedValue, validatedValue || SLIDER_INITIAL_STEP, priceNode);
-  };
   /*pristine sends priceNode.value to callback functions as a parameter (price)*/
-  pristine.addValidator(priceNode, validatePrice, getPriceErrorMessage);
-  typeNode.addEventListener('input', eventHandlers.typeSelectInputHandler);
-  /*updates slider value*/
-  eventHandlers.priceNumberFiledInputHandler = () => {
-    if (sliderAndPriceFieldToggleSettings.priceToSlideBlocker) {
-      return;
-    }
-    sliderAndPriceFieldToggleSettings.initialState = false;
-    clearTimeout(sliderAndPriceFieldToggleSettings.priceSliderTimeOut);
-    sliderAndPriceFieldToggleSettings.slideToPriceBlocker = 1;
-    sliderAndPriceFieldToggleSettings.priceSliderTimeOut = setTimeout(()=>{
-      updateSliderValue(priceNode.value);
-      sliderAndPriceFieldToggleSettings.slideToPriceBlocker = 0;
-    }, sliderAndPriceFieldToggleSettings.priceSliderTimeOutLength);
-  };
-  priceNode.addEventListener('input', eventHandlers.priceNumberFiledInputHandler);
+  pristine.addValidator(adFormFieldsNodes.price, validatePrice, getPriceErrorMessage);
 };
-const validateTitle = (titleNode) => {
-  const titleMinLength = Number(titleNode.getAttribute('minLength'));
+const validateTitle = () => {
+  const titleMinLength = Number(adFormFieldsNodes.title.getAttribute('minLength'));
   const errorMessageMin = `${titleErrorText.part1} ${titleErrorText.part3} ${titleMinLength} ${titleErrorText.part4}`;
-  const titleMaxLength = Number(titleNode.getAttribute('maxLength'));
+  const titleMaxLength = Number(adFormFieldsNodes.title.getAttribute('maxLength'));
   const errorMessageMax = `${titleErrorText.part2} ${titleErrorText.part3} ${titleMaxLength - 1} ${titleErrorText.part4}`;
   const getTitleErrorMessage = (title) => {
     if (title === '') {
@@ -389,14 +359,14 @@ const validateTitle = (titleNode) => {
   };
   const validateTitleValue = (title) => {
     const isValid = title.length >= titleMinLength && title.length < titleMaxLength;
-    titleNode.classList.toggle(PRISTINE_ERROR_CLASS, isValid === false);
+    adFormFieldsNodes.title.classList.toggle(PRISTINE_ERROR_CLASS, isValid === false);
     return isValid;
   };
-  pristine.addValidator(titleNode, validateTitleValue, getTitleErrorMessage);
+  pristine.addValidator(adFormFieldsNodes.title, validateTitleValue, getTitleErrorMessage);
 };
-const validateTimeinAndTimeout = (timeInNode, timeOutNode, timeOutAssistentData, assistantData) => {
+const validateTimeinAndTimeout = (timeOutAssistentData, assistantData) => {
   /*normalize both select > options*/
-  const [timeinOptionNodes, timeoutOptionNodes] = [...getOptionNodes(assistantData, timeInNode, timeOutNode)];
+  const [timeinOptionNodes, timeoutOptionNodes] = [...getOptionNodes(assistantData, adFormFieldsNodes.timein, adFormFieldsNodes.timeout)];
   /*timein's options*/
   timeinOptionNodes.forEach((optionNode) => {
     /*normalize option value (to match class property index) to get proper value from the dom class*/
@@ -407,39 +377,22 @@ const validateTimeinAndTimeout = (timeInNode, timeOutNode, timeOutAssistentData,
   timeoutOptionNodes.forEach((optionNode) => {
     optionNode.textContent = timeOutAssistentData.options[optionNode.value.replace(':', '')].value;
   });
-
-  /*options dependencies*/
-  eventHandlers.timeinSelectInputHandler = (ev) => {
-    timeOutNode.value = ev.currentTarget.value;
-  };
-  eventHandlers.timeoutSelectInputHandler = (ev) => {
-    timeInNode.value = ev.currentTarget.value;
-  };
-  timeInNode.addEventListener('input', eventHandlers.timeinSelectInputHandler);
-  timeOutNode.addEventListener('input', eventHandlers.timeoutSelectInputHandler);
-  /*initial normalization if the options are mixed up*/
-  timeInNode.dispatchEvent(new Event('input'));
 };
-const validateRoomsnumberAndCapacity = (roomsNumberNode, capacityNode, capacityAssistentData, assistantData) => {
-
+const validateRoomsnumberAndCapacity = (capacityAssistentData, assistantData) => {
   /*normalize both select > options*/
-  const [roomsnumberOptionNodes, capacityOptionNodes] = [...getOptionNodes(assistantData, roomsNumberNode, capacityNode)];
-
+  const [roomsnumberOptionNodes, capacityOptionNodes] = [...getOptionNodes(assistantData, adFormFieldsNodes.roomsNumber, adFormFieldsNodes.capacity)];
   /*roomnumber's options*/
   roomsnumberOptionNodes.forEach((optionNode) => {
     optionNode.textContent = assistantData.optionsToValidate[optionNode.value].value;
   });
-
   /*capacity's options*/
   capacityOptionNodes.forEach((optionNode) => {
     optionNode.textContent = capacityAssistentData.options[optionNode.value].value;
   });
-
   /*validation*/
   /*toggles - to write down only error messg. for one field at a time*/
   propertySideError.toggle = 1;
   guestsSideError.toggle = 1;
-
   /*roomsNumberNode side validation*/
   const getRoomsNumberErrorMessage = () => propertySideError.toggle && propertySideError.value.part1 || '';
   const validateRoomsNumberField = (roomsNumber) => {
@@ -448,7 +401,7 @@ const validateRoomsnumberAndCapacity = (roomsNumberNode, capacityNode, capacityA
       return true;
     }
     /*get the opposite side value*/
-    const guestsNumber = Number(capacityNode.value);
+    const guestsNumber = Number(adFormFieldsNodes.capacity.value);
     /*get amount of rooms suitable for those guests*/
     const roomsSuitable = [];
     for (const indexRoomsNumber in assistantData.capacityNumberGuestsRules) {
@@ -458,18 +411,6 @@ const validateRoomsnumberAndCapacity = (roomsNumberNode, capacityNode, capacityA
     }
     return roomsSuitable.includes(roomsNumber);
   };
-  eventHandlers.roomsSelectInputHandler = () => {
-    /*revalidate the opposit field*/
-    /*toggle - to write down only one error messg. at a time*/
-    guestsSideError.toggle = 0;
-    capacityNode.dispatchEvent(new Event('input'));
-    guestsSideError.toggle = 1;
-  };
-  eventHandlers.roomsSelectClickHandler = () => {
-    /*recharge validation*/
-    resumeValidation();
-  };
-
   /*capacityNode side validation*/
   const getGuestsNumberErrorMessage = () => guestsSideError.toggle && guestsSideError.value.part1 || '';
   const validateGuestsNumberField = (guestsNumber) => {
@@ -477,34 +418,91 @@ const validateRoomsnumberAndCapacity = (roomsNumberNode, capacityNode, capacityA
       return true;
     }
     /*get the opposite side value*/
-    const roomsNumber = Number(roomsNumberNode.value);
+    const roomsNumber = Number(adFormFieldsNodes.roomsNumber.value);
     /*capacityNumberGuestsRules: index-roomssNumber, value[guestsNumbers]*/
     /*get amount of guests suitable for this room*/
     const guestsSuitable = assistantData.capacityNumberGuestsRules[roomsNumber];
     return guestsSuitable.includes(Number(guestsNumber));
   };
-  eventHandlers.guestsSelectInputHandler = () => {
-    /*revalidate the opposit field*/
-    /*toggle - to write down only one error messg. at a time*/
-    propertySideError.toggle = 0;
-    roomsNumberNode.dispatchEvent(new Event('input'));
-    /*recharge opposite error*/
-    propertySideError.toggle = 1;
-  };
-  eventHandlers.guestsSelectClickHandler = () => {
-    /*recharge validation*/
-    resumeValidation();
-  };
-
   /*capacity input = number of guests input*/
-  pristine.addValidator(roomsNumberNode, validateRoomsNumberField, getRoomsNumberErrorMessage);
-  pristine.addValidator(capacityNode, validateGuestsNumberField, getGuestsNumberErrorMessage);
-  roomsNumberNode.addEventListener('change', eventHandlers.roomsSelectInputHandler);
-  roomsNumberNode.addEventListener('click', eventHandlers.roomsSelectClickHandler);
-  capacityNode.addEventListener('change', eventHandlers.guestsSelectInputHandler);
-  capacityNode.addEventListener('click', eventHandlers.guestsSelectClickHandler);
+  pristine.addValidator(adFormFieldsNodes.roomsNumber, validateRoomsNumberField, getRoomsNumberErrorMessage);
+  pristine.addValidator(adFormFieldsNodes.capacity, validateGuestsNumberField, getGuestsNumberErrorMessage);
 };
 /*functions END*/
+
+/*ev handlers start*/
+eventHandlers.typeSelectInputHandler = (ev) => {
+  /*has to additionaly get the data here*/
+  const assistantData = adFormChildren[ev.currentTarget.id];
+  /*set validated attribute, min and placeholder*/
+  const validatedValue = assistantData.optionsToValidate[ev.currentTarget.value].minPrice;
+  /*set new placeholder and min price to priceInputField*/
+  adFormFieldsNodes.price.placeholder = validatedValue;
+  adFormFieldsNodes.price.min = validatedValue;
+  /*remove the price filed shaking after select is changed*/
+  if (!adFormFieldsNodes.price.value) {
+    adFormFieldsNodes.price.style.setProperty('box-shadow', 'none');
+    adFormFieldsNodes.price.style.setProperty('border', priceFieldShakingBorderStyle);
+  }
+  if (!sliderAndPriceFieldToggleSettings.initialState) {
+    adFormFieldsNodes.price.dispatchEvent(new Event('input'));
+  }
+  /*delete validation results from price field if it is empty, after a new type was selected*/
+  validateInitial(adFormFieldsNodes.price, adFormFieldsNodes.price.value === '');
+  /*setTimeout - because it removes styles before dom proceeds it and it has no effect otherwise*/
+  setTimeout(() => {
+    if (adFormFieldsNodes.price) {
+      adFormFieldsNodes.price.style.removeProperty('box-shadow');
+      adFormFieldsNodes.price.style.removeProperty('border');
+    }
+  });
+  /*set new conf values for the slider*/
+  updateSlider(validatedValue, validatedValue || SLIDER_INITIAL_STEP, adFormFieldsNodes.price);
+};
+eventHandlers.priceNumberFiledInputHandler = () => {
+  if (sliderAndPriceFieldToggleSettings.priceToSlideBlocker) {
+    return;
+  }
+  /*updates slider value*/
+  sliderAndPriceFieldToggleSettings.initialState = false;
+  clearTimeout(sliderAndPriceFieldToggleSettings.priceSliderTimeOut);
+  sliderAndPriceFieldToggleSettings.slideToPriceBlocker = 1;
+  sliderAndPriceFieldToggleSettings.priceSliderTimeOut = setTimeout(()=>{
+    updateSliderValue(adFormFieldsNodes.price.value);
+    sliderAndPriceFieldToggleSettings.slideToPriceBlocker = 0;
+  }, sliderAndPriceFieldToggleSettings.priceSliderTimeOutLength);
+};
+
+eventHandlers.timeinSelectInputHandler = (ev) => {
+  adFormFieldsNodes.timeout.value = ev.currentTarget.value;
+};
+eventHandlers.timeoutSelectInputHandler = (ev) => {
+  adFormFieldsNodes.timein.value = ev.currentTarget.value;
+};
+
+eventHandlers.roomsSelectInputHandler = () => {
+  /*revalidate the opposit field*/
+  /*toggle - to write down only one error messg. at a time*/
+  guestsSideError.toggle = 0;
+  adFormFieldsNodes.capacity.dispatchEvent(new Event('input'));
+  guestsSideError.toggle = 1;
+};
+eventHandlers.roomsSelectClickHandler = () => {
+  /*recharge validation*/
+  resumeValidation();
+};
+eventHandlers.guestsSelectInputHandler = () => {
+  /*revalidate the opposit field*/
+  /*toggle - to write down only one error messg. at a time*/
+  propertySideError.toggle = 0;
+  adFormFieldsNodes.roomsNumber.dispatchEvent(new Event('input'));
+  /*recharge opposite error*/
+  propertySideError.toggle = 1;
+};
+eventHandlers.guestsSelectClickHandler = () => {
+  /*recharge validation*/
+  resumeValidation();
+};
 
 eventHandlers.avatarInputChangeHandler = () => {
   resetAvatarImageContainer();
@@ -529,17 +527,6 @@ eventHandlers.windowEscKeydownHandler = (ev) => {
 eventHandlers.windowClickHandler = () => {
   processDomAfterServerResponse();
 };
-eventHandlers.submitButtonClickHandler = (ev) => {
-  ev.preventDefault();
-  /*prevent click on window after fetch is completed (closes the popups)*/
-  ev.stopPropagation();
-  skipValidation.toggle = 1;
-  const isFormValid = pristine.validate();
-  if (isFormValid) {
-    /*FETCH*/
-    sendNewAdToServer();
-  }
-};
 eventHandlers.resetButtonClickHandler = () => {
   resetSimilarAdsFilterForm();
   getMapToInitialPosition();
@@ -551,12 +538,41 @@ eventHandlers.resetButtonClickHandler = () => {
   });
   window.scrollTo({top: 0, behavior: 'smooth'});
 };
+eventHandlers.submitButtonClickHandler = (ev) => {
+  ev.preventDefault();
+  /*prevent click on window after fetch is completed (closes the popups)*/
+  ev.stopPropagation();
+  skipValidation.toggle = 1;
+  const isFormValid = pristine.validate();
+  if (isFormValid) {
+    /*FETCH*/
+    sendNewAdToServer();
+  }
+};
+/*ev handlers end*/
 
-avatarInputField.addEventListener('change', eventHandlers.avatarInputChangeHandler);
-imagesInputField.addEventListener('change', eventHandlers.imagesInputChangeHandler);
+const addEventHandlers = () => {
+  adFormFieldsNodes.type.addEventListener('input', eventHandlers.typeSelectInputHandler);
+  adFormFieldsNodes.price.addEventListener('input', eventHandlers.priceNumberFiledInputHandler);
+  /*initial type select*/
+  adFormFieldsNodes.type.dispatchEvent(new Event('input'));
 
-resetButton.addEventListener('click', eventHandlers.resetButtonClickHandler);
-submitButton.addEventListener('click', eventHandlers.submitButtonClickHandler);
+  adFormFieldsNodes.timein.addEventListener('input', eventHandlers.timeinSelectInputHandler);
+  adFormFieldsNodes.timeout.addEventListener('input', eventHandlers.timeoutSelectInputHandler);
+  /*initial normalization for timeIn/timeOut fields if the options are mixed up*/
+  adFormFieldsNodes.timein.dispatchEvent(new Event('input'));
+
+  adFormFieldsNodes.roomsNumber.addEventListener('change', eventHandlers.roomsSelectInputHandler);
+  adFormFieldsNodes.roomsNumber.addEventListener('click', eventHandlers.roomsSelectClickHandler);
+  adFormFieldsNodes.capacity.addEventListener('change', eventHandlers.guestsSelectInputHandler);
+  adFormFieldsNodes.capacity.addEventListener('click', eventHandlers.guestsSelectClickHandler);
+
+  avatarInputField.addEventListener('change', eventHandlers.avatarInputChangeHandler);
+  imagesInputField.addEventListener('change', eventHandlers.imagesInputChangeHandler);
+
+  resetButton.addEventListener('click', eventHandlers.resetButtonClickHandler);
+  submitButton.addEventListener('click', eventHandlers.submitButtonClickHandler);
+};
 
 const validateAdForm = () => {
   /*normalize and add validation to the adForm START*/
@@ -585,27 +601,35 @@ const validateAdForm = () => {
           /*objectToValidateNode - second node/field to compare/validate*/
           case 'address': {
             /*sets the addressFieldNode and record addresses than onPointerMove from the map*/
+            adFormFieldsNodes.address = childNode;
             addressFieldData.node = childNode;
             setAddressFieldValue(true);
             break;
           }
           case 'type': {
-            validateTypeAndPrice(childNode, objectToValidateNode, childData);
+            adFormFieldsNodes.type = childNode;
+            adFormFieldsNodes.price = objectToValidateNode;
+            validateTypeAndPrice(childData);
             break;
           }
           case 'title': {
-            validateTitle(objectToValidateNode);
+            adFormFieldsNodes.title = objectToValidateNode;
+            validateTitle();
             break;
           }
           case 'timein': {
-            validateTimeinAndTimeout(childNode, objectToValidateNode, objectToValidate, childData);
+            adFormFieldsNodes.timein = childNode;
+            adFormFieldsNodes.timeout = objectToValidateNode;
+            validateTimeinAndTimeout(objectToValidate, childData);
             break;
           }
           case 'roomNumber': {
-            /*additional push for the second selectInput (capacity input)*/
-            nodesToValidateOnReset.push(objectToValidateNode);
             /*capacity = number of guests*/
-            validateRoomsnumberAndCapacity(childNode, objectToValidateNode, objectToValidate, childData);
+            adFormFieldsNodes.roomsNumber = childNode;
+            adFormFieldsNodes.capacity = objectToValidateNode;
+            /*additional push for the second selectInput (capacity input)*/
+            nodesToValidateOnReset.push(adFormFieldsNodes.capacity);
+            validateRoomsnumberAndCapacity(objectToValidate, childData);
             break;
           }
         }
@@ -614,6 +638,7 @@ const validateAdForm = () => {
       }
     }
   }
+  addEventHandlers();
   /*normalize and add validation to the adForm END*/
 };
 

@@ -1,103 +1,35 @@
 import {assistApp} from './app-assistant.js';
-
 import {getMapToInitialPosition, resetSimilarAdsFilterForm} from './filter-form.js';
-
 import {pushToServer} from './fetch.js';
 
 /*VARS START*/
-/*address*/
-const addressFieldData = {
-  node: '',
-  addressInitial: '',
-  addressCurrent: '',
-};
-/*adForm*/
-const AD_FORM_NAME = 'adForm';
-const adFormAssistant = assistApp(false, 'getContainer', AD_FORM_NAME);
-const adFormChildren = adFormAssistant.children;
-const adFormFieldsNodes = {
-  address: '',
-  type: '',
-  price: '',
-  title: '',
-  timein: '',
-  timeout: '',
-  roomsNumber: '',
-  capacity: '',
-};
-/*server response*/
-const serverResponseDom = {
-  container: 'body',
-  children: {
-    success: 'success',
-    error: 'error',
-  },
-};
-const serverResponseTexts = {
-  templates: {
-    success:{
-      message: `${assistApp(false, 'getLocalText', 'serverResponseOkText').part1}\n${assistApp(false, 'getLocalText', 'serverResponseOkText').part2}`,
-    },
-    error:{
-      message: assistApp(false, 'getLocalText', 'serverResponseErrorText').part1,
-      button: assistApp(false, 'getLocalText', 'serverResponseErrorText').part2,
-    },
-  },
-};
-const serverResponsePopups = {
-  success: '',
-  error: '',
-};
+/*texts*/
+const PRICE_ERROR_LANG_ELEMENT = 'minPrice';
+const priceErrorText = assistApp(false, 'getLocalText', PRICE_ERROR_LANG_ELEMENT);
+const TITLE_ERROR_LANG_ELEMENT = 'titleLength';
+const titleErrorText = assistApp(false, 'getLocalText', TITLE_ERROR_LANG_ELEMENT);
+const REQUIRED_FIELD_LANG_ELEMENT = 'requiredFieldText';
+const requiredFieldText = assistApp(false, 'getLocalText', REQUIRED_FIELD_LANG_ELEMENT);
 /*classes*/
 const NEW_IMAGE_CLASS_ELEMENT = 'newImage';
 const UPLOADED_IMAGE_CLASS = assistApp(false, 'getClass', NEW_IMAGE_CLASS_ELEMENT);
 const DISPLAY_NONE_CLASS_ELEMENT = 'hidden';
 const DISPLAY_NONE_CLASS = assistApp(false, 'getClass', DISPLAY_NONE_CLASS_ELEMENT);
-/*pristin*/
 const PRISTINE_CLASSES_ELEMENT = 'pristine';
 const pristineClasses = assistApp(false, 'getClass', PRISTINE_CLASSES_ELEMENT);
-const PRISTINE_ERROR_CLASS = pristineClasses.errorDefined;
-/*slider*/
-const priceFieldShakingBorderStyle = '1px solid lightgray';
-const SLIDER_CLASS_ELEMENT = 'slider';
-const SLIDER_CLASS = assistApp(false, 'getClass', SLIDER_CLASS_ELEMENT);
-const SLIDER_INITIAL_MIN_PRICE = 0;
-const SLIDER_INITIAL_MAX_PRICE = 100000;
-const SLIDER_INITIAL_START_PRICE = 0;
-const SLIDER_INITIAL_STEP = 500;
-const sliderAndPriceFieldToggleSettings = {
-  initialState: true,
-  slideToPriceBlocker: 1,
-  priceToSlideBlocker: 0,
-  priceSliderTimeOut: '',
-  priceSliderTimeOutLength: 100,
+/*configs*/
+const sliderConfig = assistApp(false, 'getConfig', 'sliderConfig');
+const propertyGuestsConfig = assistApp(false, 'getConfig', 'propertyGuestsConfig');
+const serverResponseConfig = assistApp(false, 'getConfig', 'serverResponseConfig');
+const addressFieldData = {
+  addressInitial: '',
+  addressCurrent: '',
 };
-/*price error text*/
-const PRICE_ERROR_LANG_ELEMENT = 'minPrice';
-const priceErrorText = assistApp(false, 'getLocalText', PRICE_ERROR_LANG_ELEMENT);
-/*title error text*/
-const TITLE_ERROR_LANG_ELEMENT = 'titleLength';
-const titleErrorText = assistApp(false, 'getLocalText', TITLE_ERROR_LANG_ELEMENT);
-/*roomNumber/Guests*/
-const PROPERTY_SIDE_ERROR_LANG_ELEMENT = 'propertySideError';
-const propertySideError = {
-  toggle: '',
-  value: '',
-};
-propertySideError.value = assistApp(false, 'getLocalText', PROPERTY_SIDE_ERROR_LANG_ELEMENT);
-const GUEST_SIDE_ERROR_LANG_ELEMENT = 'guestsSideError';
-const guestsSideError = {
-  toggle: '',
-  value: '',
-};
-guestsSideError.value = assistApp(false, 'getLocalText', GUEST_SIDE_ERROR_LANG_ELEMENT);
-const skipValidation = {
-  /*skip/resume validation for some fields*/
-  toggle: 0,
-};
+/*adForm*/
+const AD_FORM_NAME = 'adForm';
+const adFormConfig = assistApp(false, 'getContainer', AD_FORM_NAME);
+const adFormChildren = adFormConfig.children;
 /*rest*/
-const REQUIRED_FIELD_LANG_ELEMENT = 'requiredFieldText';
-const requiredFieldText = assistApp(false, 'getLocalText', REQUIRED_FIELD_LANG_ELEMENT).part1;
 const nodesToValidateOnReset = [];
 const ADDRESS_ROUND_FLOATS_NUMBER = 5;
 const eventHandlers = {
@@ -118,7 +50,17 @@ const eventHandlers = {
 /*VARS END*/
 
 /*NODES START*/
-const adFormNode = document.querySelector(adFormAssistant.selector);
+const adFormNode = document.querySelector(adFormConfig.selector);
+const adFormFieldsNodes = {
+  address: '',
+  type: '',
+  price: '',
+  title: '',
+  timein: '',
+  timeout: '',
+  roomsNumber: '',
+  capacity: '',
+};
 const resetButton = document.querySelector(adFormChildren.reset.selector);
 const submitButton = document.querySelector(adFormChildren.submit.selector);
 const avatarInputField = document.querySelector(adFormChildren.avatar.selector);
@@ -127,7 +69,7 @@ const avatarBlankImage = adFormNode.querySelector(adFormChildren.avatarContainer
 const imagesInputField = document.querySelector(adFormChildren.images.selector);
 const imagesImageContainer = document.querySelector(adFormChildren.imagesContainer.selector);
 const priceSlider = document.createElement('div');
-priceSlider.classList.add(SLIDER_CLASS);
+priceSlider.classList.add(sliderConfig.class);
 /*NODES END*/
 
 /*initialize pristine*/
@@ -143,9 +85,9 @@ const getOptionNodes = (childData, firstNode, secondNode = false) => {
 const setAddressFieldValue = (initial = false) => {
   if (initial) {
     /*setTimeout - formReset removes values slower*/
-    addressFieldData.node.value = addressFieldData.addressInitial;
+    adFormFieldsNodes.address.value = addressFieldData.addressInitial;
   } else {
-    addressFieldData.node.value = addressFieldData.addressCurrent;
+    adFormFieldsNodes.address.value = addressFieldData.addressCurrent;
   }
 };
 const recordAdAddressFromMap = (address, init = false) => {
@@ -159,20 +101,20 @@ const recordAdAddressFromMap = (address, init = false) => {
   }
 };
 const resumeValidation = () => {
-  skipValidation.toggle = 1;
+  propertyGuestsConfig.skipValidation = 1;
 };
 
 const initializeSlider = () => {
   noUiSlider.create(priceSlider, {
     range: {
-      min: SLIDER_INITIAL_MIN_PRICE,
-      max: SLIDER_INITIAL_MAX_PRICE,
+      min: sliderConfig.initialMinPrice,
+      max: sliderConfig.initialMaxPrice,
     },
-    start: SLIDER_INITIAL_START_PRICE,
-    step: SLIDER_INITIAL_STEP,
+    start: sliderConfig.initialStartPrice,
+    step: sliderConfig.initialStep,
   });
 };
-const updateSlider = (sliderMinPrice, sliderStep, priceNode, sliderMaxPrice = SLIDER_INITIAL_MAX_PRICE) => {
+const updateSlider = (sliderMinPrice, sliderStep, priceNode, sliderMaxPrice = sliderConfig.initialMaxPrice) => {
   /*priceInputFiledSetsNewValue > slederGetsNewValue*/
   priceSlider.noUiSlider.updateOptions({
     range: {
@@ -221,17 +163,17 @@ const disableSubmitButton = () => {
 
 const processServerOkResponse = () => {
   /*success popups*/
-  assistApp(serverResponseTexts, 'fillContainerWithTemplate', serverResponseDom.children.success, serverResponseDom.container);
+  assistApp(serverResponseConfig.texts, 'fillContainerWithTemplate', serverResponseConfig.dom.children.success, serverResponseConfig.dom.container);
   /*popups remove toggle*/
-  serverResponsePopups.success = document.querySelector(`.${serverResponseDom.children.success}`);
-  serverResponsePopups.error = '';
+  serverResponseConfig.popups.success = document.querySelector(`.${serverResponseConfig.dom.children.success}`);
+  serverResponseConfig.popups.error = '';
 };
 const processServerFailResponse = () => {
   /*error popups*/
-  assistApp(serverResponseTexts, 'fillContainerWithTemplate', serverResponseDom.children.error, serverResponseDom.container);
+  assistApp(serverResponseConfig.texts, 'fillContainerWithTemplate', serverResponseConfig.dom.children.error, serverResponseConfig.dom.container);
   /*popus remove toggle*/
-  serverResponsePopups.error = document.querySelector(`.${serverResponseDom.children.error}`);
-  serverResponsePopups.success = '';
+  serverResponseConfig.popups.error = document.querySelector(`.${serverResponseConfig.dom.children.error}`);
+  serverResponseConfig.popups.success = '';
 };
 const processDomAfterServerResponse = () => {
   window.removeEventListener('keydown', eventHandlers.windowEscKeydownHandler);
@@ -240,13 +182,13 @@ const processDomAfterServerResponse = () => {
   assistApp(false, 'adFormEnable');
   /*enable back the submit button*/
   enableSubmitButton();
-  if (serverResponsePopups.success) {
+  if (serverResponseConfig.popups.success) {
     /*form fields back to defaults*/
     resetButton.click();
-    serverResponsePopups.success.remove();
+    serverResponseConfig.popups.success.remove();
   }
-  if (serverResponsePopups.error) {
-    serverResponsePopups.error.remove();
+  if (serverResponseConfig.popups.error) {
+    serverResponseConfig.popups.error.remove();
   }
 };
 const sendNewAdToServer = () => {
@@ -275,12 +217,12 @@ const validateInitial = (node, removeErrorClass = true) => {
   /*initial validation, after resetButton removes validation results for selected fields*/
   if (removeErrorClass) {
     node.dispatchEvent(new Event('input'));
-    node.classList.remove(PRISTINE_ERROR_CLASS);
+    node.classList.remove(pristineClasses.errorDefined);
   }
 };
 const validateOnReset = () => {
   if (nodesToValidateOnReset.length) {
-    skipValidation.toggle = 0;
+    propertyGuestsConfig.skipValidation = 0;
     nodesToValidateOnReset.forEach((node) =>{
       validateInitial(node);
     });
@@ -293,13 +235,13 @@ const validateTypeAndPrice = (assistantData) => {
   adFormFieldsNodes.price.parentNode.insertBefore(priceSlider, adFormFieldsNodes.price.nextSibling);
   initializeSlider();
   priceSlider.noUiSlider.on('update', () => {
-    if (sliderAndPriceFieldToggleSettings.slideToPriceBlocker) {
+    if (sliderConfig.priceToggle.slideToPriceBlocker) {
       return;
     }
-    sliderAndPriceFieldToggleSettings.priceToSlideBlocker = 1;
+    sliderConfig.priceToggle.priceToSlideBlocker = 1;
     adFormFieldsNodes.price.value = Number(priceSlider.noUiSlider.get());
     adFormFieldsNodes.price.dispatchEvent(new Event('input'));
-    sliderAndPriceFieldToggleSettings.priceToSlideBlocker = 0;
+    sliderConfig.priceToggle.priceToSlideBlocker = 0;
   });
   /*initialize slider end*/
   /*normalize typeSelect > options*/
@@ -334,7 +276,7 @@ const validateTypeAndPrice = (assistantData) => {
       return true;
     }
     const isValid = price && price >= Number(adFormFieldsNodes.price.getAttribute('min')) && price <= maxPrice || false;
-    adFormFieldsNodes.price.classList.toggle(PRISTINE_ERROR_CLASS, isValid === false);
+    adFormFieldsNodes.price.classList.toggle(pristineClasses.errorDefined, isValid === false);
     return isValid;
   };
   /*pristine sends priceNode.value to callback functions as a parameter (price)*/
@@ -359,7 +301,7 @@ const validateTitle = () => {
   };
   const validateTitleValue = (title) => {
     const isValid = title.length >= titleMinLength && title.length < titleMaxLength;
-    adFormFieldsNodes.title.classList.toggle(PRISTINE_ERROR_CLASS, isValid === false);
+    adFormFieldsNodes.title.classList.toggle(pristineClasses.errorDefined, isValid === false);
     return isValid;
   };
   pristine.addValidator(adFormFieldsNodes.title, validateTitleValue, getTitleErrorMessage);
@@ -391,13 +333,13 @@ const validateRoomsnumberAndCapacity = (capacityAssistentData, assistantData) =>
   });
   /*validation*/
   /*toggles - to write down only error messg. for one field at a time*/
-  propertySideError.toggle = 1;
-  guestsSideError.toggle = 1;
+  propertyGuestsConfig.propertyError.toggle = 1;
+  propertyGuestsConfig.guestsError.toggle = 1;
   /*roomsNumberNode side validation*/
-  const getRoomsNumberErrorMessage = () => propertySideError.toggle && propertySideError.value.part1 || '';
+  const getRoomsNumberErrorMessage = () => propertyGuestsConfig.propertyError.toggle && propertyGuestsConfig.propertyError.value.part1 || '';
   const validateRoomsNumberField = (roomsNumber) => {
     /*skip initial validation*/
-    if (!skipValidation.toggle) {
+    if (!propertyGuestsConfig.skipValidation) {
       return true;
     }
     /*get the opposite side value*/
@@ -412,9 +354,9 @@ const validateRoomsnumberAndCapacity = (capacityAssistentData, assistantData) =>
     return roomsSuitable.includes(roomsNumber);
   };
   /*capacityNode side validation*/
-  const getGuestsNumberErrorMessage = () => guestsSideError.toggle && guestsSideError.value.part1 || '';
+  const getGuestsNumberErrorMessage = () => propertyGuestsConfig.guestsError.toggle && propertyGuestsConfig.guestsError.value.part1 || '';
   const validateGuestsNumberField = (guestsNumber) => {
-    if (!skipValidation.toggle) {
+    if (!propertyGuestsConfig.skipValidation) {
       return true;
     }
     /*get the opposite side value*/
@@ -427,6 +369,29 @@ const validateRoomsnumberAndCapacity = (capacityAssistentData, assistantData) =>
   /*capacity input = number of guests input*/
   pristine.addValidator(adFormFieldsNodes.roomsNumber, validateRoomsNumberField, getRoomsNumberErrorMessage);
   pristine.addValidator(adFormFieldsNodes.capacity, validateGuestsNumberField, getGuestsNumberErrorMessage);
+};
+
+const addEventHandlers = () => {
+  adFormFieldsNodes.type.addEventListener('input', eventHandlers.typeSelectInputHandler);
+  adFormFieldsNodes.price.addEventListener('input', eventHandlers.priceNumberFiledInputHandler);
+  /*initial type select*/
+  adFormFieldsNodes.type.dispatchEvent(new Event('input'));
+
+  adFormFieldsNodes.timein.addEventListener('input', eventHandlers.timeinSelectInputHandler);
+  adFormFieldsNodes.timeout.addEventListener('input', eventHandlers.timeoutSelectInputHandler);
+  /*initial normalization for timeIn/timeOut fields if the options are mixed up*/
+  adFormFieldsNodes.timein.dispatchEvent(new Event('input'));
+
+  adFormFieldsNodes.roomsNumber.addEventListener('change', eventHandlers.roomsSelectInputHandler);
+  adFormFieldsNodes.roomsNumber.addEventListener('click', eventHandlers.roomsSelectClickHandler);
+  adFormFieldsNodes.capacity.addEventListener('change', eventHandlers.guestsSelectInputHandler);
+  adFormFieldsNodes.capacity.addEventListener('click', eventHandlers.guestsSelectClickHandler);
+
+  avatarInputField.addEventListener('change', eventHandlers.avatarInputChangeHandler);
+  imagesInputField.addEventListener('change', eventHandlers.imagesInputChangeHandler);
+
+  resetButton.addEventListener('click', eventHandlers.resetButtonClickHandler);
+  submitButton.addEventListener('click', eventHandlers.submitButtonClickHandler);
 };
 /*functions END*/
 
@@ -442,9 +407,9 @@ eventHandlers.typeSelectInputHandler = (ev) => {
   /*remove the price filed shaking after select is changed*/
   if (!adFormFieldsNodes.price.value) {
     adFormFieldsNodes.price.style.setProperty('box-shadow', 'none');
-    adFormFieldsNodes.price.style.setProperty('border', priceFieldShakingBorderStyle);
+    adFormFieldsNodes.price.style.setProperty('border', sliderConfig.shakingBorderStyle);
   }
-  if (!sliderAndPriceFieldToggleSettings.initialState) {
+  if (!sliderConfig.priceToggle.initialState) {
     adFormFieldsNodes.price.dispatchEvent(new Event('input'));
   }
   /*delete validation results from price field if it is empty, after a new type was selected*/
@@ -457,20 +422,20 @@ eventHandlers.typeSelectInputHandler = (ev) => {
     }
   });
   /*set new conf values for the slider*/
-  updateSlider(validatedValue, validatedValue || SLIDER_INITIAL_STEP, adFormFieldsNodes.price);
+  updateSlider(validatedValue, validatedValue || sliderConfig.initialStep, adFormFieldsNodes.price);
 };
 eventHandlers.priceNumberFiledInputHandler = () => {
-  if (sliderAndPriceFieldToggleSettings.priceToSlideBlocker) {
+  if (sliderConfig.priceToggle.priceToSlideBlocker) {
     return;
   }
   /*updates slider value*/
-  sliderAndPriceFieldToggleSettings.initialState = false;
-  clearTimeout(sliderAndPriceFieldToggleSettings.priceSliderTimeOut);
-  sliderAndPriceFieldToggleSettings.slideToPriceBlocker = 1;
-  sliderAndPriceFieldToggleSettings.priceSliderTimeOut = setTimeout(()=>{
+  sliderConfig.priceToggle.initialState = false;
+  clearTimeout(sliderConfig.priceToggle.timeOut);
+  sliderConfig.priceToggle.slideToPriceBlocker = 1;
+  sliderConfig.priceToggle.timeOut = setTimeout(()=>{
     updateSliderValue(adFormFieldsNodes.price.value);
-    sliderAndPriceFieldToggleSettings.slideToPriceBlocker = 0;
-  }, sliderAndPriceFieldToggleSettings.priceSliderTimeOutLength);
+    sliderConfig.priceToggle.slideToPriceBlocker = 0;
+  }, sliderConfig.priceToggle.timeOutLength);
 };
 
 eventHandlers.timeinSelectInputHandler = (ev) => {
@@ -483,9 +448,9 @@ eventHandlers.timeoutSelectInputHandler = (ev) => {
 eventHandlers.roomsSelectInputHandler = () => {
   /*revalidate the opposit field*/
   /*toggle - to write down only one error messg. at a time*/
-  guestsSideError.toggle = 0;
+  propertyGuestsConfig.guestsError.toggle = 0;
   adFormFieldsNodes.capacity.dispatchEvent(new Event('input'));
-  guestsSideError.toggle = 1;
+  propertyGuestsConfig.guestsError.toggle = 1;
 };
 eventHandlers.roomsSelectClickHandler = () => {
   /*recharge validation*/
@@ -494,10 +459,10 @@ eventHandlers.roomsSelectClickHandler = () => {
 eventHandlers.guestsSelectInputHandler = () => {
   /*revalidate the opposit field*/
   /*toggle - to write down only one error messg. at a time*/
-  propertySideError.toggle = 0;
+  propertyGuestsConfig.propertyError.toggle = 0;
   adFormFieldsNodes.roomsNumber.dispatchEvent(new Event('input'));
   /*recharge opposite error*/
-  propertySideError.toggle = 1;
+  propertyGuestsConfig.propertyError.toggle = 1;
 };
 eventHandlers.guestsSelectClickHandler = () => {
   /*recharge validation*/
@@ -542,7 +507,7 @@ eventHandlers.submitButtonClickHandler = (ev) => {
   ev.preventDefault();
   /*prevent click on window after fetch is completed (closes the popups)*/
   ev.stopPropagation();
-  skipValidation.toggle = 1;
+  propertyGuestsConfig.skipValidation = 1;
   const isFormValid = pristine.validate();
   if (isFormValid) {
     /*FETCH*/
@@ -551,35 +516,12 @@ eventHandlers.submitButtonClickHandler = (ev) => {
 };
 /*ev handlers end*/
 
-const addEventHandlers = () => {
-  adFormFieldsNodes.type.addEventListener('input', eventHandlers.typeSelectInputHandler);
-  adFormFieldsNodes.price.addEventListener('input', eventHandlers.priceNumberFiledInputHandler);
-  /*initial type select*/
-  adFormFieldsNodes.type.dispatchEvent(new Event('input'));
-
-  adFormFieldsNodes.timein.addEventListener('input', eventHandlers.timeinSelectInputHandler);
-  adFormFieldsNodes.timeout.addEventListener('input', eventHandlers.timeoutSelectInputHandler);
-  /*initial normalization for timeIn/timeOut fields if the options are mixed up*/
-  adFormFieldsNodes.timein.dispatchEvent(new Event('input'));
-
-  adFormFieldsNodes.roomsNumber.addEventListener('change', eventHandlers.roomsSelectInputHandler);
-  adFormFieldsNodes.roomsNumber.addEventListener('click', eventHandlers.roomsSelectClickHandler);
-  adFormFieldsNodes.capacity.addEventListener('change', eventHandlers.guestsSelectInputHandler);
-  adFormFieldsNodes.capacity.addEventListener('click', eventHandlers.guestsSelectClickHandler);
-
-  avatarInputField.addEventListener('change', eventHandlers.avatarInputChangeHandler);
-  imagesInputField.addEventListener('change', eventHandlers.imagesInputChangeHandler);
-
-  resetButton.addEventListener('click', eventHandlers.resetButtonClickHandler);
-  submitButton.addEventListener('click', eventHandlers.submitButtonClickHandler);
-};
-
 const validateAdForm = () => {
   /*normalize and add validation to the adForm START*/
   if (typeof adFormNode !=='undefined') {
     /*normalize HTML for adFormNode*/
-    for (const attribute in adFormAssistant.attributes) {
-      adFormNode.setAttribute(attribute, adFormAssistant.attributes[attribute]);
+    for (const attribute in adFormConfig.attributes) {
+      adFormNode.setAttribute(attribute, adFormConfig.attributes[attribute]);
     }
     /*normalize and validate adForm fields*/
     for (const childKey in adFormChildren) {
@@ -594,7 +536,7 @@ const validateAdForm = () => {
       if (typeof childData.objectToValidate !== 'undefined') {
         nodesToValidateOnReset.push(childNode);
         /*get the data from DOM class for this child node*/
-        const objectToValidate = adFormAssistant.children[childData.objectToValidate.name];
+        const objectToValidate = adFormConfig.children[childData.objectToValidate.name];
         const objectToValidateNode = document.querySelector(objectToValidate.selector);
         switch (childKey) {
           /*childNode - first node/field to compare/validate*/
@@ -602,7 +544,6 @@ const validateAdForm = () => {
           case 'address': {
             /*sets the addressFieldNode and record addresses than onPointerMove from the map*/
             adFormFieldsNodes.address = childNode;
-            addressFieldData.node = childNode;
             setAddressFieldValue(true);
             break;
           }

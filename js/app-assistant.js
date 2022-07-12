@@ -94,8 +94,64 @@ const similarAdsFilterPriceRange = {
   high: [50000, 100000],
 };
 
+const sliderConfig = {
+  shakingBorderStyle: '1px solid lightgray',
+  class: 'slider__container',
+  initialMinPrice: 0,
+  initialMaxPrice: 100000,
+  initialStartPrice: 0,
+  initialStep:500,
+  priceToggle: {
+    initialState: true,
+    slideToPriceBlocker: 1,
+    priceToSlideBlocker: 0,
+    timeOut: '',
+    timeOutLength: 100,
+  },
+};
+const propertyGuestsConfig = {
+  propertyError: {
+    toggle: '',
+    value: getLocalText('propertySideError'),
+  },
+  guestsError: {
+    toggle: '',
+    value:  getLocalText('guestsSideError'),
+  },
+  skipValidation: 0,
+};
+const serverResponseConfig = {
+  dom: {
+    container: 'body',
+    children: {
+      success: 'success',
+      error: 'error',
+    },
+  },
+  texts: {
+    templates: {
+      success:{
+        message: `${getLocalText('serverResponseOkText').part1}\n${getLocalText('serverResponseOkText').part2}`,
+      },
+      error:{
+        message: getLocalText('serverResponseErrorText').part1,
+        button: getLocalText('serverResponseErrorText').part2,
+      },
+    }
+  },
+  popups: {
+    success: '',
+    error: '',
+  }
+};
+
 class AppAssistant {
   constructor() {
+    this.configs = {
+      sliderConfig,
+      propertyGuestsConfig,
+      serverResponseConfig,
+    };
     this.children = {
       popup: {
         title: {
@@ -353,6 +409,7 @@ class AppAssistant {
     };
     this.getContainer = this.getContainer.bind(this);
     this.getClass = this.getClass.bind(this);
+    this.getConfig = this.getConfig.bind(this);
     this.setTemplate = this.setTemplate.bind(this);
   }
 
@@ -362,6 +419,10 @@ class AppAssistant {
 
   getClass(className) {
     return this.classes[className];
+  }
+
+  getConfig(configName) {
+    return this.configs[configName];
   }
 
   setTemplate(templateName) {
@@ -434,6 +495,9 @@ const assistApp = (dataOriginal = false, ...params) => {
     case 'getClass':
       /* COMMAND: assistApp(false, 'getClass', className); */
       return appAssistant.getClass(params[1]);
+    case 'getConfig':
+      /* COMMAND: assistApp(false, 'getConfig', configName); */
+      return appAssistant.getConfig(params[1]);
     case 'getLocalText':
       /* COMMAND: assistApp(false, 'getLocalText', property); */
       return getLocalText(params[1]);

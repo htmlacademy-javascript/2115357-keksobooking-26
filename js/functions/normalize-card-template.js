@@ -17,9 +17,7 @@ const localTexts = {
       part3: 'длинна заголовка',
       part4: 'символов.',
     },
-    requiredFieldText: {
-      part1: 'Это обязательное поле',
-    },
+    requiredFieldText: 'Это обязательное поле',
     refreshSimilarAdsButton: 'Ошибка загрузки объявлений. Нажмите для повтора',
     serverResponseOkText: {
       part1: 'Ваше объявление',
@@ -76,9 +74,7 @@ const localTexts = {
       part3: 'title length is',
       part4: 'symbols.',
     },
-    requiredFieldText: {
-      part1: 'This field is required'
-    },
+    requiredFieldText: 'This field is required',
     refreshSimilarAdsButton: 'Ads loading error. Click to try again',
     serverResponseOkText: {
       part1: 'Your ad',

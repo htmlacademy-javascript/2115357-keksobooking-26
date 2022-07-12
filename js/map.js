@@ -2,8 +2,8 @@ import { assistApp } from './app-assistant.js';
 import {recordAdAddressFromMap} from './ad-form.js';
 import { processTheMap } from './filter-form.js';
 
-const CONTAINER_CLASS = 'mapCanvas';
-const container = assistApp(false, 'getContainer', CONTAINER_CLASS);
+const CONTAINER_CLASS_ELEMENT = 'mapCanvas';
+const container = assistApp(false, 'getContainer', CONTAINER_CLASS_ELEMENT);
 
 const initializeMap = () => {
   container.map = L

@@ -144,6 +144,34 @@ const serverResponseConfig = {
     error: '',
   }
 };
+const similarAdsConfig = {
+  nodes: [],
+  parameters: {
+    filterDelayTimeOut: '',
+    filterDelayLength: 500,
+    anyWord: 'any',
+    typeField: 'type',
+    priceField: 'price',
+    roomsField: 'rooms',
+    guestsField: 'guests',
+    featuresField: 'features',
+    classFirstPart: 'housing-',
+    templateContainerName: 'mapCanvas',
+    mapPopUpNodes: 'mapPopUpNodes',
+    shuffleRandomizer: 0.5,
+    adsMaxNumber: 10,
+    /*these keys (inside similarAds.nodes) come from fillContainerWithTemplate*/
+    /*prepareCardTemplateData() > normalizedAdsReturnToMap.push([fi...*/
+    popupNodeKey: 0,
+    addressKey: 1,
+    dataKey: 2,
+  }
+};
+const refreshButtonConfig = {
+  class1: 'features__label',
+  class2: 'refresh_similar_ads_button',
+  text: getLocalText('refreshSimilarAdsButton'),
+};
 
 class AppAssistant {
   constructor() {
@@ -151,6 +179,8 @@ class AppAssistant {
       sliderConfig,
       propertyGuestsConfig,
       serverResponseConfig,
+      similarAdsConfig,
+      refreshButtonConfig,
     };
     this.children = {
       popup: {

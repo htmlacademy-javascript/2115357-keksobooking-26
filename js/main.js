@@ -1,13 +1,7 @@
-/* map processor */
-import   { mapProcessor }              from './map-processor.js';
+import { initializeMap } from './map.js';
 
-/*THE START IS HERE*/
-/*initialize the map*/
-mapProcessor();
+initializeMap();
 
-/*TASKS*/
 /*
-  12.11. Перламутровые пуговицы
-  12.12. Фото на память
+  dependences to package.json?
 */
-

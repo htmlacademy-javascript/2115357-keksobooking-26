@@ -3,19 +3,21 @@ import {getMapToInitialPosition, resetSimilarAdsFilterForm} from './filter-form.
 import {pushToServer} from './fetch.js';
 
 /*VARS START*/
-/*texts*/
 const PRICE_ERROR_LANG_ELEMENT = 'minPrice';
-const priceErrorText = assistApp(false, 'getLocalText', PRICE_ERROR_LANG_ELEMENT);
 const TITLE_ERROR_LANG_ELEMENT = 'titleLength';
-const titleErrorText = assistApp(false, 'getLocalText', TITLE_ERROR_LANG_ELEMENT);
 const REQUIRED_FIELD_LANG_ELEMENT = 'requiredFieldText';
+const NEW_IMAGE_CLASS_ELEMENT = 'newImage';
+const DISPLAY_NONE_CLASS_ELEMENT = 'hidden';
+const PRISTINE_CLASSES_ELEMENT = 'pristine';
+const AD_FORM_ELEMENT = 'adForm';
+const ADDRESS_FLOATS_LENGTH = 5;
+/*texts*/
+const priceErrorText = assistApp(false, 'getLocalText', PRICE_ERROR_LANG_ELEMENT);
+const titleErrorText = assistApp(false, 'getLocalText', TITLE_ERROR_LANG_ELEMENT);
 const requiredFieldText = assistApp(false, 'getLocalText', REQUIRED_FIELD_LANG_ELEMENT);
 /*classes*/
-const NEW_IMAGE_CLASS_ELEMENT = 'newImage';
-const UPLOADED_IMAGE_CLASS = assistApp(false, 'getClass', NEW_IMAGE_CLASS_ELEMENT);
-const DISPLAY_NONE_CLASS_ELEMENT = 'hidden';
-const DISPLAY_NONE_CLASS = assistApp(false, 'getClass', DISPLAY_NONE_CLASS_ELEMENT);
-const PRISTINE_CLASSES_ELEMENT = 'pristine';
+const uploadedImageClass = assistApp(false, 'getClass', NEW_IMAGE_CLASS_ELEMENT);
+const displayNoneClass = assistApp(false, 'getClass', DISPLAY_NONE_CLASS_ELEMENT);
 const pristineClasses = assistApp(false, 'getClass', PRISTINE_CLASSES_ELEMENT);
 /*configs*/
 const sliderConfig = assistApp(false, 'getConfig', 'sliderConfig');
@@ -26,12 +28,10 @@ const addressFieldData = {
   addressCurrent: '',
 };
 /*adForm*/
-const AD_FORM_NAME = 'adForm';
-const adFormConfig = assistApp(false, 'getContainer', AD_FORM_NAME);
+const adFormConfig = assistApp(false, 'getContainer', AD_FORM_ELEMENT);
 const adFormChildren = adFormConfig.children;
 /*rest*/
 const nodesToValidateOnReset = [];
-const ADDRESS_ROUND_FLOATS_NUMBER = 5;
 const eventHandlers = {
   submitButtonClickHandler: () => '',
   windowClickHandler: () => '',
@@ -68,8 +68,8 @@ const avatarImageContainer = document.querySelector(adFormChildren.avatarContain
 const avatarBlankImage = adFormNode.querySelector(adFormChildren.avatarContainer.children.blankImage.selector);
 const imagesInputField = document.querySelector(adFormChildren.images.selector);
 const imagesImageContainer = document.querySelector(adFormChildren.imagesContainer.selector);
-const priceSlider = document.createElement('div');
-priceSlider.classList.add(sliderConfig.class);
+const sliderContainer = document.createElement('div');
+sliderContainer.classList.add(sliderConfig.class);
 /*NODES END*/
 
 /*initialize pristine*/
@@ -91,7 +91,7 @@ const setAddressFieldValue = (initial = false) => {
   }
 };
 const recordAdAddressFromMap = (address, init = false) => {
-  const addressString = `${address.lat.toFixed(ADDRESS_ROUND_FLOATS_NUMBER)}, ${address.lng.toFixed(ADDRESS_ROUND_FLOATS_NUMBER)}`;
+  const addressString = `${address.lat.toFixed(ADDRESS_FLOATS_LENGTH)}, ${address.lng.toFixed(ADDRESS_FLOATS_LENGTH)}`;
   if (init) {
     addressFieldData.addressInitial = addressString;
   } else {
@@ -105,7 +105,7 @@ const resumeValidation = () => {
 };
 
 const initializeSlider = () => {
-  noUiSlider.create(priceSlider, {
+  noUiSlider.create(sliderContainer, {
     range: {
       min: sliderConfig.initialMinPrice,
       max: sliderConfig.initialMaxPrice,
@@ -114,23 +114,37 @@ const initializeSlider = () => {
     step: sliderConfig.initialStep,
   });
 };
+const disableSlider = () => {
+  sliderConfig.priceToggle.initialState = true;
+  sliderContainer.setAttribute('disabled', true);
+};
+const enableSlider = () => {
+  sliderConfig.priceToggle.initialState = false;
+  sliderContainer.removeAttribute('disabled');
+};
+const checkSlider = () => adFormFieldsNodes.price.disabled;
 const updateSlider = (sliderMinPrice, sliderStep, priceNode, sliderMaxPrice = sliderConfig.initialMaxPrice) => {
-  /*priceInputFiledSetsNewValue > slederGetsNewValue*/
-  priceSlider.noUiSlider.updateOptions({
+  /*priceInputFiledSetsNewValue > sliderGetsNewValue*/
+  sliderContainer.noUiSlider.updateOptions({
     range: {
       min: sliderMinPrice,
       max: sliderMaxPrice,
     },
-    start: priceSlider.noUiSlider.get(),
+    start: sliderContainer.noUiSlider.get(),
     step: sliderStep,
   });
   if (!priceNode.value || Number(priceNode.value) < sliderMinPrice) {
-    priceSlider.noUiSlider.set(sliderMinPrice);
+    sliderContainer.noUiSlider.set(sliderMinPrice);
   }
 };
 const updateSliderValue = (price) => {
-  /*slederSetsNewValue > priceInputFiledGetsNewValue*/
-  priceSlider.noUiSlider.set(price);
+  /*sliderSetsNewValue > priceInputFiledGetsNewValue*/
+  if (checkSlider()) {
+    disableSlider();
+    return;
+  }
+  enableSlider();
+  sliderContainer.noUiSlider.set(price);
 };
 
 const resetAvatarImageContainer = () => {
@@ -142,10 +156,10 @@ const resetAvatarImageContainer = () => {
   for (const attribute in adFormChildren.avatarContainer.children.blankImage.attributes) {
     avatarBlankImage.setAttribute(attribute, adFormChildren.avatarContainer.children.blankImage.attributes[attribute]);
   }
-  avatarBlankImage.classList.remove(DISPLAY_NONE_CLASS);
+  avatarBlankImage.classList.remove(displayNoneClass);
 };
 const resetImagesImageContainer = () => {
-  imagesImageContainer.classList.remove(UPLOADED_IMAGE_CLASS);
+  imagesImageContainer.classList.remove(uploadedImageClass);
   imagesImageContainer.style.removeProperty('background-image');
 };
 const setImgSrc = (img, container) => {
@@ -216,8 +230,12 @@ const sendNewAdToServer = () => {
 const validateInitial = (node, removeErrorClass = true) => {
   /*initial validation, after resetButton removes validation results for selected fields*/
   if (removeErrorClass) {
+    const pristineErrorNode = node.parentNode.querySelector(`.${pristineClasses.errorTextClass}`);
     node.dispatchEvent(new Event('input'));
     node.classList.remove(pristineClasses.errorDefined);
+    if (pristineErrorNode) {
+      pristineErrorNode.textContent = '';
+    }
   }
 };
 const validateOnReset = () => {
@@ -230,18 +248,43 @@ const validateOnReset = () => {
   }
 };
 
+const blockPriceValidation = () => {
+  sliderConfig.priceToggle.initialState = true;
+};
 const validateTypeAndPrice = (assistantData) => {
   /*initialize slider start*/
-  adFormFieldsNodes.price.parentNode.insertBefore(priceSlider, adFormFieldsNodes.price.nextSibling);
+  adFormFieldsNodes.price.parentNode.insertBefore(sliderContainer, adFormFieldsNodes.price.nextSibling);
   initializeSlider();
-  priceSlider.noUiSlider.on('update', () => {
+  sliderContainer.noUiSlider.on('start', () => {
+    if (checkSlider()) {
+      disableSlider();
+      return;
+    } else {
+      enableSlider();
+    }
+    /*differentiate typeSelect vs sliderValueChange*/
+    /*and prevent price unwanted changes*/
+    if (!adFormFieldsNodes.price.value) {
+      adFormFieldsNodes.price.value = Number(sliderContainer.noUiSlider.get());
+    }
+  });
+  sliderContainer.noUiSlider.on('update', () => {
+    if (checkSlider()) {
+      disableSlider();
+      return;
+    } else {
+      enableSlider();
+    }
+    /*console.log(assistantData);*/
     if (sliderConfig.priceToggle.slideToPriceBlocker) {
       return;
     }
-    sliderConfig.priceToggle.priceToSlideBlocker = 1;
-    adFormFieldsNodes.price.value = Number(priceSlider.noUiSlider.get());
-    adFormFieldsNodes.price.dispatchEvent(new Event('input'));
-    sliderConfig.priceToggle.priceToSlideBlocker = 0;
+    if (!sliderConfig.priceToggle.initialState) {/*prevent price validation onTypeSelct*/
+      sliderConfig.priceToggle.priceToSlideBlocker = 1;
+      adFormFieldsNodes.price.value = Number(sliderContainer.noUiSlider.get());
+      adFormFieldsNodes.price.dispatchEvent(new Event('input'));
+      sliderConfig.priceToggle.priceToSlideBlocker = 0;
+    }
   });
   /*initialize slider end*/
   /*normalize typeSelect > options*/
@@ -256,6 +299,9 @@ const validateTypeAndPrice = (assistantData) => {
   const getPriceErrorMessage = (price) => {
     /*childNode.value - typeSelect>options.values*/
     const minPrice = assistantData.optionsToValidate[adFormFieldsNodes.type.value].minPrice;
+    if (sliderConfig.priceToggle.initialState) {
+      return '';
+    }
     if (price === '') {
       return requiredFieldText;
     }
@@ -268,6 +314,9 @@ const validateTypeAndPrice = (assistantData) => {
     return '';
   };
   const validatePrice = (price) => {
+    if (sliderConfig.priceToggle.initialState) {
+      return true;
+    }
     /*childNode.value - typeSelect>options.values*/
     /*pristine checks it on selectChange*/
     /*objectToValidateNode - priceInputField*/
@@ -376,6 +425,7 @@ const addEventHandlers = () => {
   adFormFieldsNodes.price.addEventListener('input', eventHandlers.priceNumberFiledInputHandler);
   /*initial type select*/
   adFormFieldsNodes.type.dispatchEvent(new Event('input'));
+  blockPriceValidation();
 
   adFormFieldsNodes.timein.addEventListener('input', eventHandlers.timeinSelectInputHandler);
   adFormFieldsNodes.timeout.addEventListener('input', eventHandlers.timeoutSelectInputHandler);
@@ -397,6 +447,7 @@ const addEventHandlers = () => {
 
 /*ev handlers start*/
 eventHandlers.typeSelectInputHandler = (ev) => {
+  blockPriceValidation();
   /*has to additionaly get the data here*/
   const assistantData = adFormChildren[ev.currentTarget.id];
   /*set validated attribute, min and placeholder*/
@@ -474,13 +525,13 @@ eventHandlers.avatarInputChangeHandler = () => {
   const uploadedImg = URL.createObjectURL(avatarInputField.files[0]);
   const newAvatar = avatarBlankImage.cloneNode();
   setImgSrc(uploadedImg, newAvatar);
-  avatarBlankImage.classList.add(DISPLAY_NONE_CLASS);
+  avatarBlankImage.classList.add(displayNoneClass);
   avatarImageContainer.append(newAvatar);
 };
 eventHandlers.imagesInputChangeHandler = () => {
   resetImagesImageContainer();
   const uploadedImg = URL.createObjectURL(imagesInputField.files[0]);
-  imagesImageContainer.classList.add(UPLOADED_IMAGE_CLASS);
+  imagesImageContainer.classList.add(uploadedImageClass);
   imagesImageContainer.style.backgroundImage = `url(${uploadedImg})`;
 };
 
@@ -507,6 +558,7 @@ eventHandlers.submitButtonClickHandler = (ev) => {
   ev.preventDefault();
   /*prevent click on window after fetch is completed (closes the popups)*/
   ev.stopPropagation();
+  adFormFieldsNodes.price.dispatchEvent(new Event('input'));
   propertyGuestsConfig.skipValidation = 1;
   const isFormValid = pristine.validate();
   if (isFormValid) {
@@ -545,12 +597,14 @@ const validateAdForm = () => {
             /*sets the addressFieldNode and record addresses than onPointerMove from the map*/
             adFormFieldsNodes.address = childNode;
             setAddressFieldValue(true);
+            validateInitial(childNode);
             break;
           }
           case 'type': {
             adFormFieldsNodes.type = childNode;
             adFormFieldsNodes.price = objectToValidateNode;
             validateTypeAndPrice(childData);
+            validateInitial(childNode);
             break;
           }
           case 'title': {
@@ -562,6 +616,7 @@ const validateAdForm = () => {
             adFormFieldsNodes.timein = childNode;
             adFormFieldsNodes.timeout = objectToValidateNode;
             validateTimeinAndTimeout(objectToValidate, childData);
+            validateInitial(childNode);
             break;
           }
           case 'roomNumber': {
@@ -571,11 +626,11 @@ const validateAdForm = () => {
             /*additional push for the second selectInput (capacity input)*/
             nodesToValidateOnReset.push(adFormFieldsNodes.capacity);
             validateRoomsnumberAndCapacity(objectToValidate, childData);
+            /*first validation after the load*/
+            validateInitial(childNode);
             break;
           }
         }
-        /*first validation after the load*/
-        validateInitial(childNode);
       }
     }
   }

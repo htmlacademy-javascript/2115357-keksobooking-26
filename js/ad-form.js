@@ -68,8 +68,8 @@ const avatarImageContainer = document.querySelector(adFormChildren.avatarContain
 const avatarBlankImage = adFormNode.querySelector(adFormChildren.avatarContainer.children.blankImage.selector);
 const imagesInputField = document.querySelector(adFormChildren.images.selector);
 const imagesImageContainer = document.querySelector(adFormChildren.imagesContainer.selector);
-const priceSlider = document.createElement('div');
-priceSlider.classList.add(sliderConfig.class);
+const sliderContainer = document.createElement('div');
+sliderContainer.classList.add(sliderConfig.class);
 /*NODES END*/
 
 /*initialize pristine*/
@@ -105,7 +105,7 @@ const resumeValidation = () => {
 };
 
 const initializeSlider = () => {
-  noUiSlider.create(priceSlider, {
+  noUiSlider.create(sliderContainer, {
     range: {
       min: sliderConfig.initialMinPrice,
       max: sliderConfig.initialMaxPrice,
@@ -114,23 +114,37 @@ const initializeSlider = () => {
     step: sliderConfig.initialStep,
   });
 };
+const disableSlider = () => {
+  sliderConfig.priceToggle.initialState = true;
+  sliderContainer.setAttribute('disabled', true);
+};
+const enableSlider = () => {
+  sliderConfig.priceToggle.initialState = false;
+  sliderContainer.removeAttribute('disabled');
+};
+const checkSlider = () => adFormFieldsNodes.price.disabled;
 const updateSlider = (sliderMinPrice, sliderStep, priceNode, sliderMaxPrice = sliderConfig.initialMaxPrice) => {
   /*priceInputFiledSetsNewValue > sliderGetsNewValue*/
-  priceSlider.noUiSlider.updateOptions({
+  sliderContainer.noUiSlider.updateOptions({
     range: {
       min: sliderMinPrice,
       max: sliderMaxPrice,
     },
-    start: priceSlider.noUiSlider.get(),
+    start: sliderContainer.noUiSlider.get(),
     step: sliderStep,
   });
   if (!priceNode.value || Number(priceNode.value) < sliderMinPrice) {
-    priceSlider.noUiSlider.set(sliderMinPrice);
+    sliderContainer.noUiSlider.set(sliderMinPrice);
   }
 };
 const updateSliderValue = (price) => {
   /*sliderSetsNewValue > priceInputFiledGetsNewValue*/
-  priceSlider.noUiSlider.set(price);
+  if (checkSlider()) {
+    disableSlider();
+    return;
+  }
+  enableSlider();
+  sliderContainer.noUiSlider.set(price);
 };
 
 const resetAvatarImageContainer = () => {
@@ -239,24 +253,35 @@ const blockPriceValidation = () => {
 };
 const validateTypeAndPrice = (assistantData) => {
   /*initialize slider start*/
-  adFormFieldsNodes.price.parentNode.insertBefore(priceSlider, adFormFieldsNodes.price.nextSibling);
+  adFormFieldsNodes.price.parentNode.insertBefore(sliderContainer, adFormFieldsNodes.price.nextSibling);
   initializeSlider();
-  priceSlider.noUiSlider.on('start', () => {
+  sliderContainer.noUiSlider.on('start', () => {
+    if (checkSlider()) {
+      disableSlider();
+      return;
+    } else {
+      enableSlider();
+    }
     /*differentiate typeSelect vs sliderValueChange*/
     /*and prevent price unwanted changes*/
-    sliderConfig.priceToggle.initialState = false;
     if (!adFormFieldsNodes.price.value) {
-      adFormFieldsNodes.price.value = Number(priceSlider.noUiSlider.get());
+      adFormFieldsNodes.price.value = Number(sliderContainer.noUiSlider.get());
     }
   });
-  priceSlider.noUiSlider.on('update', () => {
+  sliderContainer.noUiSlider.on('update', () => {
+    if (checkSlider()) {
+      disableSlider();
+      return;
+    } else {
+      enableSlider();
+    }
     /*console.log(assistantData);*/
     if (sliderConfig.priceToggle.slideToPriceBlocker) {
       return;
     }
     if (!sliderConfig.priceToggle.initialState) {/*prevent price validation onTypeSelct*/
       sliderConfig.priceToggle.priceToSlideBlocker = 1;
-      adFormFieldsNodes.price.value = Number(priceSlider.noUiSlider.get());
+      adFormFieldsNodes.price.value = Number(sliderContainer.noUiSlider.get());
       adFormFieldsNodes.price.dispatchEvent(new Event('input'));
       sliderConfig.priceToggle.priceToSlideBlocker = 0;
     }

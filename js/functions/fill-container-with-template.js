@@ -137,7 +137,7 @@ const prepareCardTemplateData = () => {
     Object.assign(data.newData, normalizeCardTemplate(data.newData, data.template.nickName));
     if (Object.values(data.newData.templates[data.template.nickName]).length) {
       /*recheck if it has the address, cannot be put on the map without the address*/
-      if(typeof data.newData.location !== 'undefined' && data.newData.location) {
+      if (typeof data.newData.location !== 'undefined' && data.newData.location) {
         data.newData.offer.hidden = false;
         normalizedAdsReturnToMap.push([fillContainer(false), data.newData.location, data.newData.offer]);
       }
